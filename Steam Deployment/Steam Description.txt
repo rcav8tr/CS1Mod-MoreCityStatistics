@@ -1,0 +1,55 @@
+Record and graph more city statistics.
+
+[h1]Detailed Description[/h1]
+This mod records and graphs 460 statistics over time ([url=https://steamcommunity.com/sharedfiles/filedetails/discussions/TBD]full list here[/url]), many more than the game's City Statistics graph.  Most statistics from the Info Views, the City Info panels, the Economy panel, and game limits are available to be graphed over time.  The game's City Statistics graph is not changed.
+
+Click on the More City Statistics button to view the graph.  The button and graph can be moved and the positions are remembered between games.
+
+A snapshot of statistics is taken on the first day of each game month at midnight.  If the [url=https://steamcommunity.com/sharedfiles/filedetails/?id=1420955187]Real Time[/url] mod is enabled, a snapshot is taken instead every game day at noon.
+
+Statistics are grouped into categories (e.g. Electricity, Water) to make it easier to find desired statistics.  Click on a category to expand the list of statistics available in that category.  Click on Expand All to expand all categories or Collapse All to collapse all categories.
+
+Click on a statistic to add it to the graph.  Click on the statistic again to remove it from the graph.  Click on Deselect All to remove all statistics from the graph.  Up to 10 statistics may be included at the same time.  Hover the cursor over a data point on the graph to view the detail for the data point.  Collapsing a category does not change the selection of statistics in the category.
+
+You can choose to show all snapshots or only a range of snapshots.  Select the From To option and move the sliders to zoom in on any year range.  If the [url=https://steamcommunity.com/sharedfiles/filedetails/?id=1420955187]Real Time[/url] mod is enabled, the sliders instead zoom in on any date range.
+
+Category expansions, statistic selections, and year/date range selections are saved with the game so you can have different settings for each game.
+
+If the graph has more than 300 data points (i.e. 25 years at 1 snapshot per month), adjacent data points are averaged together to reduce the amount of data on the graph.
+
+See [url=https://steamcommunity.com/sharedfiles/filedetails/discussions/TBD]Statistics Details[/url] for more information about the statistics.
+
+[h1]Options[/h1]
+Options work only while in a game.  Options have no effect from the main menu or while in an editor.
+
+Click the "Delete Snapshots" button to immediately delete all existing snapshots.  This can be used to restart snapshots from the current game date.
+
+The default is to "Save settings and snapshots with the game" (i.e. the option is checked).  When the option is not checked, no settings or snapshots will be saved with the game, including for Auto-Save.  This can be used to completely remove More City Statistics data from your game save file, for example if you are going to unsubscribe this mod.
+
+[h1]Compatibility[/h1]
+This mod is translated into all languages supported by the base game.  The translations were accomplished using a combination of the game's translations and Google Translate.  If a translation does not make sense, please provide an alternative.
+
+This mod is compatible with all Down Loadable Content (DLC) packages thru Sunset Harbor and all Content Creator Packs (CCP) thru Train Stations/Bridges & Piers.  This mod does not require any DLC or CCP to work properly.  A category or statistic unique to a DLC package is available only if that DLC is active.
+
+This mod is compatible with [url=https://steamcommunity.com/sharedfiles/filedetails/?id=1729576238]Date Changer[/url] mod.  If the date is changed, snapshots will be taken starting from that new date.  Previously taken snapshots will be overwritten if/when the game date reaches those snapshot dates.
+
+This mod is compatible with [url=https://steamcommunity.com/sharedfiles/filedetails/?id=412292157]More Simulation Speed Options[/url] and [url=https://steamcommunity.com/sharedfiles/filedetails/?id=1425061566]V10Speed[/url] mods which increase the game speed.  A snapshot is still taken on the first day of each game month.
+
+This mod is compatible with [url=https://steamcommunity.com/sharedfiles/filedetails/?id=406354745]Speed Slider (v2)[/url] which can increase the game speed but not enough to affect how often snapshots are taken and the mod can also drastically slow the game speed.  Therefore, a snapshot is still taken on the first day of each game month.
+
+This mod is compatible with [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2090425593]Game Speed mod[/url] mod which can slow the game speed, but not enough to affect how often snapshots are taken.  A snapshot is still taken on the first day of each game month.
+
+This mod is compatible with [url=https://steamcommunity.com/sharedfiles/filedetails/?id=1420955187]Real Time[/url] mod which drastically slows the game speed.  Instead of 1 snapshot per month, a snapshot is taken every game day at noon.  Instead of zooming in on years, the sliders zoom in on dates.
+
+This mod stores settings and snapshots in the save game file, but in a way that this mod can be safely disabled or unsubscribed at any time.  If this mod is disabled or unsubscribed, existing settings and snapshots remain in the game save file.  While in a game, uncheck the "Save settings and snapshots with the game" option and save the game if you want to remove settings and snapshots from the game save file.
+
+This mod does not alter the game mechanics in any way.
+
+This mod has been tested only on Windows but should work on Mac and Linux.
+
+[h1]Source Code[/h1]
+Available [url=https://github.com/rcav8tr/TBD]here[/url].
+Change notes [url=https://steamcommunity.com/sharedfiles/filedetails/changelog/TBD]here[/url].
+
+[h1]Acknowledgments[/h1]
+The development of this mod relied on the [url=https://steamcommunity.com/sharedfiles/filedetails/?id=450877484]ModTools[/url] mod by [url=https://steamcommunity.com/id/bloody_penguin/myworkshopfiles]BloodyPenguin[/url] to view the internal workings of Cities Skylines.
