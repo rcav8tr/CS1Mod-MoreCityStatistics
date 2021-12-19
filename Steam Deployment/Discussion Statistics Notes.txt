@@ -1,5 +1,5 @@
 The game computes "Availability" percent for some things (e.g. Electricity Availability).  Availability is not always useful.  Instead of availability, this mod computes used percent, which is a little like the inverse of the game's availability percent.  Used percent is computed as:  the amount of the thing used divided by the amount of the thing available.  For example, Electricity-Consumption percent is computed as:  Electricity-Consumption (MW) divided by Electricity-Production (MW).  Used percent can be above 100% (e.g. if you disable/bulldoze electricity production), but usually for only a brief time while the game logic reacts.  Here are some examples that compare availability percent to used percent for Electricity.  Note that the game does not show availability above 100%.[table]
-[b][tr][td]Consumption[/td][td]Production[/td][td]Availability[/td][td]Used[/td][/tr][/b]
+[tr][td][b]Consumption[/b][/td][td][b]Production[/b][/td][td][b]Availability[/b][/td][td][b]Used[/b][/td][/tr]
 [tr][td] 4 MW[/td][td]16 MW[/td][td]200.0%[/td][td] 25.0%[/td][/tr]
 [tr][td] 6 MW[/td][td]16 MW[/td][td]133.3%[/td][td] 37.5%[/td][/tr]
 [tr][td] 8 MW[/td][td]16 MW[/td][td]100.0%[/td][td] 50.0%[/td][/tr]
@@ -46,7 +46,7 @@ Many of the statistics are computed from other statistics.  For example, Profit 
 
 A single snapshot uses 1,615 bytes in the game save file.  The snapshot space in the game save file is listed below for various date ranges and the two snapshot frequencies.  For comparison, a new blank game is about 5-6MB.
 [table]
-[b][tr][td]Date range[/td][td]1/mo[/td][td]1/day[/td][/tr][/b]
+[tr][td][b]Date range[/b][/td][td][b]1/mo[/b][/td][td][b]1/day[/b][/td][/tr]
 [tr][td]1 month    [/td][td]1,615[/td][td] 49KB[/td][/tr]
 [tr][td]1 year     [/td][td] 19KB[/td][td]590KB[/td][/tr]
 [tr][td]10 years   [/td][td]194KB[/td][td]5.9MB[/td][/tr]

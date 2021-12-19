@@ -1,7 +1,7 @@
 Record and graph more city statistics.
 
 [h1]Detailed Description[/h1]
-This mod records and graphs 460 statistics over time ([url=https://steamcommunity.com/sharedfiles/filedetails/discussions/TBD]full list here[/url]), many more than the game's City Statistics graph.  Most statistics from the Info Views, the City Info panels, the Economy panel, and game limits are available to be graphed over time.  The game's City Statistics graph is not changed.
+This mod records and graphs 460 statistics over time ([url=https://steamcommunity.com/workshop/filedetails/discussion/2685974449/5545618081300254710/]full list here[/url]), many more than the game's City Statistics graph.  Most statistics from the Info Views, the City Info panels, the Economy panel, and game limits are available to be graphed over time.  The game's City Statistics graph is not changed.
 
 Click on the More City Statistics button to view the graph.  The button and graph can be moved and the positions are remembered between games.
 
@@ -17,7 +17,7 @@ Category expansions, statistic selections, and year/date range selections are sa
 
 If the graph has more than 300 data points (i.e. 25 years at 1 snapshot per month), adjacent data points are averaged together to reduce the amount of data on the graph.
 
-See [url=https://steamcommunity.com/sharedfiles/filedetails/discussions/TBD]Statistics Details[/url] for more information about the statistics.
+See [url=https://steamcommunity.com/workshop/filedetails/discussion/2685974449/5545618081300269948/]Statistics Notes[/url] for more information about the statistics.
 
 [h1]Options[/h1]
 Options work only while in a game.  Options have no effect from the main menu or while in an editor.
@@ -41,15 +41,15 @@ This mod is compatible with [url=https://steamcommunity.com/sharedfiles/filedeta
 
 This mod is compatible with [url=https://steamcommunity.com/sharedfiles/filedetails/?id=1420955187]Real Time[/url] mod which drastically slows the game speed.  Instead of 1 snapshot per month, a snapshot is taken every game day at noon.  Instead of zooming in on years, the sliders zoom in on dates.
 
-This mod stores settings and snapshots in the save game file, but in a way that this mod can be safely disabled or unsubscribed at any time.  If this mod is disabled or unsubscribed, existing settings and snapshots remain in the game save file.  While in a game, uncheck the "Save settings and snapshots with the game" option and save the game if you want to remove settings and snapshots from the game save file.
+This mod stores settings and snapshots in the game save file, but in a way that this mod can be safely disabled or unsubscribed at any time.  If this mod is disabled or unsubscribed, existing settings and snapshots remain in the game save file.  While in a game, uncheck the "Save settings and snapshots with the game" option and save the game if you want to remove settings and snapshots from the game save file.
 
 This mod does not alter the game mechanics in any way.
 
 This mod has been tested only on Windows but should work on Mac and Linux.
 
 [h1]Source Code[/h1]
-Available [url=https://github.com/rcav8tr/TBD]here[/url].
-Change notes [url=https://steamcommunity.com/sharedfiles/filedetails/changelog/TBD]here[/url].
+Available [url=https://github.com/rcav8tr/MoreCityStatistics]here[/url].
+Change notes [url=https://steamcommunity.com/sharedfiles/filedetails/changelog/2685974449]here[/url].
 
 [h1]Acknowledgments[/h1]
 The development of this mod relied on the [url=https://steamcommunity.com/sharedfiles/filedetails/?id=450877484]ModTools[/url] mod by [url=https://steamcommunity.com/id/bloody_penguin/myworkshopfiles]BloodyPenguin[/url] to view the internal workings of Cities Skylines.

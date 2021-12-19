@@ -361,7 +361,7 @@ namespace MoreCityStatistics
         private void FromSlider_eventValueChanged(UIComponent component, float value)
         {
             // update slider label
-            UpdateSliderLabel(_fromLabel, value);
+            UpdateSliderLabel(_fromLabel, _fromSlider);
 
             // update main panel only if using the sliders
             if (!ShowAll)
@@ -376,7 +376,7 @@ namespace MoreCityStatistics
         private void ToSlider_eventValueChanged(UIComponent component, float value)
         {
             // update slider label
-            UpdateSliderLabel(_toLabel, value);
+            UpdateSliderLabel(_toLabel, _toSlider);
 
             // update main panel only if using the sliders
             if (!ShowAll)
@@ -388,20 +388,20 @@ namespace MoreCityStatistics
         /// <summary>
         /// update the label associated with a slider
         /// </summary>
-        private void UpdateSliderLabel(UILabel label, float value)
+        private void UpdateSliderLabel(UILabel label, UISlider slider)
         {
-            // make sure label was created
-            if (label != null)
+            // make sure label and slider were created
+            if (label != null && slider != null)
             {
                 if (_realTimeModEnabled)
                 {
                     // compute and display date
-                    label.text = _sliderBaseDate.AddDays((int)value).Date.ToString("dd/MM/yyyy");
+                    label.text = _sliderBaseDate.AddDays((int)slider.value).Date.ToString("dd/MM/yyyy");
                 }
                 else
                 {
                     // display year
-                    label.text = ((int)value).ToString();
+                    label.text = ((int)slider.value).ToString();
                 }
                 label.Invalidate();
             }
@@ -412,8 +412,8 @@ namespace MoreCityStatistics
         /// </summary>
         private void UpdateSliderLabels()
         {
-            UpdateSliderLabel(_fromLabel, _fromSlider.value);
-            UpdateSliderLabel(_toLabel, _toSlider.value);
+            UpdateSliderLabel(_fromLabel, _fromSlider);
+            UpdateSliderLabel(_toLabel, _toSlider);
         }
 
         /// <summary>
