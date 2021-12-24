@@ -34,15 +34,15 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="ColossalManaged">
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\ColossalManaged.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\ColossalManaged.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="ICities">
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\ICities.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\ICities.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -52,7 +52,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="UnityEngine">
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
@@ -89,6 +89,19 @@
     <EmbeddedResource Include="Translations\CategoryDescription.csv" />
     <EmbeddedResource Include="Translations\StatisticDescription.csv" />
     <EmbeddedResource Include="Translations\StatisticUnits.csv" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Steam Deployment\Discussion Available Statistics.txt" />
+    <None Include="Steam Deployment\Discussion Statistics Notes.txt" />
+    <None Include="Steam Deployment\PreviewImage.png" />
+    <None Include="Steam Deployment\Screenshot Activation Button.jpg" />
+    <None Include="Steam Deployment\Screenshot Expanded Category.jpg" />
+    <None Include="Steam Deployment\Screenshot Selected Statistics.jpg" />
+    <None Include="Steam Deployment\Screenshot Zoomed In Data Point Detail.jpg" />
+    <None Include="Steam Deployment\Steam Description.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Steam Deployment\Screenshot Options.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

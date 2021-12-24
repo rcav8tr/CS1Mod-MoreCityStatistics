@@ -19,6 +19,9 @@ namespace MoreCityStatistics
         public float PanelPositionX = MainPanel.DefaultPositionX;
         public float PanelPositionY = MainPanel.DefaultPositionY;
 
+        // language code
+        public string LanguageCode = Options.GameLanguageCode;
+
         /// <summary>
         /// save the button position to the global config file
         /// </summary>
@@ -38,6 +41,16 @@ namespace MoreCityStatistics
             Configuration config = ConfigurationUtil<Configuration>.Load();
             config.PanelPositionX = position.x;
             config.PanelPositionY = position.y;
+            ConfigurationUtil<Configuration>.Save();
+        }
+
+        /// <summary>
+        /// save the language code to the global config file
+        /// </summary>
+        public static void SaveLanguageCode(string languageCode)
+        {
+            Configuration config = ConfigurationUtil<Configuration>.Load();
+            config.LanguageCode = languageCode;
             ConfigurationUtil<Configuration>.Save();
         }
     }

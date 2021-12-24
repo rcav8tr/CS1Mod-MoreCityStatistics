@@ -1,30 +1,21 @@
-﻿using ICities;
+﻿using ColossalFramework.Globalization;
+using ICities;
 
 namespace MoreCityStatistics
 {
     public class MoreCityStatistics : IUserMod
     {
-        // required name and description of this mod
-        public string Name => "More City Statistics";
-        public string Description => "Record and graph more city statistics";
-
-        /// <summary>
-        /// mod is enabled
-        /// </summary>
-        public void OnEnabled()
+        // translation keys
+        // enum member names must exactly match the translation keys in the Miscellaneous translation file
+        private enum TranslationKey
         {
-            // initialize translations
-            Translations.instance.Initialize();
+            Title,
+            Description
         }
 
-        /// <summary>
-        /// mod is disabled
-        /// </summary>
-        public void OnDisabled()
-        {
-            // deinitialize translations
-            Translations.instance.Deinitialize();
-        }
+        // required name and description of this mod, always in the game language (not the language selected in Options)
+        public string Name { get { return Translations.instance.Miscellaneous.Get(TranslationKey.Title.ToString(), LocaleManager.instance.language); } }
+        public string Description { get { return Translations.instance.Miscellaneous.Get(TranslationKey.Description.ToString(), LocaleManager.instance.language); } }
 
         /// <summary>
         /// user settings

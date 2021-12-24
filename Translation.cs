@@ -1,5 +1,4 @@
-﻿using ColossalFramework.Globalization;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -16,7 +15,7 @@ namespace MoreCityStatistics
     {
         // translations are in CSV files in the Translations folder of the project
         // translation files are embedded resources in the mod DLL
-        // translation files were created using LibreOffice Calc
+        // translation files were created and are maintained using LibreOffice Calc
 
         // translation file format:
         //      line 1: blank,language code 1,language code 2,...,language code n
@@ -28,18 +27,34 @@ namespace MoreCityStatistics
         // translation file rules:
         //      the file should contain a translation for every language code supported by the game
         //      the file must contain a translation for the default language code
+        //      the languages in the file do not need to be in the same order as SupportedLanguageCodes
         //      a blank translation will use the translation for the default language
         //      each language code, translation key, and translated text may or may not be enclosed in double quotes
         //      a blank line is skipped
-        //      a line without a translation key is skipped
+        //      a line without a translation key is skipped (except the first line)
         //      a translation key cannot be duplicated
         //      spaces around the comma separators will be included in the value
         //      to include a comma in the value, the value must be enclosed in double quotes
         //      to include a double quote in the value, use two double quotes inside the double quoted value
 
+        // supported language codes, sorted by language code
+        public static readonly string[] SupportedLanguageCodes = new string[]
+        {
+            "de",
+            "en",
+            "es",
+            "fr",
+            "ja",
+            "ko",
+            "pl",
+            "pt",
+            "ru",
+            "zh"
+        };
 
         // default language code
-        private const string DefaultLanguageCode = "en";    // English
+        // used when working with translation keys and as the language code when a translation is not present
+        public const string DefaultLanguageCode = "en";    // English
 
         // file from which translations were read
         private readonly string _fileName;
@@ -47,12 +62,12 @@ namespace MoreCityStatistics
         // translations for a single language
         // the dictionary key is the translation key
         // the dictionary value is the translated text for the key
-        private class TranslationLaguage : Dictionary<string, string> { }
+        private class TranslationLanguage : Dictionary<string, string> { }
 
         // translations for all languages in the file
         // the dictionary key is the language code
         // the dictionary value contains the translations for the language
-        private Dictionary<string, TranslationLaguage> _languages = new Dictionary<string, TranslationLaguage>();
+        private Dictionary<string, TranslationLanguage> _languages = new Dictionary<string, TranslationLanguage>();
 
         /// <summary>
         /// construct a translation from the specified filename
@@ -103,7 +118,7 @@ namespace MoreCityStatistics
                     languageCodes.Add(languageCode);
 
                     // initialize empty language
-                    _languages[languageCode] = new TranslationLaguage();
+                    _languages[languageCode] = new TranslationLanguage();
 
                     // get next language code
                     languageCode = ReadCSVValue(reader);
@@ -115,6 +130,16 @@ namespace MoreCityStatistics
             {
                 LogUtil.LogError($"Translation file [{translationFile}] must contain translations for default language code [{DefaultLanguageCode}].");
                 return;
+            }
+
+            // translations must contain all the supported language codes
+            foreach (string languageCode in SupportedLanguageCodes)
+            {
+                if (!_languages.ContainsKey(languageCode))
+                {
+                    LogUtil.LogError($"Translation file [{translationFile}] must contain a translation for supported language code [{languageCode}].");
+                    return;
+                }
             }
 
             // read each subsequent line
@@ -214,13 +239,27 @@ namespace MoreCityStatistics
         }
 
         /// <summary>
-        /// get the translation of the key using the current language
+        /// get the translation of the key using the language selected in Options
         /// </summary>
         public string Get(string translationKey)
         {
-            // get translations for the current language
-            string languageCode = LocaleManager.instance.language;
-            if (!_languages.TryGetValue(languageCode, out TranslationLaguage translationLanguage))
+            return Get(translationKey, Options.instance.GetLanguageCode());
+        }
+
+        /// <summary>
+        /// get the translation of the key using the specified language
+        /// </summary>
+        public string Get(string translationKey, string languageCode)
+        {
+            // if language code is not supported, then use default language code
+            // this can happen when a mod is used to add a language to the game and that language is not supported by this mod
+            if (!SupportedLanguageCodes.Contains(languageCode))
+            {
+                languageCode = DefaultLanguageCode;
+            }
+
+            // get translations for the language
+            if (!_languages.TryGetValue(languageCode, out TranslationLanguage translationLanguage))
             {
                 LogUtil.LogError($"Unknown language code [{languageCode}] when getting translation for key [{translationKey}] in file [{_fileName}].");
                 return translationKey;

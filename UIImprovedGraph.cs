@@ -790,7 +790,7 @@ namespace MoreCityStatistics
                         // for other dates, show month name
                         else
                         {
-                            dateLabel = date.ToString("MMM", LocaleManager.cultureInfo);
+                            dateLabel = GetMonthLabel(date);
                         }
                     }
                     else
@@ -798,7 +798,7 @@ namespace MoreCityStatistics
                         // for first of the month, show month name
                         if (date.Day == 1)
                         {
-                            dateLabel = date.ToString("MMM", LocaleManager.cultureInfo);
+                            dateLabel = GetMonthLabel(date);
                         }
                         // for other days, show day number
                         else
@@ -902,6 +902,14 @@ namespace MoreCityStatistics
             corner1 = new Vector2(-0.5f + _graphRect.xMin, normalizedY - pixelRatio * lineWidth);
             corner2 = new Vector2(corner1.x + _graphRect.width, normalizedY + pixelRatio * lineWidth);
             DrawAxisLine(Vector3.Scale(corner1, baseSize) + center, Vector3.Scale(corner2, baseSize) + center, lineColor, vertices, triangles, uvs, colors);
+        }
+
+        /// <summary>
+        /// get translated month label
+        /// </summary>
+        private string GetMonthLabel(DateTime date)
+        {
+            return Translations.instance.Miscellaneous.Get("Month" + date.Month);
         }
 
         /// <summary>

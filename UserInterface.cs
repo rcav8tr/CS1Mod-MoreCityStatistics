@@ -137,6 +137,14 @@ namespace MoreCityStatistics
         /// </summary>
         private void LocaleManager_eventLocaleChanged()
         {
+            UpdateUI();
+        }
+
+        /// <summary>
+        /// update UI when language changes
+        /// </summary>
+        public void UpdateUI()
+        {
             // update the button
             if (_activationButton != null)
             {

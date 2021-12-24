@@ -36,6 +36,8 @@ namespace MoreCityStatistics
                         // load the config file into a the instance
                         using (StreamReader streamReader = new StreamReader(configFile))
                         {
+                            // if a value from C is missing in the file, no exception is thrown, the value in C is simply not updated
+                            // this is one reason why each config value in C must have a default value
                             XmlSerializer xmlSerializer = new XmlSerializer(typeof(C));
                             instance = xmlSerializer.Deserialize(streamReader) as C;
                         }
@@ -43,6 +45,7 @@ namespace MoreCityStatistics
                     else
                     {
                         // no config file, create a new instance of the config class
+                        // this is one reason why each config value in C must have a default value
                         instance = new C();
                     }
                 }
