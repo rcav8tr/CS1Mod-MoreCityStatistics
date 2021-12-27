@@ -19,15 +19,17 @@ If the graph has more than 300 data points (i.e. 25 years at 1 snapshot per mont
 
 See [url=https://steamcommunity.com/workshop/filedetails/discussion/2685974449/5545618081300269948/]Statistics Notes[/url] for more information about the statistics.
 
-[h1]General Options[/h1]
+[h3]General Options[/h3]
 You can choose to use the "Game language" (default) or a specific language for text.  "Game language" means the language chosen in the game's Gameplay options.  If "Game language" is chosen and the game's language is not supported, text defaults to English.
 
 Regardless of the language chosen for this mod, if the game's language is one of the base game's languages (i.e not due to a mod), numbers are formatted according to the game's language.  If the game's language is some other language due to a mod, numbers use a default format.
 
-[h1]In Game Options[/h1]
-These options work only while in a game (i.e. they have no effect from the main menu or while in an editor).
+[h3]In Game Options[/h3]
+These options are available only while in a game (i.e. they are hidden when viewing options from the main menu or from an editor).
 
-Click the "Delete Snapshots" button to immediately delete all existing snapshots.  This can be used to restart snapshots from the current game date.
+Click the "Export All Statistics" button to export all statistics to a file.  Click the "Export Selected Statistics" button to export only the statistics currently selected on the graph.  The location and name of the file is shown and cannot be changed.  Even though the file has a "csv" extension (for Comma Separated Values), the file uses the tab character as a separator because some languages use a comma as a decimal symbol for numbers.  The file includes all snapshots.  Snapshot dates in the file are formatted using your system short date format, which may be different than the format of dates in the game.  The exported data can be used for further analysis, for example in a spreadsheet program.
+
+Click the "Delete Snapshots" button to immediately delete all existing snapshots.  This can be used to restart snapshots from the current game date, for example if don't care about the history.
 
 The default is to "Save settings and snapshots with the game" (i.e. the option is checked).  When the option is not checked, no settings or snapshots will be saved with the game, including for Auto-Save.  This can be used to completely remove More City Statistics data from your game save file, for example if you are going to unsubscribe this mod.
 

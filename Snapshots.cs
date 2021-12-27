@@ -1,8 +1,12 @@
-﻿using ICities;
+﻿using ColossalFramework.Globalization;
+using ColossalFramework.UI;
+using ICities;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Text;
 using System.Threading;
 
 namespace MoreCityStatistics
@@ -19,6 +23,15 @@ namespace MoreCityStatistics
 
         // miscellaneous public
         public bool Loaded;
+
+        // exporting
+        private string ExportPath { get { return ColossalFramework.IO.DataLocation.localApplicationData; } }
+        public string ExportPathFile { get { return Path.Combine(ExportPath, "MoreCityStatistics.csv"); } }
+        public enum StatisticsToExport
+        {
+            All,
+            Selected
+        }
 
         // flags
         private bool _initialized;
@@ -158,6 +171,93 @@ namespace MoreCityStatistics
             {
                 // make sure thread is unlocked
                 UnlockThread();
+            }
+        }
+
+        /// <summary>
+        /// export selected or all statistics to a file
+        /// </summary>
+        public void Export(StatisticsToExport statisticsToExport)
+        {
+            // make sure export path exists
+            if (!Directory.Exists(ExportPath))
+            {
+                LogUtil.LogError("Export directory not found:" + Environment.NewLine + ExportPath);
+                return;
+            }
+
+            // no need to lock the thread here because this routine is called only from the Pause menu options,
+            // which pauses the simulation, which prevents any new snapshots from being taken
+
+            try
+            {
+                // get statistics to export
+                Statistics statistics = (statisticsToExport == StatisticsToExport.All ? Categories.instance.AllStatistics : Categories.instance.SelectedStatistics);
+
+                // get the snapshot field/property for each statistic
+                // every statistic has either a field or a property in a snapshot
+                FieldInfo[] snapshotFields = new FieldInfo[statistics.Count];
+                PropertyInfo[] snapshotProperties = new PropertyInfo[statistics.Count];
+                for (int i = 0; i < statistics.Count; i++)
+                {
+                    Snapshot.GetFieldProperty(statistics[i].Type, out snapshotFields[i], out snapshotProperties[i]);
+                }
+
+                // create the file, overwriting existing file
+                using (StreamWriter writer = new StreamWriter(ExportPathFile, false))
+                {
+                    // write heading row
+                    const string Separator = "\t";
+                    StringBuilder heading = new StringBuilder("\"" + Translation.instance.Get(Translation.Key.SnapshotDate) + "\"");
+                    foreach (Statistic statistic in statistics)
+                    {
+                        heading.Append(Separator + "\"" + statistic.CategoryDescriptionUnits.Replace("\"", "\"\"") + "\"");
+                    }
+                    writer.WriteLine(heading);
+
+                    // do each snapshot
+                    foreach (Snapshot snapshot in _instance)
+                    {
+                        // construct snapshot row starting with snapshot date
+                        StringBuilder row = new StringBuilder(snapshot.SnapshotDate.ToShortDateString(), 1024);
+
+                        // append each statistic value to the row
+                        for (int i = 0; i < statistics.Count; i++)
+                        {
+                            // get the snapshot value from either the field or the property
+                            object snapshotValue = null;
+                            if (snapshotFields[i] != null)
+                            {
+                                snapshotValue = snapshotFields[i].GetValue(snapshot);
+                            }
+                            else if (snapshotProperties[i] != null)
+                            {
+                                snapshotValue = snapshotProperties[i].GetValue(snapshot, null);
+                            }
+
+                            // add the snapshot value to the total and count it
+                            if (snapshotValue == null)
+                            {
+                                // append only the separator
+                                row.Append(Separator);
+                            }
+                            else
+                            {
+                                // append the separator and the value
+                                row.Append(Separator + Convert.ToDouble(snapshotValue).ToString("F2", LocaleManager.cultureInfo));
+                            }
+                        }
+
+                        // write the row
+                        writer.WriteLine(row);
+                    }
+                }
+
+                LogUtil.LogInfo($"Exported {_instance.Count} snapshots for {statistics.Count} statistics to file:" + Environment.NewLine + ExportPathFile);
+            }
+            catch (Exception ex)
+            {
+                LogUtil.LogException(ex);
             }
         }
 

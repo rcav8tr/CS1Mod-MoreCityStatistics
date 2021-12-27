@@ -25,17 +25,6 @@ namespace MoreCityStatistics
         private UILabel _selected;
         private UIButton _deselectAll;
 
-        // translation keys
-        // enum member names must exactly match the translation keys in the Miscellaneous translation file
-        private enum TranslationKey
-        {
-            Title,
-            ExpandAll,
-            CollapseAll,
-            Selected,
-            DeselectAll
-        }
-
         /// <summary>
         /// Start is called after the panel is created
         /// set up the panel
@@ -455,13 +444,13 @@ namespace MoreCityStatistics
         public void UpdateUIText()
         {
             // update panel title
-            Translation translationMiscellaneous = Translations.instance.Miscellaneous;
-            _title.text = translationMiscellaneous.Get(TranslationKey.Title.ToString());
+            Translation translation = Translation.instance;
+            _title.text = translation.Get(Translation.Key.Title);
 
             // update options buttons
-            _expandAll.text = translationMiscellaneous.Get(TranslationKey.ExpandAll.ToString());
-            _collapseAll.text = translationMiscellaneous.Get(TranslationKey.CollapseAll.ToString());
-            _deselectAll.text = translationMiscellaneous.Get(TranslationKey.DeselectAll.ToString());
+            _expandAll.text = translation.Get(Translation.Key.ExpandAll);
+            _collapseAll.text = translation.Get(Translation.Key.CollapseAll);
+            _deselectAll.text = translation.Get(Translation.Key.DeselectAll);
 
             // update shows years
             ShowRange.instance.UpdateUIText();
@@ -477,7 +466,7 @@ namespace MoreCityStatistics
         {
             // update the selected statistics
             // the user interface logic prevents the count from being more than the maximum
-            _selected.text = string.Format(Translations.instance.Miscellaneous.Get(TranslationKey.Selected.ToString()), Categories.instance.CountSelected, MaximumSelectedStatistics);
+            _selected.text = string.Format(Translation.instance.Get(Translation.Key.Selected), Categories.instance.CountSelected, MaximumSelectedStatistics);
 
             // clear the graph
             _graph.Clear();

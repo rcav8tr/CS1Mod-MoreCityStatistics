@@ -1,5 +1,7 @@
-﻿using ICities;
+﻿using ColossalFramework.UI;
+using ICities;
 using System;
+using System.Reflection;
 
 namespace MoreCityStatistics
 {
@@ -37,6 +39,11 @@ namespace MoreCityStatistics
             {
                 LogUtil.LogException(ex);
             }
+            finally
+            {
+                // refresh options
+                RefreshOptions();
+            }
         }
 
         public override void OnLevelUnloading()
@@ -47,7 +54,6 @@ namespace MoreCityStatistics
             try
             {
                 // deinitialize
-                // do NOT deinitialize translations because they are needed for Options
                 ShowRange.instance.Deinitialize();
                 Categories.instance.Deinitialize();
                 Snapshots.instance.Deinitialize();
@@ -61,6 +67,26 @@ namespace MoreCityStatistics
             {
                 // game is not loaded
                 IsGameLoaded = false;
+
+                // refresh options
+                RefreshOptions();
+            }
+        }
+
+        /// <summary>
+        /// refresh plugins on the the main options panel
+        /// </summary>
+        private void RefreshOptions()
+        {
+            // this will trigger MoreCityStatistics.OnSettingsUI which calls Options.CreateUI to recreate this mod's Options UI with or without the in-game options
+            MethodInfo refreshPlugins = typeof(OptionsMainPanel).GetMethod("RefreshPlugins", BindingFlags.Instance | BindingFlags.NonPublic);
+            if (refreshPlugins != null)
+            {
+                OptionsMainPanel optionsMainPanel = UIView.library.Get<OptionsMainPanel>("OptionsPanel");
+                if (optionsMainPanel != null)
+                {
+                    refreshPlugins.Invoke(optionsMainPanel, new object[] { });
+                }
             }
         }
     }

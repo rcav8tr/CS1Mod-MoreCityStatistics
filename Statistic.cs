@@ -1,8 +1,5 @@
 ﻿using ColossalFramework.UI;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using UnityEngine;
 
 namespace MoreCityStatistics
@@ -162,239 +159,12 @@ namespace MoreCityStatistics
             GameLimitsZoneBlocksUsedPercent, GameLimitsZoneBlocksUsed, GameLimitsZoneBlocksCapacity
         }
 
-        // description translation keys
-        // enum member names must exactly match the translation keys in the StatisticDescription translation file
-        public enum DescriptionKey
-        {
-            None,
-            Consumption,
-            Production,
-            PumpingCapacity,
-            Reserved,
-            StorageCapacity,
-            DrainingCapacity,
-            Storage,
-            Capacity,
-            ProcessingCapacity,
-            Elementary,
-            HighSchool,
-            University,
-            PublicLibrary,
-            Eligible,
-            Users,
-            Uneducated,
-            Educated,
-            WellEducated,
-            HighlyEducated,
-            Global,
-            Residential,
-            Commercial,
-            Industrial,
-            Office,
-            Unzoned,
-            AverageHealth,
-            Sick,
-            HealCapacity,
-            Cemetery,
-            Buried,
-            Crematorium,
-            Deceased,
-            DeathRate,
-            SickChildrenTeens,
-            ChildrenTeens,
-            BirthRate,
-            SickSeniors,
-            AverageLifeSpan,
-            Average,
-            Level1,
-            Level2,
-            Level3,
-            Level4,
-            Level5,
-            IndustrialOffice,
-            Flow,
-            Ground,
-            DrinkingWater,
-            Noise,
-            Hazard,
-            Rate,
-            DetainedCriminals,
-            JailsCapacity,
-            Total,
-            Bus,
-            Trolleybus,
-            Tram,
-            Metro,
-            Train,
-            Ship,
-            Air,
-            Monorail,
-            CableCar,
-            Taxi,
-            Children,
-            Teens,
-            YoungAdults,
-            Adults,
-            Seniors,
-            Occupied,
-            Available,
-            PeopleEmployed,
-            JobsAvailable,
-            UnfilledJobs,
-            Unemployment,
-            Unemployed,
-            EligibleWorkers,
-            Import,
-            Export,
-            Goods,
-            Forestry,
-            Farming,
-            Ore,
-            Oil,
-            Mail,
-            Fish,
-            Forest,
-            FertileLand,
-            Used,
-            CityAttractiveness,
-            LowWealth,
-            MediumWealth,
-            HighWealth,
-            ExchangeStudentBonus,
-            WalkingTour,
-            SightseeingBus,
-            Balloon,
-            Income,
-            Expenses,
-            Profit,
-            BankBalance,
-            LowDensity,
-            HighDensity,
-            SelfSufficient,
-            SpecializedTotal,
-            Leisure,
-            Tourism,
-            OrganicAndLocalProduce,
-            Generic,
-            ITCluster,
-            CommercialZones,
-            PublicTransportation,
-            Roads,
-            Electricity,
-            WaterSewage,
-            WaterSewageHeating,
-            Garbage,
-            Healthcare,
-            Fire,
-            Emergency,
-            Police,
-            Education,
-            ParksPlazasLandscaping,
-            UniqueBuildings,
-            GenericSportsArenas,
-            Loans,
-            Policies,
-            CityPark,
-            AmusementPark,
-            Zoo,
-            NatureReserve,
-            WarehousesAndFactories,
-            FishingIndustry,
-            TradeSchool,
-            LiberalArtsCollege,
-            Tours,
-            TollBooth,
-            SpaceElevator,
-            Buildings,
-            Citizens,
-            CitizenUnits,
-            CitizenInstances,
-            Disasters,
-            Districts,
-            Events,
-            GameAreas,
-            NetworkSegments,
-            NetworkNodes,
-            NetworkLanes,
-            ParkAreas,
-            IndustryAreas,
-            CampusAreas,
-            ParkIndustryAreas,
-            ParkCampusAreas,
-            IndustryCampusAreas,
-            ParkIndustryCampusAreas,
-            PathUnits,
-            Props,
-            RadioChannels,
-            RadioContents,
-            TransportLines,
-            Trees,
-            Vehicles,
-            VehiclesParked,
-            ZoneBlocks
-        }
-
-        // units translation keys
-        // enum member names must exactly match the translation keys in the StatisticUnits translation file
-        public enum UnitsKey
-        {
-            PctOfProduction,
-            MegaWatts,
-            PctOfPumpingCapacity,
-            CubicMetersPerWeek,
-            PctOfStorageCapacity,
-            CubicMeters,
-            PctOfDrainingCapacity,
-            PctOfCapacity,
-            Units,
-            PctOfProcessingCapacity,
-            UnitsPerWeek,
-            Students,
-            Visitors,
-            PctOfPopulation,
-            Citizens,
-            Percent,
-            PctOfHealCapacity,
-            CitizensPerWeek,
-            PctOfChildrenTeens,
-            PctOfSeniors,
-            Years,
-            Level1To5,
-            Level1To3,
-            PctOfResidential,
-            PctOfCommercial,
-            PctOfIndustrial,
-            PctOfOffice,
-            PctOfJailsCapacity,
-            TotalPerWeek,
-            ResidentsPerWeek,
-            TouristsPerWeek,
-            PctOfAvailable,
-            Squares,
-            Households,
-            Jobs,
-            HouseholdsPlusJobs,
-            PctOfEligible,
-            PctOfForestAvailable,
-            PctOfFertileLandAvailable,
-            PctPerWeekOfOreAvailable,
-            PctPerWeekOfOilAvailable,
-            PctOfTotal,
-            Hectare,
-            PctOfCityIncome,
-            PctOfCityExpenses,
-            MoneyPerSquareMeter,
-            MoneyPerWeek,
-            Money,
-            Amount
-        }
-
         // main properties set by the constructor
         private readonly Category _category;
         private readonly StatisticType _type;
-        private readonly DescriptionKey _descriptionKey1;
-        private readonly DescriptionKey _descriptionKey2;
-        private readonly UnitsKey _unitsKey;
+        private readonly Translation.Key _descriptionKey1;
+        private readonly Translation.Key _descriptionKey2;
+        private readonly Translation.Key _unitsKey;
         private readonly Color32 _textColor;
 
         // properties needed for UI operations
@@ -417,7 +187,7 @@ namespace MoreCityStatistics
         /// <summary>
         /// constructor to set main and other properties
         /// </summary>
-        public Statistic(Category category, StatisticType type, DescriptionKey descriptionKey1, DescriptionKey descriptionKey2, UnitsKey unitsKey, Color32 textColor)
+        public Statistic(Category category, StatisticType type, Translation.Key descriptionKey1, Translation.Key descriptionKey2, Translation.Key unitsKey, Color32 textColor)
         {
             // save params
             _category = category;
@@ -428,21 +198,21 @@ namespace MoreCityStatistics
             _textColor = textColor;
 
             // description key depends on DLC
-            if (_descriptionKey1 == DescriptionKey.WaterSewage && SteamHelper.IsDLCOwned(SteamHelper.DLC.SnowFallDLC))
+            if (_descriptionKey1 == Translation.Key.WaterSewage && SteamHelper.IsDLCOwned(SteamHelper.DLC.SnowFallDLC))
             {
-                _descriptionKey1 = DescriptionKey.WaterSewageHeating;
+                _descriptionKey1 = Translation.Key.WaterSewageHeating;
             }
-            if (_descriptionKey1 == DescriptionKey.ParkIndustryCampusAreas)
+            if (_descriptionKey1 == Translation.Key.ParkIndustryCampusAreas)
             {
                 bool dlcParkLife   = SteamHelper.IsDLCOwned(SteamHelper.DLC.ParksDLC);               // 05/24/18
                 bool dlcIndustries = SteamHelper.IsDLCOwned(SteamHelper.DLC.IndustryDLC);            // 10/23/18
                 bool dlcCampus     = SteamHelper.IsDLCOwned(SteamHelper.DLC.CampusDLC);              // 05/21/19
-                if      ( dlcParkLife && !dlcIndustries && !dlcCampus) { _descriptionKey1 = DescriptionKey.ParkAreas;           }
-                else if (!dlcParkLife &&  dlcIndustries && !dlcCampus) { _descriptionKey1 = DescriptionKey.IndustryAreas;       }
-                else if (!dlcParkLife && !dlcIndustries &&  dlcCampus) { _descriptionKey1 = DescriptionKey.CampusAreas;         }
-                else if ( dlcParkLife &&  dlcIndustries && !dlcCampus) { _descriptionKey1 = DescriptionKey.ParkIndustryAreas;   }
-                else if ( dlcParkLife && !dlcIndustries &&  dlcCampus) { _descriptionKey1 = DescriptionKey.ParkCampusAreas;     }
-                else if (!dlcParkLife &&  dlcIndustries &&  dlcCampus) { _descriptionKey1 = DescriptionKey.IndustryCampusAreas; }
+                if      ( dlcParkLife && !dlcIndustries && !dlcCampus) { _descriptionKey1 = Translation.Key.ParkAreas;           }
+                else if (!dlcParkLife &&  dlcIndustries && !dlcCampus) { _descriptionKey1 = Translation.Key.IndustryAreas;       }
+                else if (!dlcParkLife && !dlcIndustries &&  dlcCampus) { _descriptionKey1 = Translation.Key.CampusAreas;         }
+                else if ( dlcParkLife &&  dlcIndustries && !dlcCampus) { _descriptionKey1 = Translation.Key.ParkIndustryAreas;   }
+                else if ( dlcParkLife && !dlcIndustries &&  dlcCampus) { _descriptionKey1 = Translation.Key.ParkCampusAreas;     }
+                else if (!dlcParkLife &&  dlcIndustries &&  dlcCampus) { _descriptionKey1 = Translation.Key.IndustryCampusAreas; }
             }
 
             // compute line color from text color
@@ -831,14 +601,14 @@ namespace MoreCityStatistics
         public void UpdateUIText()
         {
             // obtain the translated description, which may or may not have a second part
-            string description = Translations.instance.StatisticDescription.Get(_descriptionKey1.ToString());
-            if (_descriptionKey2 != DescriptionKey.None)
+            string description = Translation.instance.Get(_descriptionKey1);
+            if (_descriptionKey2 != Translation.Key.None)
             {
-                description += "-" + Translations.instance.StatisticDescription.Get(_descriptionKey2.ToString());
+                description += "-" + Translation.instance.Get(_descriptionKey2);
             }
 
             // obtain the translated units
-            _units = Translations.instance.StatisticUnits.Get(_unitsKey.ToString());
+            _units = Translation.instance.Get(_unitsKey);
 
             // combine description and units
             _descriptionUnits = description + " (" + _units + ")";
@@ -854,126 +624,6 @@ namespace MoreCityStatistics
             {
                 _label.text = _descriptionUnits;
                 _label.textColor = _textColor;
-            }
-        }
-
-        /// <summary>
-        /// verify statistic
-        /// </summary>
-        public static void Verify()
-        {
-            // verify statistic types
-            StatisticType[] statisticTypes = (StatisticType[])Enum.GetValues(typeof(StatisticType));
-            foreach (StatisticType statisticType in statisticTypes)
-            {
-                // verify statistic type is created exactly once in all categories
-                int found = 0;
-                foreach (Category category in Categories.instance)
-                {
-                    foreach (Statistic statistic in category.Statistics)
-                    {
-                        if (statisticType == statistic.Type)
-                        {
-                            found++;
-                        }
-                    }
-                }
-                if (found != 1)
-                {
-                    LogUtil.LogError($"Statistic type [{statisticType}] is created {found} times, but should be created exactly once.");
-                }
-
-                // verify statistic type has a field or property in the snapshot
-                Snapshot.GetFieldProperty(statisticType, out FieldInfo field, out PropertyInfo property);
-                if (field == null && property == null)
-                {
-                    LogUtil.LogError($"Statistic type [{statisticType}] is not defined as a field or property in the snapshot.");
-                }
-            }
-
-            // verify every field and property in the snapshot (except SnapshotDate) has a statistic type
-            List<string> fieldPropertyNames = new List<string>();
-            foreach (FieldInfo field in typeof(Snapshot).GetFields(BindingFlags.Public | BindingFlags.Instance))
-            {
-                fieldPropertyNames.Add(field.Name);
-            }
-            foreach (PropertyInfo property in typeof(Snapshot).GetProperties(BindingFlags.Public | BindingFlags.Instance))
-            {
-                fieldPropertyNames.Add(property.Name);
-            }
-            foreach (string fieldPropertyName in fieldPropertyNames)
-            {
-                if (fieldPropertyName != "SnapshotDate")
-                {
-                    bool found = false;
-                    foreach (StatisticType statisticType in statisticTypes)
-                    {
-                        if (fieldPropertyName == statisticType.ToString())
-                        {
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found)
-                    {
-                        LogUtil.LogError($"Snapshot field/property [{fieldPropertyName}] is not defined as a statistic type.");
-                    }
-                }
-            }
-
-            // verify every description key enum value (except None) has a description key in the translation file
-            Translation translationStatisticDescription = Translations.instance.StatisticDescription;
-            DescriptionKey[] descriptionKeyEnumValues = (DescriptionKey[])Enum.GetValues(typeof(DescriptionKey));
-            foreach (DescriptionKey descriptionKeyEnumValue in descriptionKeyEnumValues)
-            {
-                if (descriptionKeyEnumValue != DescriptionKey.None)
-                {
-                    _ = translationStatisticDescription.Get(descriptionKeyEnumValue.ToString());
-                }
-            }
-
-            // verify every description key in the translation file has a description key enum value
-            foreach (string translationDescriptionKey in translationStatisticDescription.GetKeys())
-            {
-                bool found = false;
-                foreach (DescriptionKey descriptionKeyEnumValue in descriptionKeyEnumValues)
-                {
-                    if (translationDescriptionKey == descriptionKeyEnumValue.ToString())
-                    {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found)
-                {
-                    LogUtil.LogError($"Statistic description translation key [{translationDescriptionKey}] in the translation file does not have a description key enum value.");
-                }
-            }
-
-            // verify every units key enum value has a units key in the translation file
-            Translation translationStatisticUnits = Translations.instance.StatisticUnits;
-            UnitsKey[] unitsKeyEnumValues = (UnitsKey[])Enum.GetValues(typeof(UnitsKey));
-            foreach (UnitsKey unitsKeyEnumValue in unitsKeyEnumValues)
-            {
-                _ = translationStatisticUnits.Get(unitsKeyEnumValue.ToString());
-            }
-
-            // verify every units key in the translation file has a units key enum value
-            foreach (string translationUnitsKey in translationStatisticUnits.GetKeys())
-            {
-                bool found = false;
-                foreach (UnitsKey unitsKeyEnumValue in unitsKeyEnumValues)
-                {
-                    if (translationUnitsKey == unitsKeyEnumValue.ToString())
-                    {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found)
-                {
-                    LogUtil.LogError($"Statistic units translation key [{translationUnitsKey}] in the translation file does not have a units key enum value.");
-                }
             }
         }
 

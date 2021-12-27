@@ -1,5 +1,4 @@
 ﻿using ColossalFramework.UI;
-using System;
 using System.IO;
 using UnityEngine;
 
@@ -62,62 +61,9 @@ namespace MoreCityStatistics
             GameLimits
         }
 
-        // description translation keys
-        // enum member names must exactly match the translation keys in the CategoryDescription translation file
-        // most description keys are the same as the CategoryType
-        public enum DescriptionKey
-        {
-            Electricity,
-            Water,
-            WaterTank,
-            Sewage,
-            Landfill,
-            Garbage,
-            Education,
-            EducationLevel,
-            Happiness,
-            Healthcare,
-            Deathcare,
-            Childcare,
-            Eldercare,
-            Zoning,
-            ZoneLevel,
-            ZoneBuildings,
-            ZoneDemand,
-            Traffic,
-            Pollution,
-            FireSafety,
-            Crime,
-            PublicTransportation,
-            Population,
-            Households,
-            Employment,
-            OutsideConnections,
-            LandValue,
-            NaturalResources,
-            Heating,
-            Tourism,
-            Tours,
-            TaxRate,
-            CityEconomy,
-            ResidentialIncome,
-            CommercialIncome,
-            IndustrialIncome,
-            OfficeIncome,
-            TourismIncome,
-            ServiceExpenses,
-            ParkAreas,
-            IndustryAreas,
-            Fishing,
-            CampusAreas,
-            TransportEconomy,
-            GameLimits
-        }
-
-
         // main properties set by the constructor
         private readonly CategoryType _type;
-        private readonly DescriptionKey _descriptionKey;
+        private readonly Translation.Key _descriptionKey;
         private readonly Statistics _statistics;
 
         // properties needed by the UI
@@ -132,7 +78,7 @@ namespace MoreCityStatistics
         /// <summary>
         /// constructor to set main properties
         /// </summary>
-        public Category(CategoryType type, DescriptionKey descriptionKey)
+        public Category(CategoryType type, Translation.Key descriptionKey)
         {
             // initialize
             _type = type;
@@ -140,9 +86,9 @@ namespace MoreCityStatistics
             _statistics = new Statistics();
 
             // description key depends on DLC
-            if (_descriptionKey == DescriptionKey.IndustryAreas && SteamHelper.IsDLCOwned(SteamHelper.DLC.UrbanDLC) && !SteamHelper.IsDLCOwned(SteamHelper.DLC.IndustryDLC))
+            if (_descriptionKey == Translation.Key.IndustryAreas && SteamHelper.IsDLCOwned(SteamHelper.DLC.UrbanDLC) && !SteamHelper.IsDLCOwned(SteamHelper.DLC.IndustryDLC))
             {
-                _descriptionKey = DescriptionKey.Fishing;
+                _descriptionKey = Translation.Key.Fishing;
             }
 
             // initialize UI text
@@ -294,7 +240,7 @@ namespace MoreCityStatistics
         public void UpdateUIText()
         {
             // obtain the translated description
-            _description = Translations.instance.CategoryDescription.Get(_descriptionKey.ToString());
+            _description = Translation.instance.Get(_descriptionKey);
 
             // update the label
             if (_label != null)
@@ -304,56 +250,6 @@ namespace MoreCityStatistics
 
             // update the statistics
             _statistics.UpdateUIText();
-        }
-
-        /// <summary>
-        /// verify category
-        /// </summary>
-        public static void Verify()
-        {
-            // verify category types
-            foreach (CategoryType categoryType in Enum.GetValues(typeof(CategoryType)))
-            {
-                // verify category type is created exactly once
-                int found = 0;
-                foreach (Category category in Categories.instance)
-                {
-                    if (categoryType == category.Type)
-                    {
-                        found++;
-                    }
-                }
-                if (found != 1)
-                {
-                    LogUtil.LogError($"Category type [{categoryType}] is created {found} times, but should be created exactly once.");
-                }
-            }
-
-            // verify every description key enum value has a description key in the translation file
-            Translation translationCategoryDescription = Translations.instance.CategoryDescription;
-            DescriptionKey[] descriptionKeyValues = (DescriptionKey[])Enum.GetValues(typeof(DescriptionKey));
-            foreach (DescriptionKey descriptionKeyValue in descriptionKeyValues)
-            {
-                _ = translationCategoryDescription.Get(descriptionKeyValue.ToString());
-            }
-
-            // verify every description key in the translation file has a description key enum value
-            foreach (string descriptionKey in translationCategoryDescription.GetKeys())
-            {
-                bool found = false;
-                foreach (DescriptionKey descriptionKeyValue in descriptionKeyValues)
-                {
-                    if (descriptionKey == descriptionKeyValue.ToString())
-                    {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found)
-                {
-                    LogUtil.LogError($"Category description translation key [{descriptionKey}] in the translation file does not have a description key enum value.");
-                }
-            }
         }
 
         /// <summary>

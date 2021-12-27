@@ -9,13 +9,12 @@ namespace MoreCityStatistics
 {
     /// <summary>
     /// get translated text
-    /// logic loosely adapted from Traffic Manager: President Edition (TM:PE) by Krzychu1245
     /// </summary>
     public class Translation
     {
-        // translations are in CSV files in the Translations folder of the project
-        // translation files are embedded resources in the mod DLL
-        // translation files were created and are maintained using LibreOffice Calc
+        // translations are in the Translation.csv file
+        // the translation file is an embedded resource in the mod DLL so that a separate file does not need to be downloaded with the mod
+        // the translation file was created and maintained using LibreOffice Calc
 
         // translation file format:
         //      line 1: blank,language code 1,language code 2,...,language code n
@@ -24,40 +23,337 @@ namespace MoreCityStatistics
         //      ...
         //      line m: translation key m-1,translated text 1,translated text 2,...,translated text n
 
-        // translation file rules:
-        //      the file should contain a translation for every language code supported by the game
+        // translation file notes:
         //      the file must contain a translation for the default language code
-        //      the languages in the file do not need to be in the same order as SupportedLanguageCodes
-        //      a blank translation will use the translation for the default language
-        //      each language code, translation key, and translated text may or may not be enclosed in double quotes
+        //      the file should contain a translation for every language code supported by the base game
+        //      the file may contain translations for other language codes
+        //      language codes must be two characters
+        //      language codes in the file can be in any order
         //      a blank line is skipped
-        //      a line without a translation key is skipped (except the first line)
+        //      a line with a blank translation key is skipped (except the first line)
+        //      a line with a translation key that starts with the character (#) is considered a comment and is skipped
         //      a translation key cannot be duplicated
-        //      spaces around the comma separators will be included in the value
-        //      to include a comma in the value, the value must be enclosed in double quotes
-        //      to include a double quote in the value, use two double quotes inside the double quoted value
+        //      each language code, translation key, and translated text may or may not be enclosed in double quotes
+        //      spaces around the comma separators will be included in the translated text
+        //      to include a comma in the translated text, the translated text must be enclosed in double quotes
+        //      to include a double quote in the translated text, use two double quotes inside the double quoted translated text
+        //      translated text cannot be blank for the default language
+        //      blank translated text in a non-default language will use the translated text for the default language
 
-        // supported language codes, sorted by language code
-        public static readonly string[] SupportedLanguageCodes = new string[]
+        // use singleton pattern:  there can be only one Translation in the game
+        private static readonly Translation _instance = new Translation();
+        public static Translation instance { get { return _instance; } }
+        private Translation() { Initialize(); }
+
+        // translation keys
+        // the numeric values of the translation key enums are not important
+        // only the string values of the translation key enums are used to look up translations
+        // therefore, enum member names must exactly match the translation keys in the translation file
+        public enum Key
         {
-            "de",
-            "en",
-            "es",
-            "fr",
-            "ja",
-            "ko",
-            "pl",
-            "pt",
-            "ru",
-            "zh"
-        };
+            // mod name and description
+            Title,
+            Description,
+
+            // general options UI
+            General,
+            ChooseYourLanguage,
+            GameLanguage,
+            LanguageName,
+
+            // in-game options UI
+            InGame,
+            ExportAllStatistics,
+            ExportSelectedStatistics,
+            ExportFile,
+            SnapshotDate,
+            DeleteSnapshots,
+            SaveSettingsAndSnapshots,
+
+            // main panel UI
+            ExpandAll,
+            CollapseAll,
+            Selected,
+            DeselectAll,
+            YearsToShow,
+            DatesToShow,
+            All,
+            FromTo,
+
+            // graph month labels
+            Month1,
+            Month2,
+            Month3,
+            Month4,
+            Month5,
+            Month6,
+            Month7,
+            Month8,
+            Month9,
+            Month10,
+            Month11,
+            Month12,
+
+            // category descriptions
+            Electricity,
+            Water,
+            WaterTank,
+            Sewage,
+            Landfill,
+            Garbage,
+            Education,
+            EducationLevel,
+            Happiness,
+            Healthcare,
+            Deathcare,
+            Childcare,
+            Eldercare,
+            Zoning,
+            ZoneLevel,
+            ZoneBuildings,
+            ZoneDemand,
+            Traffic,
+            Pollution,
+            FireSafety,
+            Crime,
+            PublicTransportation,
+            Population,
+            Households,
+            Employment,
+            OutsideConnections,
+            LandValue,
+            NaturalResources,
+            Heating,
+            Tourism,
+            Tours,
+            TaxRate,
+            CityEconomy,
+            ResidentialIncome,
+            CommercialIncome,
+            IndustrialIncome,
+            OfficeIncome,
+            TourismIncome,
+            ServiceExpenses,
+            ParkAreas,
+            IndustryAreas,
+            Fishing,
+            CampusAreas,
+            TransportEconomy,
+            GameLimits,
+
+            // statistic descriptions
+            // some preceding keys are also used as statistic descriptions
+            None,               // has special meaning
+            Consumption,
+            Production,
+            PumpingCapacity,
+            Reserved,
+            StorageCapacity,
+            DrainingCapacity,
+            Storage,
+            Capacity,
+            ProcessingCapacity,
+            Elementary,
+            HighSchool,
+            University,
+            PublicLibrary,
+            Eligible,
+            Users,
+            Uneducated,
+            Educated,
+            WellEducated,
+            HighlyEducated,
+            Global,
+            Residential,
+            Commercial,
+            Industrial,
+            Office,
+            Unzoned,
+            AverageHealth,
+            Sick,
+            HealCapacity,
+            Cemetery,
+            Buried,
+            Crematorium,
+            Deceased,
+            DeathRate,
+            SickChildrenTeens,
+            ChildrenTeens,
+            BirthRate,
+            SickSeniors,
+            AverageLifeSpan,
+            Average,
+            Level1,
+            Level2,
+            Level3,
+            Level4,
+            Level5,
+            IndustrialOffice,
+            Flow,
+            Ground,
+            DrinkingWater,
+            Noise,
+            Hazard,
+            Rate,
+            DetainedCriminals,
+            JailsCapacity,
+            Total,
+            Bus,
+            Trolleybus,
+            Tram,
+            Metro,
+            Train,
+            Ship,
+            Air,
+            Monorail,
+            CableCar,
+            Taxi,
+            Children,
+            Teens,
+            YoungAdults,
+            Adults,
+            Seniors,
+            Occupied,
+            Available,
+            PeopleEmployed,
+            JobsAvailable,
+            UnfilledJobs,
+            Unemployment,
+            Unemployed,
+            EligibleWorkers,
+            Import,
+            Export,
+            Goods,
+            Forestry,
+            Farming,
+            Ore,
+            Oil,
+            Mail,
+            Fish,
+            Forest,
+            FertileLand,
+            Used,
+            CityAttractiveness,
+            LowWealth,
+            MediumWealth,
+            HighWealth,
+            ExchangeStudentBonus,
+            WalkingTour,
+            SightseeingBus,
+            Balloon,
+            Income,
+            Expenses,
+            Profit,
+            BankBalance,
+            LowDensity,
+            HighDensity,
+            SelfSufficient,
+            SpecializedTotal,
+            Leisure,
+            OrganicAndLocalProduce,
+            Generic,
+            ITCluster,
+            CommercialZones,
+            Roads,
+            WaterSewage,
+            WaterSewageHeating,
+            Fire,
+            Emergency,
+            Police,
+            ParksPlazasLandscaping,
+            UniqueBuildings,
+            GenericSportsArenas,
+            Loans,
+            Policies,
+            CityPark,
+            AmusementPark,
+            Zoo,
+            NatureReserve,
+            WarehousesAndFactories,
+            FishingIndustry,
+            TradeSchool,
+            LiberalArtsCollege,
+            TollBooth,
+            SpaceElevator,
+            Buildings,
+            Citizens,
+            CitizenUnits,
+            CitizenInstances,
+            Disasters,
+            Districts,
+            Events,
+            GameAreas,
+            NetworkSegments,
+            NetworkNodes,
+            NetworkLanes,
+            ParkIndustryAreas,
+            ParkCampusAreas,
+            IndustryCampusAreas,
+            ParkIndustryCampusAreas,
+            PathUnits,
+            Props,
+            RadioChannels,
+            RadioContents,
+            TransportLines,
+            Trees,
+            Vehicles,
+            VehiclesParked,
+            ZoneBlocks,
+
+            // statistic units
+            // some preceding keys are also used as statistic units
+            PctOfProduction,
+            MegaWatts,
+            PctOfPumpingCapacity,
+            CubicMetersPerWeek,
+            PctOfStorageCapacity,
+            CubicMeters,
+            PctOfDrainingCapacity,
+            PctOfCapacity,
+            Units,
+            PctOfProcessingCapacity,
+            UnitsPerWeek,
+            Students,
+            Visitors,
+            PctOfPopulation,
+            Percent,
+            PctOfHealCapacity,
+            CitizensPerWeek,
+            PctOfChildrenTeens,
+            PctOfSeniors,
+            Years,
+            Level1To5,
+            Level1To3,
+            PctOfResidential,
+            PctOfCommercial,
+            PctOfIndustrial,
+            PctOfOffice,
+            PctOfJailsCapacity,
+            TotalPerWeek,
+            ResidentsPerWeek,
+            TouristsPerWeek,
+            PctOfAvailable,
+            Squares,
+            Jobs,
+            HouseholdsPlusJobs,
+            PctOfEligible,
+            PctOfForestAvailable,
+            PctOfFertileLandAvailable,
+            PctPerWeekOfOreAvailable,
+            PctPerWeekOfOilAvailable,
+            PctOfTotal,
+            Hectare,
+            PctOfCityIncome,
+            PctOfCityExpenses,
+            MoneyPerSquareMeter,
+            MoneyPerWeek,
+            Money,
+            Amount
+        }
 
         // default language code
         // used when working with translation keys and as the language code when a translation is not present
-        public const string DefaultLanguageCode = "en";    // English
-
-        // file from which translations were read
-        private readonly string _fileName;
+        private const string DefaultLanguageCode = "en";    // English
 
         // translations for a single language
         // the dictionary key is the translation key
@@ -70,19 +366,16 @@ namespace MoreCityStatistics
         private Dictionary<string, TranslationLanguage> _languages = new Dictionary<string, TranslationLanguage>();
 
         /// <summary>
-        /// construct a translation from the specified filename
+        /// initialize the translation from the translation file
         /// </summary>
-        public Translation(string filename)
+        private void Initialize()
         {
-            // save the filename
-            _fileName = filename;
-
             // make sure the translation CSV file exists
-            // assumes the namespace of this class is the same as the name space of the project
-            string translationFile = $"{typeof(Translation).Namespace}.Translations.{filename}.csv";
+            // assumes the namespace of this class is the same as the namespace of the project
+            string translationFile = $"{typeof(Translation).Namespace}.Translation.csv";
             if (!Assembly.GetExecutingAssembly().GetManifestResourceNames().Contains(translationFile))
             {
-                LogUtil.LogError($"Translation file [{translationFile}] does not exist.");
+                LogUtil.LogError($"Translation file [{translationFile}] does not exist in the assembly.");
                 return;
             }
 
@@ -99,7 +392,14 @@ namespace MoreCityStatistics
             // translation file must contain at least one line for the language codes
             if (lines.Length < 1)
             {
-                LogUtil.LogError($"Translation file [{translationFile}] must contain at least one line.");
+                LogUtil.LogError($"Translation file must contain at least one line for language codes.");
+                return;
+            }
+
+            // first line cannot be blank or a comment
+            if (lines[0].Length == 0 || lines[0].StartsWith("#"))
+            {
+                LogUtil.LogError($"Translation file first line must contain language codes.");
                 return;
             }
 
@@ -114,6 +414,13 @@ namespace MoreCityStatistics
                 string languageCode = ReadCSVValue(reader);
                 while (languageCode.Length != 0)
                 {
+                    // language code must be two characters
+                    if (languageCode.Length != 2)
+                    {
+                        LogUtil.LogError($"Translation file language code [{languageCode}] must be two characters.");
+                        return;
+                    }
+
                     // add the language code to the list
                     languageCodes.Add(languageCode);
 
@@ -128,21 +435,11 @@ namespace MoreCityStatistics
             // translations must contain default language code
             if (!_languages.ContainsKey(DefaultLanguageCode))
             {
-                LogUtil.LogError($"Translation file [{translationFile}] must contain translations for default language code [{DefaultLanguageCode}].");
+                LogUtil.LogError($"Translation file must contain translations for default language code [{DefaultLanguageCode}].");
                 return;
             }
 
-            // translations must contain all the supported language codes
-            foreach (string languageCode in SupportedLanguageCodes)
-            {
-                if (!_languages.ContainsKey(languageCode))
-                {
-                    LogUtil.LogError($"Translation file [{translationFile}] must contain a translation for supported language code [{languageCode}].");
-                    return;
-                }
-            }
-
-            // read each subsequent line
+            // process each subsequent line
             for (int i = 1; i < lines.Length; i++)
             {
                 // do only non-blank lines
@@ -153,14 +450,14 @@ namespace MoreCityStatistics
                     using (StringReader reader = new StringReader(line))
                     {
                         // the first value in the line is the translation key
-                        // if translation key is blank, skip the line
+                        // do only non-blank, non-comment translation keys
                         string translationKey = ReadCSVValue(reader);
-                        if (translationKey.Length != 0)
+                        if (translationKey.Length != 0 && !translationKey.StartsWith("#"))
                         {
                             // check for duplicates
                             if (_languages[DefaultLanguageCode].ContainsKey(translationKey))
                             {
-                                LogUtil.LogError($"Translation key [{translationKey}] is duplicated in translation file [{translationFile}].");
+                                LogUtil.LogError($"Translation key [{translationKey}] is duplicated in translation file.");
                                 return;
                             }
                             else
@@ -171,8 +468,40 @@ namespace MoreCityStatistics
                                     _languages[languageCode][translationKey] = ReadCSVValue(reader);
                                 }
                             }
+
+                            // translated text for default language code cannot be blank
+                            if (string.IsNullOrEmpty(_languages[DefaultLanguageCode][translationKey]))
+                            {
+                                LogUtil.LogError($"Translation key [{translationKey}] must not be blank for detault language [{DefaultLanguageCode}].");
+                                return;
+                            }
                         }
                     }
+                }
+            }
+
+            // verify every key enum value has a key in the translation file
+            Key[] keyEnumValues = (Key[])Enum.GetValues(typeof(Key));
+            foreach (Key key in keyEnumValues)
+            {
+                _ = Get(key);
+            }
+
+            // verify every key in the translation file has a key enum value
+            foreach (string translationKey in _languages[DefaultLanguageCode].Keys.ToArray())
+            {
+                bool found = false;
+                foreach (Key key in keyEnumValues)
+                {
+                    if (translationKey == key.ToString())
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found)
+                {
+                    LogUtil.LogError($"Translation key [{translationKey}] in the translation file does not have a translation key enum value.");
                 }
             }
         }
@@ -239,75 +568,58 @@ namespace MoreCityStatistics
         }
 
         /// <summary>
+        /// supported language codes, sorted by language code
+        /// </summary>
+        public string[] SupportedLanguageCodes
+        {
+            get
+            {
+                string[] languageCodes = _languages.Keys.ToArray();
+                Array.Sort(languageCodes);
+                return languageCodes;
+            }
+        }
+
+        /// <summary>
         /// get the translation of the key using the language selected in Options
         /// </summary>
-        public string Get(string translationKey)
+        public string Get(Key key)
         {
-            return Get(translationKey, Options.instance.GetLanguageCode());
+            return Get(key, Options.instance.GetLanguageCode());
         }
 
         /// <summary>
         /// get the translation of the key using the specified language
         /// </summary>
-        public string Get(string translationKey, string languageCode)
+        public string Get(Key key, string languageCode)
         {
             // if language code is not supported, then use default language code
             // this can happen when a mod is used to add a language to the game and that language is not supported by this mod
-            if (!SupportedLanguageCodes.Contains(languageCode))
+            if (!_languages.Keys.Contains(languageCode))
             {
                 languageCode = DefaultLanguageCode;
             }
 
-            // get translations for the language
-            if (!_languages.TryGetValue(languageCode, out TranslationLanguage translationLanguage))
-            {
-                LogUtil.LogError($"Unknown language code [{languageCode}] when getting translation for key [{translationKey}] in file [{_fileName}].");
-                return translationKey;
-            }
+            // get key as a string (used often)
+            string keyString = key.ToString();
 
-            // get translated text for the translation key
-            if (!translationLanguage.TryGetValue(translationKey, out string translatedText))
-            {
-                LogUtil.LogError($"Translation key [{translationKey}] not found for language [{languageCode}] in file [{_fileName}].");
-                return translationKey;
-            }
-
-            // check for blank translation
+            // get translated text for the language and translation key
+            string translatedText =  _languages[languageCode][keyString];
             if (string.IsNullOrEmpty(translatedText))
             {
                 // get translation from default language
-                translatedText = _languages[DefaultLanguageCode][translationKey];
+                translatedText = _languages[DefaultLanguageCode][keyString];
 
                 // if still blank, then use key
                 if (string.IsNullOrEmpty(translatedText))
                 {
-                    LogUtil.LogError($"Translation is blank for default language [{DefaultLanguageCode}] and key [{translationKey}] in file [{_fileName}].");
-                    return translationKey;
+                    LogUtil.LogError($"Translation is blank for default language [{DefaultLanguageCode}] and key [{keyString}] in the translation file.");
+                    return keyString;
                 }
             }
 
             // return the translated text
             return translatedText;
-        }
-
-        /// <summary>
-        ///  get the translation keys
-        /// </summary>
-        public string[] GetKeys()
-        {
-            return _languages[DefaultLanguageCode].Keys.ToArray();
-        }
-
-        /// <summary>
-        /// clear the translations
-        /// </summary>
-        public void Clear()
-        {
-            foreach (string languageCode in _languages.Keys)
-            {
-                _languages[languageCode].Clear();
-            }
-            _languages.Clear();
         }
     }
 }

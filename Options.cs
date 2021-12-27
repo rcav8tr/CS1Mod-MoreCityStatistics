@@ -2,6 +2,7 @@
 using ColossalFramework.UI;
 using ICities;
 using System.Reflection;
+using UnityEngine;
 
 namespace MoreCityStatistics
 {
@@ -15,21 +16,6 @@ namespace MoreCityStatistics
         public static Options instance { get { return _instance; } }
         private Options() { }
 
-        // translation keys
-        // enum member names must exactly match the translation keys in the Miscellaneous translation file
-        private enum TranslationKey
-        {
-            Title,
-            General,
-            ChooseYourLanguage,
-            GameLanguage,
-            LanguageName,
-            InGame,
-            DeleteSnapshots,
-            SaveSettingsAndSnapshots,
-            OptionValidOnlyInGame
-        }
-
         // special language code for game language
         public const string GameLanguageCode = "00";
 
@@ -42,16 +28,17 @@ namespace MoreCityStatistics
         public void CreateUI(UIHelperBase helper)
         {
             // create general options group
-            Translation miscellaneous = Translations.instance.Miscellaneous;
-            UIHelperBase groupGeneral = helper.AddGroup(miscellaneous.Get(TranslationKey.General.ToString()));
+            Translation translation = Translation.instance;
+            UIHelperBase groupGeneral = helper.AddGroup(translation.Get(Translation.Key.General));
 
             // construct list of supported language names, first entry is game language
-            string[] languageNames = new string[Translation.SupportedLanguageCodes.Length + 1];
-            languageNames[0] = miscellaneous.Get(TranslationKey.GameLanguage.ToString());
-            for (int i = 0; i < Translation.SupportedLanguageCodes.Length; i++)
+            string[] supportedLanguageCodes = translation.SupportedLanguageCodes;
+            string[] languageNames = new string[supportedLanguageCodes.Length + 1];
+            languageNames[0] = translation.Get(Translation.Key.GameLanguage);
+            for (int i = 0; i < supportedLanguageCodes.Length; i++)
             {
                 // get each language name in its own language (i.e. ignore configured language)
-                languageNames[i + 1] = miscellaneous.Get(TranslationKey.LanguageName.ToString(), Translation.SupportedLanguageCodes[i]);
+                languageNames[i + 1] = translation.Get(Translation.Key.LanguageName, supportedLanguageCodes[i]);
             }
 
             // compute index of configured language
@@ -60,9 +47,9 @@ namespace MoreCityStatistics
             string configuredLanguageCode = config.LanguageCode;
             if (configuredLanguageCode != GameLanguageCode)
             {
-                for (int i = 0; i < Translation.SupportedLanguageCodes.Length; i++)
+                for (int i = 0; i < supportedLanguageCodes.Length; i++)
                 {
-                    if (configuredLanguageCode == Translation.SupportedLanguageCodes[i])
+                    if (configuredLanguageCode == supportedLanguageCodes[i])
                     {
                         defaultIndex = i + 1;
                         break;
@@ -71,21 +58,34 @@ namespace MoreCityStatistics
             }
 
             // allow user to change language
-            groupGeneral.AddDropdown(miscellaneous.Get(TranslationKey.ChooseYourLanguage.ToString()), languageNames, defaultIndex, OnLanguageChanged);
+            groupGeneral.AddDropdown(translation.Get(Translation.Key.ChooseYourLanguage), languageNames, defaultIndex, OnLanguageChanged);
 
+            // create in-game options only when a game is loaded
+            if (MCSLoading.IsGameLoaded)
+            {
+                // in-game options group
+                UIHelperBase groupInGame = helper.AddGroup(translation.Get(Translation.Key.InGame));
 
-            // no method was found by which the UI for in-game options can be created only when in a game, but not when in editors or the main menu
-            // so the in-game options are always created and each option handler checks if it is in a game and displays an error message if not in a game
+                // allow user to export all or selected statistics
+                groupInGame.AddButton(translation.Get(Translation.Key.ExportAllStatistics), OnExportAllStatisticsClicked);
+                groupInGame.AddButton(translation.Get(Translation.Key.ExportSelectedStatistics), OnExportSelectedStatisticsClicked);
 
-            // in-game options group
-            UIHelperBase groupInGame = helper.AddGroup(miscellaneous.Get(TranslationKey.InGame.ToString()));
+                // show export location to user
+                UITextField exportLocation = groupInGame.AddTextfield(translation.Get(Translation.Key.ExportFile), Snapshots.instance.ExportPathFile, (string text) => { } ) as UITextField;
+                exportLocation.readOnly = true;
+                exportLocation.autoSize = false;
+                exportLocation.size = new Vector2(exportLocation.parent.parent.size.x - 30f, 2f * exportLocation.size.y);
+                exportLocation.multiline = true;
 
-            // allow user to delete snapshots
-            groupInGame.AddButton(miscellaneous.Get(TranslationKey.DeleteSnapshots.ToString()), OnDeleteSnapshotsClicked);
+                // allow user to delete snapshots
+                groupInGame.AddSpace(50);
+                groupInGame.AddButton(translation.Get(Translation.Key.DeleteSnapshots), OnDeleteSnapshotsClicked);
 
-            // allow user to NOT save settings and snapshots, default is to save
-            SaveSettingsAndSnapshots = true;
-            groupInGame.AddCheckbox(miscellaneous.Get(TranslationKey.SaveSettingsAndSnapshots.ToString()), SaveSettingsAndSnapshots, OnSaveCheckChanged);
+                // allow user to NOT save settings and snapshots, default is to save
+                SaveSettingsAndSnapshots = true;
+                groupInGame.AddSpace(30);
+                groupInGame.AddCheckbox(translation.Get(Translation.Key.SaveSettingsAndSnapshots), SaveSettingsAndSnapshots, OnSaveCheckChanged);
+            }
         }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace MoreCityStatistics
             }
             else
             {
-                languageCode = Translation.SupportedLanguageCodes[index - 1];
+                languageCode = Translation.instance.SupportedLanguageCodes[index - 1];
             }
 
             // save the selected language code so it is available next time it is needed
@@ -109,7 +109,7 @@ namespace MoreCityStatistics
             LogUtil.LogInfo($"Languaged changed to [{languageCode}]");
 
             // inform the Main Options Panel about locale change
-            // this will trigger MoreCityStatistics.OnSettingsUI which calls Options.CreateUI to recreate this mod's Options UI
+            // this will trigger MoreCityStatistics.OnSettingsUI which calls Options.CreateUI to recreate this mod's Options UI with the newly selected language
             MethodInfo onLocaleChanged = typeof(OptionsMainPanel).GetMethod("OnLocaleChanged", BindingFlags.Instance | BindingFlags.NonPublic);
             if (onLocaleChanged != null)
             {
@@ -136,6 +136,43 @@ namespace MoreCityStatistics
         }
 
         /// <summary>
+        /// handle click on export all statistics
+        /// </summary>
+        private void OnExportAllStatisticsClicked()
+        {
+            // export all statistics
+            Snapshots.instance.Export(Snapshots.StatisticsToExport.All);
+        }
+
+        /// <summary>
+        /// handle click on export selected statistics
+        /// </summary>
+        private void OnExportSelectedStatisticsClicked()
+        {
+            // export selected statistics
+            Snapshots.instance.Export(Snapshots.StatisticsToExport.Selected);
+        }
+
+        /// <summary>
+        /// handle click on Delete Snapshots
+        /// </summary>
+        private void OnDeleteSnapshotsClicked()
+        {
+            // delete snapshots and update main panel
+            Snapshots.instance.Clear();
+            UserInterface.instance.UpdateMainPanel();
+        }
+
+        /// <summary>
+        /// handle check change for Save
+        /// </summary>
+        private void OnSaveCheckChanged(bool isChecked)
+        {
+            // save check box status that will be looked at when saving the game
+            SaveSettingsAndSnapshots = isChecked;
+        }
+
+        /// <summary>
         /// return the selected language code or the game's language code if game language is selected
         /// </summary>
         public string GetLanguageCode()
@@ -153,53 +190,6 @@ namespace MoreCityStatistics
                 // use configured language code
                 return configuredLanguageCode;
             }
-        }
-
-        /// <summary>
-        /// handle click on Delete Snapshots
-        /// </summary>
-        private void OnDeleteSnapshotsClicked()
-        {
-            // available only while in a game
-            if (MCSLoading.IsGameLoaded)
-            {
-                // delete snapshots and update main panel
-                Snapshots.instance.Clear();
-                UserInterface.instance.UpdateMainPanel();
-            }
-            else
-            {
-                DisplayErrorMessage(TranslationKey.OptionValidOnlyInGame);
-            }
-        }
-
-        /// <summary>
-        /// handle check change for Save
-        /// </summary>
-        private void OnSaveCheckChanged(bool isChecked)
-        {
-            // available only while in a game
-            if (MCSLoading.IsGameLoaded)
-            {
-                // save check box status that will be looked at when saving the game
-                SaveSettingsAndSnapshots = isChecked;
-            }
-            else
-            {
-                DisplayErrorMessage(TranslationKey.OptionValidOnlyInGame);
-            }
-        }
-
-        /// <summary>
-        /// display an error message
-        /// </summary>
-        private void DisplayErrorMessage(TranslationKey translationKey)
-        {
-            Translation miscellaneous = Translations.instance.Miscellaneous;
-            UIView.library.ShowModal<ExceptionPanel>("ExceptionPanel").SetMessage(
-                miscellaneous.Get(TranslationKey.Title.ToString()),
-                miscellaneous.Get(translationKey.ToString()),
-                true);
         }
     }
 }

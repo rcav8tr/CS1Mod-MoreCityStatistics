@@ -70,7 +70,6 @@
     <Compile Include="Statistics.cs" />
     <Compile Include="MCSThreading.cs" />
     <Compile Include="Translation.cs" />
-    <Compile Include="Translations.cs" />
     <Compile Include="UserInterface.cs" />
     <Compile Include="MoreCityStatistics.cs" />
     <Compile Include="ConfigurationUtil.cs" />
@@ -85,12 +84,6 @@
     <Compile Include="ModUtil.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Translations\Miscellaneous.csv" />
-    <EmbeddedResource Include="Translations\CategoryDescription.csv" />
-    <EmbeddedResource Include="Translations\StatisticDescription.csv" />
-    <EmbeddedResource Include="Translations\StatisticUnits.csv" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Steam Deployment\Discussion Available Statistics.txt" />
     <None Include="Steam Deployment\Discussion Statistics Notes.txt" />
     <None Include="Steam Deployment\PreviewImage.png" />
@@ -99,6 +92,7 @@
     <None Include="Steam Deployment\Screenshot Selected Statistics.jpg" />
     <None Include="Steam Deployment\Screenshot Zoomed In Data Point Detail.jpg" />
     <None Include="Steam Deployment\Steam Description.txt" />
+    <EmbeddedResource Include="Translation.csv" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Steam Deployment\Screenshot Options.jpg" />

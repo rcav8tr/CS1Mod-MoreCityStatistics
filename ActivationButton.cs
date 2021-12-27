@@ -71,7 +71,7 @@ namespace MoreCityStatistics
         /// </summary>
         public void UpdateUIText()
         {
-            _dragHandle.tooltip = Translations.instance.Miscellaneous.Get("Title");
+            _dragHandle.tooltip = Translation.instance.Get(Translation.Key.Title);
         }
 
         /// <summary>

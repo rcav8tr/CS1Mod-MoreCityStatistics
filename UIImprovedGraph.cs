@@ -909,7 +909,8 @@ namespace MoreCityStatistics
         /// </summary>
         private string GetMonthLabel(DateTime date)
         {
-            return Translations.instance.Miscellaneous.Get("Month" + date.Month);
+            Translation.Key key = (Translation.Key)Enum.Parse(typeof(Translation.Key), "Month" + date.Month);
+            return Translation.instance.Get(key);
         }
 
         /// <summary>

@@ -16,16 +16,6 @@ namespace MoreCityStatistics
         public static ShowRange instance { get { return _instance; } }
         private ShowRange() { }
 
-        // translation keys
-        // enum member names must exactly match the translation keys in the Miscellaneous translation file
-        private enum TranslationKey
-        {
-            YearsToShow,
-            DatesToShow,
-            All,
-            FromTo
-        }
-
         // initial values obtained from game save file
         private bool _initialValueShowAll;
         private float _initialValueFromSlider;
@@ -337,10 +327,10 @@ namespace MoreCityStatistics
         public void UpdateUIText()
         {
             // update labels
-            Translation translationMiscellaneous = Translations.instance.Miscellaneous;
-            _showRangeLabel.text = translationMiscellaneous.Get(_realTimeModEnabled ? TranslationKey.DatesToShow.ToString() : TranslationKey.YearsToShow.ToString());
-            _showAllLabel.text = translationMiscellaneous.Get(TranslationKey.All.ToString());
-            _showFromToLabel.text = translationMiscellaneous.Get(TranslationKey.FromTo.ToString());
+            Translation translation = Translation.instance;
+            _showRangeLabel.text = translation.Get(_realTimeModEnabled ? Translation.Key.DatesToShow : Translation.Key.YearsToShow);
+            _showAllLabel.text = translation.Get(Translation.Key.All);
+            _showFromToLabel.text = translation.Get(Translation.Key.FromTo);
         }
 
         /// <summary>
