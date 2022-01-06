@@ -11,7 +11,7 @@ Statistics are grouped into categories (e.g. Electricity, Water) to make it easi
 
 Click on a statistic to add it to the graph.  Click on the statistic again to remove it from the graph.  Click on Deselect All to remove all statistics from the graph.  Up to 10 statistics may be included at the same time.  Hover the cursor over a data point on the graph to view the detail for the data point.  Collapsing a category does not change the selection of statistics in the category.
 
-You can choose to show all snapshots or only a range of snapshots.  Select the From To option and move the sliders to zoom in on any year range.  If the [url=https://steamcommunity.com/sharedfiles/filedetails/?id=1420955187]Real Time[/url] mod is enabled, the sliders instead zoom in on any date range.
+You can choose to show all snapshots or only a range of snapshots.  Select the From To option and move the sliders to zoom in on any year range.  If the [url=https://steamcommunity.com/sharedfiles/filedetails/?id=1420955187]Real Time[/url] mod is enabled, the sliders instead zoom in on any date range.  The total number of snapshots (not just the range selected) is displayed.
 
 Category expansions, statistic selections, and year/date range selections are saved with the game so you can have different settings for each game.
 

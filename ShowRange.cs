@@ -109,7 +109,7 @@ namespace MoreCityStatistics
             _showRangeLabel.name = "ShowRangeLabel";
             _showRangeLabel.autoSize = false;
             _showRangeLabel.size = new Vector2(showRangePanel.size.x, 15f);
-            _showRangeLabel.relativePosition = new Vector3(5f, 15f);
+            _showRangeLabel.relativePosition = new Vector3(5f, 10f);
             _showRangeLabel.textScale = 0.75f;
             _showRangeLabel.textColor = textColor;
 

@@ -79,6 +79,7 @@ namespace MoreCityStatistics
             DatesToShow,
             All,
             FromTo,
+            SnapshotCount,
 
             // graph month labels
             Month1,

@@ -2,6 +2,7 @@
 using UnityEngine;
 using System;
 using System.Reflection;
+using ColossalFramework.Globalization;
 
 namespace MoreCityStatistics
 {
@@ -24,6 +25,7 @@ namespace MoreCityStatistics
         private UIButton _collapseAll;
         private UILabel _selected;
         private UIButton _deselectAll;
+        private UILabel _snapshotCount;
 
         /// <summary>
         /// Start is called after the panel is created
@@ -295,7 +297,24 @@ namespace MoreCityStatistics
             _deselectAll.eventClicked += DeselectAll_eventClicked;
 
             // create Show Range UI on the options panel
-            if (!ShowRange.instance.CreateUI(optionsPanel, _expandAll.relativePosition.x + ButtonWidth + 5f, _expandAll.textColor)) return false;
+            float showRangeLeft = _expandAll.relativePosition.x + ButtonWidth + 5f;
+            if (!ShowRange.instance.CreateUI(optionsPanel, showRangeLeft, _expandAll.textColor)) return false;
+
+            // create snapshot count label
+            _snapshotCount = optionsPanel.AddUIComponent<UILabel>();
+            if (_snapshotCount == null)
+            {
+                LogUtil.LogError($"Unable to create Deselect All button.");
+                return false;
+            }
+            _snapshotCount.name = "SnapshotCount";
+            _snapshotCount.autoSize = false;
+            _snapshotCount.size = new Vector2(optionsPanel.size.x - showRangeLeft, ButtonHeight);
+            _snapshotCount.relativePosition = new Vector3(optionsPanel.size.x - 5f - _snapshotCount.size.x, optionsPanel.size.y - ButtonHeight);
+            _snapshotCount.textScale = 0.625f;
+            _snapshotCount.textAlignment = UIHorizontalAlignment.Right;
+            _snapshotCount.verticalAlignment = UIVerticalAlignment.Bottom;
+            _snapshotCount.textColor = _expandAll.textColor;
 
             // success
             return true;
@@ -455,8 +474,19 @@ namespace MoreCityStatistics
             // update shows years
             ShowRange.instance.UpdateUIText();
 
+            // update snapshot count
+            UpdateSnapshotCount();
+
             // update categories and statistics
             Categories.instance.UpdateUIText();
+        }
+
+        /// <summary>
+        /// update snapshot count
+        /// </summary>
+        private void UpdateSnapshotCount()
+        {
+            _snapshotCount.text = Translation.instance.Get(Translation.Key.SnapshotCount) + " " + Snapshots.instance.Count.ToString("N0", LocaleManager.cultureInfo);
         }
 
         /// <summary>
@@ -481,6 +511,9 @@ namespace MoreCityStatistics
                 // update the Show Range panel
                 ShowRange showRangeInstance = ShowRange.instance;
                 showRangeInstance.UpdatePanel();
+
+                // update snapshot count
+                UpdateSnapshotCount();
 
                 // check for data
                 int snapshotsCount = snapshotsInstance.Count;
