@@ -2,6 +2,7 @@
 using ICities;
 using System;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace MoreCityStatistics
 {
@@ -30,6 +31,12 @@ namespace MoreCityStatistics
                     // initialize user interface singleton
                     // other singletons get initialized in MCSSerializableData, which happens before here
                     if (!UserInterface.instance.Initialize()) return;
+
+                    // initialize Extended Managers Library mod API
+                    if (ModUtil.IsWorkshopModEnabled(ModUtil.ModIDExtendedManagersLibrary))
+                    {
+                        InitializeEMLAPI();
+                    }
 
                     // game is loaded
                     IsGameLoaded = true;
@@ -71,6 +78,16 @@ namespace MoreCityStatistics
                 // refresh options
                 RefreshOptions();
             }
+        }
+
+        /// <summary>
+        /// initialize Extended Managers Library mod API
+        /// to avoid an error when the mod is not subscribed, logic must be in a separate routine that is not inlined
+        /// </summary>
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private void InitializeEMLAPI()
+        {
+            EManagersLib.API.PropAPI.Initialize();
         }
 
         /// <summary>

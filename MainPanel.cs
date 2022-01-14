@@ -544,7 +544,7 @@ namespace MoreCityStatistics
                         lastIndexToInclude = InvalidIndex;
 
                         // check for Real Time mod
-                        if (ModUtil.IsRealTimeModEnabled())
+                        if (ModUtil.IsWorkshopModEnabled(ModUtil.ModIDRealTime))
                         {
                             // get the selected From and To dates, could be the same date
                             DateTime selectedFromDate = showRangeInstance.FromDate;

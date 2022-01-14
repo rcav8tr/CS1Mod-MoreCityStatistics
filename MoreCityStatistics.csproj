@@ -41,6 +41,10 @@
       <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\ColossalManaged.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="EManagersLib.API">
+      <HintPath>.\EManagersLib.API.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="ICities">
       <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\ICities.dll</HintPath>
       <Private>False</Private>

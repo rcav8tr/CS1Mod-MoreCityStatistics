@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace MoreCityStatistics
@@ -830,6 +831,7 @@ namespace MoreCityStatistics
             // the game date without time is used even if the Real Time mod is enabled and the snapshot is taken at noon
             // a snapshot is for the date, regardless of the time on that date when the snapshot is actually taken
             Snapshot snapshot = new Snapshot(SimulationManager.instance.m_currentGameTime.Date);
+            LogUtil.LogInfo($"Taking snapshot for [{snapshot.SnapshotDate.ToString("yyyy/MM/dd")}].");
 
             // proceed only if all the required managers exist
             if (!AudioManager.exists                ||
@@ -1298,56 +1300,63 @@ namespace MoreCityStatistics
 
             // Game Limits
             // used logic is copied from Watch It! mod by Keallu
-            // capacity logic for Array8, Array16, and Array32 is the buffer size, in case a mod changes the buffer size from the Manager's MAX constant
-            // capacity logic for FastList is the max of the buffer size and Manager's MAX constant, because the initial FastList size is only 32, not the final size
+            // capacity logic for Array8, Array16, and Array32 is the buffer length, in case a mod changes the buffer size from the Manager's MAX constant
+            // capacity logic for FastList is the max of the buffer length and Manager's MAX constant, because the initial FastList size is only 32, not the final size
             snapshot.GameLimitsBuildingsUsed               = buildingManagerInstance.m_buildingCount;
-            snapshot.GameLimitsBuildingsCapacity           = buildingManagerInstance.m_buildings.m_buffer.Length;
+            snapshot.GameLimitsBuildingsCapacity           = buildingManagerInstance.m_buildings            == null ? 0 : (buildingManagerInstance.m_buildings.m_buffer     == null ? 0 : buildingManagerInstance.m_buildings.m_buffer.Length);
             snapshot.GameLimitsCitizensUsed                = citizenManagerInstance.m_citizenCount;
-            snapshot.GameLimitsCitizensCapacity            = citizenManagerInstance.m_citizens.m_buffer.Length;
+            snapshot.GameLimitsCitizensCapacity            = citizenManagerInstance.m_citizens              == null ? 0 : (citizenManagerInstance.m_citizens.m_buffer       == null ? 0 : citizenManagerInstance.m_citizens.m_buffer.Length);
             snapshot.GameLimitsCitizenUnitsUsed            = citizenManagerInstance.m_unitCount;
-            snapshot.GameLimitsCitizenUnitsCapacity        = citizenManagerInstance.m_units.m_buffer.Length;
+            snapshot.GameLimitsCitizenUnitsCapacity        = citizenManagerInstance.m_units                 == null ? 0 : (citizenManagerInstance.m_units.m_buffer          == null ? 0 : citizenManagerInstance.m_units.m_buffer.Length);
             snapshot.GameLimitsCitizenInstancesUsed        = citizenManagerInstance.m_instanceCount;
-            snapshot.GameLimitsCitizenInstancesCapacity    = citizenManagerInstance.m_instances.m_buffer.Length;
+            snapshot.GameLimitsCitizenInstancesCapacity    = citizenManagerInstance.m_instances             == null ? 0 : (citizenManagerInstance.m_instances.m_buffer      == null ? 0 : citizenManagerInstance.m_instances.m_buffer.Length);
             if (dlcNaturalDisasters)
             {
                 snapshot.GameLimitsDisastersUsed           = disasterManagerInstance.m_disasterCount;
-                snapshot.GameLimitsDisastersCapacity       = Math.Max(disasterManagerInstance.m_disasters.m_buffer.Length, DisasterManager.MAX_DISASTER_COUNT);
+                snapshot.GameLimitsDisastersCapacity       = Math.Max(disasterManagerInstance.m_disasters   == null ? 0 : (disasterManagerInstance.m_disasters.m_buffer     == null ? 0 : disasterManagerInstance.m_disasters.m_buffer.Length), DisasterManager.MAX_DISASTER_COUNT);
             }
             snapshot.GameLimitsDistrictsUsed               = districtManagerInstance.m_districtCount;
-            snapshot.GameLimitsDistrictsCapacity           = districtManagerInstance.m_districts.m_buffer.Length;
+            snapshot.GameLimitsDistrictsCapacity           = districtManagerInstance.m_districts            == null ? 0 : (districtManagerInstance.m_districts.m_buffer     == null ? 0 : districtManagerInstance.m_districts.m_buffer.Length);
             snapshot.GameLimitsEventsUsed                  = eventManagerInstance.m_eventCount;
-            snapshot.GameLimitsEventsCapacity              = Math.Max(eventManagerInstance.m_events.m_buffer.Length, EventManager.MAX_EVENT_COUNT);
+            snapshot.GameLimitsEventsCapacity              = Math.Max(eventManagerInstance.m_events         == null ? 0 : (eventManagerInstance.m_events.m_buffer           == null ? 0 : eventManagerInstance.m_events.m_buffer.Length), EventManager.MAX_EVENT_COUNT);
             snapshot.GameLimitsGameAreasUsed               = gameAreaManagerInstance.m_areaCount;
             snapshot.GameLimitsGameAreasCapacity           = gameAreaManagerInstance.MaxAreaCount;
             snapshot.GameLimitsNetworkLanesUsed            = netManagerInstance.m_laneCount;
-            snapshot.GameLimitsNetworkLanesCapacity        = netManagerInstance.m_lanes.m_buffer.Length;
+            snapshot.GameLimitsNetworkLanesCapacity        = netManagerInstance.m_lanes                     == null ? 0 : (netManagerInstance.m_lanes.m_buffer              == null ? 0 : netManagerInstance.m_lanes.m_buffer.Length);
             snapshot.GameLimitsNetworkNodesUsed            = netManagerInstance.m_nodeCount;
-            snapshot.GameLimitsNetworkNodesCapacity        = netManagerInstance.m_nodes.m_buffer.Length;
+            snapshot.GameLimitsNetworkNodesCapacity        = netManagerInstance.m_nodes                     == null ? 0 : (netManagerInstance.m_nodes.m_buffer              == null ? 0 : netManagerInstance.m_nodes.m_buffer.Length);
             snapshot.GameLimitsNetworkSegmentsUsed         = netManagerInstance.m_segmentCount;
-            snapshot.GameLimitsNetworkSegmentsCapacity     = netManagerInstance.m_segments.m_buffer.Length;
+            snapshot.GameLimitsNetworkSegmentsCapacity     = netManagerInstance.m_segments                  == null ? 0 : (netManagerInstance.m_segments.m_buffer           == null ? 0 : netManagerInstance.m_segments.m_buffer.Length);
             if (dlcParkLife || dlcIndustries || dlcCampus)
             {
                 snapshot.GameLimitsParkAreasUsed           = districtManagerInstance.m_parkCount;
-                snapshot.GameLimitsParkAreasCapacity       = districtManagerInstance.m_parks.m_buffer.Length;
+                snapshot.GameLimitsParkAreasCapacity       = districtManagerInstance.m_parks                == null ? 0 : (districtManagerInstance.m_parks.m_buffer         == null ? 0 : districtManagerInstance.m_parks.m_buffer.Length);
             }
             snapshot.GameLimitsPathUnitsUsed               = pathManagerInstance.m_pathUnitCount;
-            snapshot.GameLimitsPathUnitsCapacity           = pathManagerInstance.m_pathUnits.m_buffer.Length;
+            snapshot.GameLimitsPathUnitsCapacity           = pathManagerInstance.m_pathUnits                == null ? 0 : (pathManagerInstance.m_pathUnits.m_buffer         == null ? 0 : pathManagerInstance.m_pathUnits.m_buffer.Length);
             snapshot.GameLimitsPropsUsed                   = propManagerInstance.m_propCount;
-            snapshot.GameLimitsPropsCapacity               = propManagerInstance.m_props.m_buffer.Length;
+            if (ModUtil.IsWorkshopModEnabled(ModUtil.ModIDExtendedManagersLibrary))
+            {
+                snapshot.GameLimitsPropsCapacity           = GetExtendedManagersLibraryPropsCapacity();
+            }
+            else
+            {
+                snapshot.GameLimitsPropsCapacity           = propManagerInstance.m_props                    == null ? 0 : (propManagerInstance.m_props.m_buffer             == null ? 0 : propManagerInstance.m_props.m_buffer.Length);
+            }
             snapshot.GameLimitsRadioChannelsUsed           = audioManagerInstance.m_radioChannelCount;
-            snapshot.GameLimitsRadioChannelsCapacity       = Math.Max(audioManagerInstance.m_radioChannels.m_buffer.Length, AudioManager.MAX_RADIO_CHANNEL_COUNT);
+            snapshot.GameLimitsRadioChannelsCapacity       = Math.Max(audioManagerInstance.m_radioChannels  == null ? 0 : (audioManagerInstance.m_radioChannels.m_buffer    == null ? 0 : audioManagerInstance.m_radioChannels.m_buffer.Length), AudioManager.MAX_RADIO_CHANNEL_COUNT);
             snapshot.GameLimitsRadioContentsUsed           = audioManagerInstance.m_radioContentCount;
-            snapshot.GameLimitsRadioContentsCapacity       = Math.Max(audioManagerInstance.m_radioContents.m_buffer.Length, AudioManager.MAX_RADIO_CONTENT_COUNT);
+            snapshot.GameLimitsRadioContentsCapacity       = Math.Max(audioManagerInstance.m_radioContents  == null ? 0 : (audioManagerInstance.m_radioContents.m_buffer    == null ? 0 : audioManagerInstance.m_radioContents.m_buffer.Length), AudioManager.MAX_RADIO_CONTENT_COUNT);
             snapshot.GameLimitsTransportLinesUsed          = transportManagerInstance.m_lineCount;
-            snapshot.GameLimitsTransportLinesCapacity      = transportManagerInstance.m_lines.m_buffer.Length;
+            snapshot.GameLimitsTransportLinesCapacity      = transportManagerInstance.m_lines               == null ? 0 : (transportManagerInstance.m_lines.m_buffer        == null ? 0 : transportManagerInstance.m_lines.m_buffer.Length);
             snapshot.GameLimitsTreesUsed                   = treeManagerInstance.m_treeCount;
-            snapshot.GameLimitsTreesCapacity               = treeManagerInstance.m_trees.m_buffer.Length;
+            snapshot.GameLimitsTreesCapacity               = treeManagerInstance.m_trees                    == null ? 0 : (treeManagerInstance.m_trees.m_buffer             == null ? 0 : treeManagerInstance.m_trees.m_buffer.Length);
             snapshot.GameLimitsVehiclesUsed                = vehicleManagerInstance.m_vehicleCount;
-            snapshot.GameLimitsVehiclesCapacity            = vehicleManagerInstance.m_vehicles.m_buffer.Length;
+            snapshot.GameLimitsVehiclesCapacity            = vehicleManagerInstance.m_vehicles              == null ? 0 : (vehicleManagerInstance.m_vehicles.m_buffer       == null ? 0 : vehicleManagerInstance.m_vehicles.m_buffer.Length);
             snapshot.GameLimitsVehiclesParkedUsed          = vehicleManagerInstance.m_parkedCount;
-            snapshot.GameLimitsVehiclesParkedCapacity      = vehicleManagerInstance.m_parkedVehicles.m_buffer.Length;
+            snapshot.GameLimitsVehiclesParkedCapacity      = vehicleManagerInstance.m_parkedVehicles        == null ? 0 : (vehicleManagerInstance.m_parkedVehicles.m_buffer == null ? 0 : vehicleManagerInstance.m_parkedVehicles.m_buffer.Length);
             snapshot.GameLimitsZoneBlocksUsed              = zoneManagerInstance.m_blockCount;
-            snapshot.GameLimitsZoneBlocksCapacity          = zoneManagerInstance.m_blocks.m_buffer.Length;
+            snapshot.GameLimitsZoneBlocksCapacity          = zoneManagerInstance.m_blocks                   == null ? 0 : (zoneManagerInstance.m_blocks.m_buffer            == null ? 0 : zoneManagerInstance.m_blocks.m_buffer.Length);
 
             // now that some other values have been obtained, adjust some Expenses Services
             snapshot.ServiceExpensesRoads       -= snapshot.TransportEconomyTollBoothExpenses;
@@ -1787,6 +1796,16 @@ namespace MoreCityStatistics
 
             // building not found
             return false;
+        }
+
+        /// <summary>
+        /// get props capacity from Extended Managers Library mod
+        /// to avoid an error when the mod is not subscribed, logic must be in a separate routine that is not inlined
+        /// </summary>
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static int GetExtendedManagersLibraryPropsCapacity()
+        {
+            return EManagersLib.API.PropAPI.PropBufferLen;
         }
 
         /// <summary>

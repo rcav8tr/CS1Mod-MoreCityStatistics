@@ -7,14 +7,9 @@ namespace MoreCityStatistics
     /// </summary>
     public static class ModUtil
     {
-        /// <summary>
-        /// return whether or not the Real Time mod is enabled
-        /// </summary>
-        /// <returns></returns>
-        public static bool IsRealTimeModEnabled()
-        {
-            return IsWorkshopModEnabled(1420955187L);
-        }
+        // mod IDs
+        public const ulong ModIDRealTime = 1420955187L;
+        public const ulong ModIDExtendedManagersLibrary = 2696146165L;
 
         /// <summary>
         /// return whether or not the specified workshop mod ID is enabled
@@ -47,7 +42,7 @@ namespace MoreCityStatistics
             // do each plug in
             foreach (PluginManager.PluginInfo mod in PluginManager.instance.GetPluginsInfo())
             {
-                // ignore builtin mods and camera script
+                // ignore builtin mods and camera scripts
                 if (!mod.isBuiltin && !mod.isCameraScript)
                 {
                     // check against the workshop ID

@@ -53,7 +53,7 @@ namespace MoreCityStatistics
             _initialized = false;
 
             // determine if RealTime mod is enabled
-            _realTimeModEnabled = ModUtil.IsRealTimeModEnabled();
+            _realTimeModEnabled = ModUtil.IsWorkshopModEnabled(ModUtil.ModIDRealTime);
         }
 
         /// <summary>
