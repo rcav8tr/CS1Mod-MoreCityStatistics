@@ -155,6 +155,7 @@ namespace MoreCityStatistics
             if (_mainPanel != null)
             {
                 _mainPanel.UpdateUIText();
+                _mainPanel.UpdateStatisticAmounts();
                 _mainPanel.UpdatePanel();
             }
         }

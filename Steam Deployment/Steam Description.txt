@@ -1,5 +1,7 @@
 Record and graph more city statistics.
 
+[img=https://i.imgur.com/f2iRAPU.gif]
+
 [h1]Detailed Description[/h1]
 This mod records and graphs 460 statistics over time ([url=https://steamcommunity.com/workshop/filedetails/discussion/2685974449/5545618081300254710/]full list here[/url]), many more than the game's City Statistics graph.  Most statistics from the Info Views, the City Info panels, the Economy panel, and game limits are available to be graphed over time.  The game's City Statistics graph is not changed.
 
@@ -9,7 +11,7 @@ A snapshot of statistics is taken on the first day of each game month at midnigh
 
 Statistics are grouped into categories (e.g. Electricity, Water) to make it easier to find desired statistics.  Click on a category to expand the list of statistics available in that category.  Click on Expand All to expand all categories or Collapse All to collapse all categories.
 
-Click on a statistic to add it to the graph.  Click on the statistic again to remove it from the graph.  Click on Deselect All to remove all statistics from the graph.  Up to 10 statistics may be included at the same time.  Hover the cursor over a data point on the graph to view the detail for the data point.  Collapsing a category does not change the selection of statistics in the category.
+Click on a statistic to add it to the graph.  Click on the statistic again to remove it from the graph.  Click on Deselect All to remove all statistics from the graph.  Up to 10 statistics may be included at the same time.  Hover the cursor over a data point on the graph to view the detail for the data point.  Collapsing a category does not change the selection of statistics in the category.  The current value of each statistic is shown next to each statistic.
 
 You can choose to show all snapshots or only a range of snapshots.  Select the From To option and move the sliders to zoom in on any year range.  If the [url=https://steamcommunity.com/sharedfiles/filedetails/?id=1420955187]Real Time[/url] mod is enabled, the sliders instead zoom in on any date range.  The total number of snapshots (not just the range selected) is displayed.
 
@@ -24,6 +26,8 @@ You can choose to use the "Game language" (default) or a specific language for t
 
 Regardless of the language chosen for this mod, if the game's language is one of the base game's languages (i.e not due to a mod), numbers are formatted according to the game's language.  If the game's language is some other language due to a mod, numbers use a default format.
 
+The current value of statistics can be updated every 1 to 30 seconds (default is 10).
+
 [h3]In Game Options[/h3]
 These options are available only while in a game (i.e. they are hidden when viewing options from the main menu or from an editor).
 
@@ -36,7 +40,7 @@ The default is to "Save settings and snapshots with the game" (i.e. the option i
 [h1]Compatibility[/h1]
 This mod is translated into all languages supported by the base game plus Japanese.  The translations were accomplished using a combination of the game's translations and Google Translate.  If a translation does not make sense, please provide an alternative.
 
-This mod is compatible with all Down Loadable Content (DLC) packages thru Sunset Harbor and all Content Creator Packs (CCP) thru Train Stations/Bridges & Piers.  This mod does not require any DLC or CCP to work properly.  A category or statistic unique to a DLC package is available only if that DLC is active.
+This mod is compatible with all Down Loadable Content (DLC) packages thru Airports and all Content Creator Packs (CCP) thru Map Pack and Vehicles of the World.  This mod does not require any DLC or CCP to work properly.  A category or statistic unique to a DLC package is available only if that DLC is active.
 
 This mod is compatible with [url=https://steamcommunity.com/sharedfiles/filedetails/?id=1729576238]Date Changer[/url] mod.  If the date is changed, snapshots will be taken starting from that new date.  Previously taken snapshots will be overwritten if/when the game date reaches those snapshot dates.
 

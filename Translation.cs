@@ -33,6 +33,7 @@ namespace MoreCityStatistics
         //      a line with a blank translation key is skipped (except the first line)
         //      a line with a translation key that starts with the character (#) is considered a comment and is skipped
         //      a translation key cannot be duplicated
+        //      the file must not contain blank columns
         //      each language code, translation key, and translated text may or may not be enclosed in double quotes
         //      spaces around the comma separators will be included in the translated text
         //      to include a comma in the translated text, the translated text must be enclosed in double quotes
@@ -60,6 +61,7 @@ namespace MoreCityStatistics
             ChooseYourLanguage,
             GameLanguage,
             LanguageName,
+            CurrentValueUpdateInterval,
 
             // in-game options UI
             InGame,
@@ -137,7 +139,7 @@ namespace MoreCityStatistics
             ServiceExpenses,
             ParkAreas,
             IndustryAreas,
-            Fishing,
+            FishingIndustry,
             CampusAreas,
             TransportEconomy,
             GameLimits,
@@ -271,7 +273,7 @@ namespace MoreCityStatistics
             Zoo,
             NatureReserve,
             WarehousesAndFactories,
-            FishingIndustry,
+            Fishing,
             TradeSchool,
             LiberalArtsCollege,
             TollBooth,
@@ -287,10 +289,7 @@ namespace MoreCityStatistics
             NetworkSegments,
             NetworkNodes,
             NetworkLanes,
-            ParkIndustryAreas,
-            ParkCampusAreas,
-            IndustryCampusAreas,
-            ParkIndustryCampusAreas,
+            PaintedAreas,
             PathUnits,
             Props,
             RadioChannels,

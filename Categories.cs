@@ -756,9 +756,11 @@ namespace MoreCityStatistics
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.IndustryAreasWarehousesFactoriesIncome,     Translation.Key.WarehousesAndFactories, Translation.Key.Income,         Translation.Key.MoneyPerWeek,               colorTransferMail1          ));
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.IndustryAreasWarehousesFactoriesExpenses,   Translation.Key.WarehousesAndFactories, Translation.Key.Expenses,       Translation.Key.MoneyPerWeek,               colorTransferMail2          ));
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.IndustryAreasWarehousesFactoriesProfit,     Translation.Key.WarehousesAndFactories, Translation.Key.Profit,         Translation.Key.MoneyPerWeek,               colorTransferMail3          ));
-            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.IndustryAreasFishingIndustryIncome,         Translation.Key.FishingIndustry,        Translation.Key.Income,         Translation.Key.MoneyPerWeek,               colorTransferFish1          ));
-            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.IndustryAreasFishingIndustryExpenses,       Translation.Key.FishingIndustry,        Translation.Key.Expenses,       Translation.Key.MoneyPerWeek,               colorTransferFish2          ));
-            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.IndustryAreasFishingIndustryProfit,         Translation.Key.FishingIndustry,        Translation.Key.Profit,         Translation.Key.MoneyPerWeek,               colorTransferFish3          ));
+
+            _instance.Add(category = new Category(Category.CategoryType.FishingIndustry, Translation.Key.FishingIndustry));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.FishingIndustryFishingIncome,               Translation.Key.Fishing,                Translation.Key.Income,         Translation.Key.MoneyPerWeek,               colorTransferFish1          ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.FishingIndustryFishingExpenses,             Translation.Key.Fishing,                Translation.Key.Expenses,       Translation.Key.MoneyPerWeek,               colorTransferFish2          ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.FishingIndustryFishingProfit,               Translation.Key.Fishing,                Translation.Key.Profit,         Translation.Key.MoneyPerWeek,               colorTransferFish3          ));
 
             _instance.Add(category = new Category(Category.CategoryType.CampusAreas, Translation.Key.CampusAreas));
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.CampusAreasTotalIncomePercent,              Translation.Key.Total,                  Translation.Key.Income,         Translation.Key.PctOfCityIncome,            colorCityTotalIncome        ));
@@ -857,9 +859,9 @@ namespace MoreCityStatistics
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.GameLimitsNetworkSegmentsUsedPercent,       Translation.Key.NetworkSegments,        Translation.Key.Used,           Translation.Key.PctOfCapacity,              colorNeutral1               ));
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.GameLimitsNetworkSegmentsUsed,              Translation.Key.NetworkSegments,        Translation.Key.Used,           Translation.Key.Amount,                     colorNeutral1               ));
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.GameLimitsNetworkSegmentsCapacity,          Translation.Key.NetworkSegments,        Translation.Key.Capacity,       Translation.Key.Amount,                     colorNeutral2               ));
-            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.GameLimitsParkAreasUsedPercent,             Translation.Key.ParkIndustryCampusAreas,Translation.Key.Used,           Translation.Key.PctOfCapacity,              colorNeutral1               ));
-            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.GameLimitsParkAreasUsed,                    Translation.Key.ParkIndustryCampusAreas,Translation.Key.Used,           Translation.Key.Amount,                     colorNeutral1               ));
-            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.GameLimitsParkAreasCapacity,                Translation.Key.ParkIndustryCampusAreas,Translation.Key.Capacity,       Translation.Key.Amount,                     colorNeutral2               ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.GameLimitsPaintedAreasUsedPercent,          Translation.Key.PaintedAreas,           Translation.Key.Used,           Translation.Key.PctOfCapacity,              colorNeutral1               ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.GameLimitsPaintedAreasUsed,                 Translation.Key.PaintedAreas,           Translation.Key.Used,           Translation.Key.Amount,                     colorNeutral1               ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.GameLimitsPaintedAreasCapacity,             Translation.Key.PaintedAreas,           Translation.Key.Capacity,       Translation.Key.Amount,                     colorNeutral2               ));
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.GameLimitsPathUnitsUsedPercent,             Translation.Key.PathUnits,              Translation.Key.Used,           Translation.Key.PctOfCapacity,              colorNeutral1               ));
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.GameLimitsPathUnitsUsed,                    Translation.Key.PathUnits,              Translation.Key.Used,           Translation.Key.Amount,                     colorNeutral1               ));
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.GameLimitsPathUnitsCapacity,                Translation.Key.PathUnits,              Translation.Key.Capacity,       Translation.Key.Amount,                     colorNeutral2               ));
@@ -1059,6 +1061,17 @@ namespace MoreCityStatistics
             foreach (Category category in _instance)
             {
                 category.UpdateUIText();
+            }
+        }
+
+        /// <summary>
+        /// update all statistic amounts
+        /// </summary>
+        public void UpdateStatisticAmounts(Snapshot snapshot)
+        {
+            foreach (Category category in _instance)
+            {
+                category.UpdateStatisticAmounts(snapshot);
             }
         }
 

@@ -494,17 +494,15 @@ namespace MoreCityStatistics
         public float? IndustryAreasTotalIncomePercent       { get { return ComputePercent(IndustryAreasTotalIncome, CityEconomyTotalIncome); } }
         public float? IndustryAreasTotalExpensesPercent     { get { return ComputePercent(IndustryAreasTotalExpenses, CityEconomyTotalExpenses); } }
         public long? IndustryAreasTotalIncome               { get { return IndustryAreasForestryIncome +
-                                                                          IndustryAreasFarmingIncome +
-                                                                          IndustryAreasOreIncome +
-                                                                          IndustryAreasOilIncome +
-                                                                          IndustryAreasWarehousesFactoriesIncome +
-                                                                          (IndustryAreasFishingIndustryIncome ?? 0); } }
+                                                                           IndustryAreasFarmingIncome +
+                                                                           IndustryAreasOreIncome +
+                                                                           IndustryAreasOilIncome +
+                                                                           IndustryAreasWarehousesFactoriesIncome; } }
         public long? IndustryAreasTotalExpenses             { get { return IndustryAreasForestryExpenses +
-                                                                          IndustryAreasFarmingExpenses +
-                                                                          IndustryAreasOreExpenses +
-                                                                          IndustryAreasOilExpenses +
-                                                                          IndustryAreasWarehousesFactoriesExpenses +
-                                                                          (IndustryAreasFishingIndustryExpenses ?? 0); } }
+                                                                           IndustryAreasFarmingExpenses +
+                                                                           IndustryAreasOreExpenses +
+                                                                           IndustryAreasOilExpenses +
+                                                                           IndustryAreasWarehousesFactoriesExpenses; } }
         public long? IndustryAreasTotalProfit               { get { return IndustryAreasTotalIncome - IndustryAreasTotalExpenses; } }
         public long? IndustryAreasForestryIncome;
         public long? IndustryAreasForestryExpenses;
@@ -521,9 +519,11 @@ namespace MoreCityStatistics
         public long? IndustryAreasWarehousesFactoriesIncome;
         public long? IndustryAreasWarehousesFactoriesExpenses;
         public long? IndustryAreasWarehousesFactoriesProfit { get { return IndustryAreasWarehousesFactoriesIncome - IndustryAreasWarehousesFactoriesExpenses; } }
-        public long? IndustryAreasFishingIndustryIncome;
-        public long? IndustryAreasFishingIndustryExpenses;
-        public long? IndustryAreasFishingIndustryProfit     { get { return IndustryAreasFishingIndustryIncome - IndustryAreasFishingIndustryExpenses; } }
+
+        // Fishing Industry
+        public long? FishingIndustryFishingIncome;
+        public long? FishingIndustryFishingExpenses;
+        public long? FishingIndustryFishingProfit           { get { return FishingIndustryFishingIncome - FishingIndustryFishingExpenses; } }
 
         // Campus Areas
         public float? CampusAreasTotalIncomePercent         { get { return ComputePercent(CampusAreasTotalIncome, CityEconomyTotalIncome); } }
@@ -646,9 +646,9 @@ namespace MoreCityStatistics
         public float GameLimitsNetworkSegmentsUsedPercent   { get { return ComputePercent(GameLimitsNetworkSegmentsUsed, GameLimitsNetworkSegmentsCapacity); } }
         public int GameLimitsNetworkSegmentsUsed;
         public int GameLimitsNetworkSegmentsCapacity;
-        public float? GameLimitsParkAreasUsedPercent        { get { return ComputePercent(GameLimitsParkAreasUsed, GameLimitsParkAreasCapacity); } }
-        public int? GameLimitsParkAreasUsed;
-        public int? GameLimitsParkAreasCapacity;
+        public float? GameLimitsPaintedAreasUsedPercent     { get { return ComputePercent(GameLimitsPaintedAreasUsed, GameLimitsPaintedAreasCapacity); } }
+        public int? GameLimitsPaintedAreasUsed;
+        public int? GameLimitsPaintedAreasCapacity;
         public float GameLimitsPathUnitsUsedPercent         { get { return ComputePercent(GameLimitsPathUnitsUsed, GameLimitsPathUnitsCapacity); } }
         public int GameLimitsPathUnitsUsed;
         public int GameLimitsPathUnitsCapacity;
@@ -824,14 +824,17 @@ namespace MoreCityStatistics
         /// <summary>
         /// return a snapshot of current statistics
         /// </summary>
-        public static Snapshot TakeSnapshot()
+        public static Snapshot TakeSnapshot(bool logDate = true)
         {
             // create a new snapshot to return
             // set the snapshot date to the current game date
             // the game date without time is used even if the Real Time mod is enabled and the snapshot is taken at noon
             // a snapshot is for the date, regardless of the time on that date when the snapshot is actually taken
             Snapshot snapshot = new Snapshot(SimulationManager.instance.m_currentGameTime.Date);
-            LogUtil.LogInfo($"Taking snapshot for [{snapshot.SnapshotDate.ToString("yyyy/MM/dd")}].");
+            if (logDate)
+            {
+                LogUtil.LogInfo($"Taking snapshot for [{snapshot.SnapshotDate.ToString("yyyy/MM/dd")}].");
+            }
 
             // proceed only if all the required managers exist
             if (!AudioManager.exists                ||
@@ -885,6 +888,7 @@ namespace MoreCityStatistics
             bool dlcIndustries       = SteamHelper.IsDLCOwned(SteamHelper.DLC.IndustryDLC);             // 10/23/18
             bool dlcCampus           = SteamHelper.IsDLCOwned(SteamHelper.DLC.CampusDLC);               // 05/21/19
             bool dlcSunsetHarbor     = SteamHelper.IsDLCOwned(SteamHelper.DLC.UrbanDLC);                // 03/26/20
+            bool dlcAirports         = SteamHelper.IsDLCOwned(SteamHelper.DLC.AirportDLC);              // 01/25/22
 
             // get the city-wide district where much of the data is obtained
             District cityDistrict = districtManagerInstance.m_districts.m_buffer[0];
@@ -1173,9 +1177,9 @@ namespace MoreCityStatistics
             if (dlcGreenCities) snapshot.OfficeIncomeITCluster = GetEconomyIncome(ItemClass.Service.Office, ItemClass.SubService.OfficeHightech, ItemClass.Level.None);
 
             // Tourism Income - logic copied from EconomyPanel.InitializePolls
-                             snapshot.TourismIncomeCommercialZones      = GetEconomyIncome(ItemClass.Service.Tourism, ItemClass.SubService.None, ItemClass.Level.None);
-                             snapshot.TourismIncomeTransportation = ConvertMoney(EconomyPanel.PollPublicTransportTourismIncome());
-            if (dlcParkLife) snapshot.TourismIncomeParkAreas            = ConvertMoney(EconomyPanel.PollParkAreasTourismIncome());
+                             snapshot.TourismIncomeCommercialZones = GetEconomyIncome(ItemClass.Service.Tourism, ItemClass.SubService.None, ItemClass.Level.None);
+                             snapshot.TourismIncomeTransportation  = ConvertMoney(EconomyPanel.PollPublicTransportTourismIncome());
+            if (dlcParkLife) snapshot.TourismIncomeParkAreas       = ConvertMoney(EconomyPanel.PollParkAreasTourismIncome());
 
             // Service Expenses - logic copied from EconomyPanel.InitializePolls and EconomyPanel.IncomeExpensesPoll.Poll
             List<ushort>[] arenas = GetArenasData();
@@ -1233,13 +1237,15 @@ namespace MoreCityStatistics
 		        }
             }
 
-            // Industry Areas - logic copied from EconomyPanel.InitializePolls and EconomyPanel.IncomeExpensesPoll.Poll
-            // fishing must be computed first because fishing is subtracted from warehouses and factories
+            // Fishing Industry - logic copied from EconomyPanel.InitializePolls and EconomyPanel.IncomeExpensesPoll.Poll
             if (dlcSunsetHarbor)
             {
-                snapshot.IndustryAreasFishingIndustryIncome   = GetEconomyIncome (ItemClass.Service.Fishing, ItemClass.SubService.None, ItemClass.Level.None);
-                snapshot.IndustryAreasFishingIndustryExpenses = GetEconomyExpense(ItemClass.Service.Fishing, ItemClass.SubService.None, ItemClass.Level.None);
+                snapshot.FishingIndustryFishingIncome   = GetEconomyIncome (ItemClass.Service.Fishing, ItemClass.SubService.None, ItemClass.Level.None);
+                snapshot.FishingIndustryFishingExpenses = GetEconomyExpense(ItemClass.Service.Fishing, ItemClass.SubService.None, ItemClass.Level.None);
             }
+
+            // Industry Areas - logic copied from EconomyPanel.InitializePolls and EconomyPanel.IncomeExpensesPoll.Poll
+            // fishing must be computed first because fishing is subtracted to compute warehouses and factories
             if (dlcIndustries)
             {
                 snapshot.IndustryAreasForestryIncome              = GetEconomyIncome (ItemClass.Service.PlayerIndustry, ItemClass.SubService.PlayerIndustryForestry, ItemClass.Level.None);
@@ -1251,9 +1257,9 @@ namespace MoreCityStatistics
                 snapshot.IndustryAreasOilIncome                   = GetEconomyIncome (ItemClass.Service.PlayerIndustry, ItemClass.SubService.PlayerIndustryOil,      ItemClass.Level.None);
                 snapshot.IndustryAreasOilExpenses                 = GetEconomyExpense(ItemClass.Service.PlayerIndustry, ItemClass.SubService.PlayerIndustryOil,      ItemClass.Level.None);
                 snapshot.IndustryAreasWarehousesFactoriesIncome   = GetEconomyIncome (ItemClass.Service.PlayerIndustry, ItemClass.SubService.None,                   ItemClass.Level.None) -
-                    (snapshot.IndustryAreasForestryIncome   + snapshot.IndustryAreasFarmingIncome   + snapshot.IndustryAreasOreIncome   + snapshot.IndustryAreasOilIncome   + (snapshot.IndustryAreasFishingIndustryIncome   ?? 0));
+                    (snapshot.IndustryAreasForestryIncome   + snapshot.IndustryAreasFarmingIncome   + snapshot.IndustryAreasOreIncome   + snapshot.IndustryAreasOilIncome   + (snapshot.FishingIndustryFishingIncome   ?? 0));
                 snapshot.IndustryAreasWarehousesFactoriesExpenses = GetEconomyExpense(ItemClass.Service.PlayerIndustry, ItemClass.SubService.None,                   ItemClass.Level.None) -
-                    (snapshot.IndustryAreasForestryExpenses + snapshot.IndustryAreasFarmingExpenses + snapshot.IndustryAreasOreExpenses + snapshot.IndustryAreasOilExpenses + (snapshot.IndustryAreasFishingIndustryExpenses ?? 0));
+                    (snapshot.IndustryAreasForestryExpenses + snapshot.IndustryAreasFarmingExpenses + snapshot.IndustryAreasOreExpenses + snapshot.IndustryAreasOilExpenses + (snapshot.FishingIndustryFishingExpenses ?? 0));
             }
 
             // Campus Areas - logic copied from EconomyPanel.InitializePolls and EconomyPanel.IncomeExpensesPoll.Poll
@@ -1327,10 +1333,10 @@ namespace MoreCityStatistics
             snapshot.GameLimitsNetworkNodesCapacity        = netManagerInstance.m_nodes                     == null ? 0 : (netManagerInstance.m_nodes.m_buffer              == null ? 0 : netManagerInstance.m_nodes.m_buffer.Length);
             snapshot.GameLimitsNetworkSegmentsUsed         = netManagerInstance.m_segmentCount;
             snapshot.GameLimitsNetworkSegmentsCapacity     = netManagerInstance.m_segments                  == null ? 0 : (netManagerInstance.m_segments.m_buffer           == null ? 0 : netManagerInstance.m_segments.m_buffer.Length);
-            if (dlcParkLife || dlcIndustries || dlcCampus)
+            if (dlcParkLife || dlcIndustries || dlcCampus || dlcAirports)
             {
-                snapshot.GameLimitsParkAreasUsed           = districtManagerInstance.m_parkCount;
-                snapshot.GameLimitsParkAreasCapacity       = districtManagerInstance.m_parks                == null ? 0 : (districtManagerInstance.m_parks.m_buffer         == null ? 0 : districtManagerInstance.m_parks.m_buffer.Length);
+                snapshot.GameLimitsPaintedAreasUsed        = districtManagerInstance.m_parkCount;
+                snapshot.GameLimitsPaintedAreasCapacity    = districtManagerInstance.m_parks                == null ? 0 : (districtManagerInstance.m_parks.m_buffer         == null ? 0 : districtManagerInstance.m_parks.m_buffer.Length);
             }
             snapshot.GameLimitsPathUnitsUsed               = pathManagerInstance.m_pathUnitCount;
             snapshot.GameLimitsPathUnitsCapacity           = pathManagerInstance.m_pathUnits                == null ? 0 : (pathManagerInstance.m_pathUnits.m_buffer         == null ? 0 : pathManagerInstance.m_pathUnits.m_buffer.Length);
@@ -1691,7 +1697,7 @@ namespace MoreCityStatistics
                                             // ignore, should never get here
                                             break;
                                     }
-                                }   // do valid non-shzred squares
+                                }   // do valid non-shared squares
                             }   // do each column
                         }   // do each row
                     }   // block is created
@@ -2078,8 +2084,9 @@ namespace MoreCityStatistics
             writer.Write(IndustryAreasOilExpenses);
             writer.Write(IndustryAreasWarehousesFactoriesIncome);
             writer.Write(IndustryAreasWarehousesFactoriesExpenses);
-            writer.Write(IndustryAreasFishingIndustryIncome);
-            writer.Write(IndustryAreasFishingIndustryExpenses);
+
+            writer.Write(FishingIndustryFishingIncome);
+            writer.Write(FishingIndustryFishingExpenses);
 
             writer.Write(CampusAreasTradeSchoolIncome);
             writer.Write(CampusAreasTradeSchoolExpenses);
@@ -2137,8 +2144,8 @@ namespace MoreCityStatistics
             writer.Write(GameLimitsNetworkNodesCapacity);
             writer.Write(GameLimitsNetworkSegmentsUsed);
             writer.Write(GameLimitsNetworkSegmentsCapacity);
-            writer.Write(GameLimitsParkAreasUsed);
-            writer.Write(GameLimitsParkAreasCapacity);
+            writer.Write(GameLimitsPaintedAreasUsed);
+            writer.Write(GameLimitsPaintedAreasCapacity);
             writer.Write(GameLimitsPathUnitsUsed);
             writer.Write(GameLimitsPathUnitsCapacity);
             writer.Write(GameLimitsPropsUsed);
@@ -2431,8 +2438,9 @@ namespace MoreCityStatistics
             snapshot.IndustryAreasOilExpenses                   = reader.ReadNullableInt64();
             snapshot.IndustryAreasWarehousesFactoriesIncome     = reader.ReadNullableInt64();
             snapshot.IndustryAreasWarehousesFactoriesExpenses   = reader.ReadNullableInt64();
-            snapshot.IndustryAreasFishingIndustryIncome         = reader.ReadNullableInt64();
-            snapshot.IndustryAreasFishingIndustryExpenses       = reader.ReadNullableInt64();
+
+            snapshot.FishingIndustryFishingIncome               = reader.ReadNullableInt64();
+            snapshot.FishingIndustryFishingExpenses             = reader.ReadNullableInt64();
 
             snapshot.CampusAreasTradeSchoolIncome               = reader.ReadNullableInt64();
             snapshot.CampusAreasTradeSchoolExpenses             = reader.ReadNullableInt64();
@@ -2490,8 +2498,8 @@ namespace MoreCityStatistics
             snapshot.GameLimitsNetworkNodesCapacity             = reader.ReadInt32();
             snapshot.GameLimitsNetworkSegmentsUsed              = reader.ReadInt32();
             snapshot.GameLimitsNetworkSegmentsCapacity          = reader.ReadInt32();
-            snapshot.GameLimitsParkAreasUsed                    = reader.ReadNullableInt32();
-            snapshot.GameLimitsParkAreasCapacity                = reader.ReadNullableInt32();
+            snapshot.GameLimitsPaintedAreasUsed                 = reader.ReadNullableInt32();
+            snapshot.GameLimitsPaintedAreasCapacity             = reader.ReadNullableInt32();
             snapshot.GameLimitsPathUnitsUsed                    = reader.ReadInt32();
             snapshot.GameLimitsPathUnitsCapacity                = reader.ReadInt32();
             snapshot.GameLimitsPropsUsed                        = reader.ReadInt32();

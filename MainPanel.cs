@@ -17,6 +17,7 @@ namespace MoreCityStatistics
 
         // other constants
         public const int MaximumSelectedStatistics = 10;
+        public const float ScrollbarWidth = 16f;
 
         // UI elements that need handling
         private UILabel _title;
@@ -26,6 +27,10 @@ namespace MoreCityStatistics
         private UILabel _selected;
         private UIButton _deselectAll;
         private UILabel _snapshotCount;
+
+        // values for updating statistic amounts
+        private long _previousTicks;
+        private bool _initialized;
 
         /// <summary>
         /// Start is called after the panel is created
@@ -72,7 +77,7 @@ namespace MoreCityStatistics
                 }
                 graphPanel.name = "GraphPanel";
                 graphPanel.autoSize = false;
-                graphPanel.size = new Vector3(1050f, size.y - 60f);
+                graphPanel.size = new Vector3(1030f, size.y - 60f);
                 graphPanel.relativePosition = new Vector3(10f, 50f);
                 graphPanel.backgroundSprite = "GenericPanel";
                 graphPanel.color = panelColor;
@@ -135,6 +140,9 @@ namespace MoreCityStatistics
 
                 // initialize UI text
                 UpdateUIText();
+
+                // add event
+                eventVisibilityChanged += MainPanel_eventVisibilityChanged;
             }
             catch (Exception ex)
             {
@@ -344,7 +352,6 @@ namespace MoreCityStatistics
             categoriesScrollablePanel.scrollWithArrowKeys = true;
 
             // create vertical scroll bar on scrollable panel
-            const float ScrollbarWidth = 16f;
             UIScrollbar statisticsScrollbar = categoriesBackgroundPanel.AddUIComponent<UIScrollbar>();
             if (statisticsScrollbar == null)
             {
@@ -454,6 +461,18 @@ namespace MoreCityStatistics
             }
         }
 
+        /// <summary>
+        /// handle change in panel visibility
+        /// </summary>
+        private void MainPanel_eventVisibilityChanged(UIComponent component, bool value)
+        {
+            // when made visible, update statistic amounts on next Update cycle
+            if (value)
+            {
+                _previousTicks = 0;
+            }
+        }
+
         #endregion
 
 
@@ -479,6 +498,16 @@ namespace MoreCityStatistics
 
             // update categories and statistics
             Categories.instance.UpdateUIText();
+        }
+
+        /// <summary>
+        /// update statistic amounts with a new nonlogged snapshot
+        /// </summary>
+        public void UpdateStatisticAmounts()
+        {
+            Snapshot snapshot = Snapshot.TakeSnapshot(false);
+            Categories.instance.UpdateStatisticAmounts(snapshot);
+            _previousTicks = DateTime.Now.Ticks;
         }
 
         /// <summary>
@@ -801,6 +830,29 @@ namespace MoreCityStatistics
 
                 // refresh the graph
                 _graph.Invalidate();
+            }
+        }
+
+        /// <summary>
+        /// Update is called every frame
+        /// </summary>
+        public override void Update()
+        {
+            // do base processing
+            base.Update();
+
+            // on first call, update statistic amounts
+            if (!_initialized)
+            {
+                UpdateStatisticAmounts();
+                _initialized = true;
+            }
+
+            // if visible, update statistic amounts after configured interval has elapsed
+            Configuration config = ConfigurationUtil<Configuration>.Load();
+            if (isVisible && (DateTime.Now.Ticks - _previousTicks) / (double)TimeSpan.TicksPerSecond >= config.CurrentValueUpdateInterval)
+            {
+                UpdateStatisticAmounts();
             }
         }
     }

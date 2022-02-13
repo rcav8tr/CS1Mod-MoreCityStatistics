@@ -56,6 +56,7 @@ namespace MoreCityStatistics
             ServiceExpenses,
             ParkAreas,
             IndustryAreas,
+            FishingIndustry,
             CampusAreas,
             TransportEconomy,
             GameLimits
@@ -143,7 +144,7 @@ namespace MoreCityStatistics
             }
             _panel.name = namePrefix + "Panel";
             _panel.autoSize = false;
-            _panel.size = new Vector2(categoriesScrollablePanel.size.x - 4f, UIHeight);
+            _panel.size = new Vector2(categoriesScrollablePanel.size.x - MainPanel.ScrollbarWidth, UIHeight);
             _panel.relativePosition = new Vector3(0f, 0f);  // scrollable panel uses auto layout
             _panel.clipChildren = true;      // prevents contained statistics from being displayed when category is collapsed
             _panel.autoLayoutStart = LayoutStart.TopLeft;
@@ -253,6 +254,15 @@ namespace MoreCityStatistics
         }
 
         /// <summary>
+        /// update statistic amounts
+        /// </summary>
+        public void UpdateStatisticAmounts(Snapshot snapshot)
+        {
+            // update the amount for all statistics
+            _statistics.UpdateAmounts(snapshot);
+        }
+
+        /// <summary>
         /// write the category to the game save file
         /// </summary>
         public void Serialize(BinaryWriter writer)
@@ -270,7 +280,14 @@ namespace MoreCityStatistics
         public void Deserialize(BinaryReader reader, int version)
         {
             // read category expansion status
-            Expanded = reader.ReadBoolean();
+            if (version < 2 && _type == CategoryType.FishingIndustry)
+            {
+                Expanded = false;
+            }
+            else
+            {
+                Expanded = reader.ReadBoolean();
+            }
 
             // read statistics
             _statistics.Deserialize(reader, version);

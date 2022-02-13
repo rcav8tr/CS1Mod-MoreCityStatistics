@@ -19,6 +19,11 @@ namespace MoreCityStatistics
         // special language code for game language
         public const string GameLanguageCode = "00";
 
+        // interval to update current values (seconds)
+        public const int DefaultUpdateInterval = 10;
+        public int CurrentValueUpdateInterval { get; private set; }
+        private UILabel _intervalValue;
+
         // status of settings check box
         public bool SaveSettingsAndSnapshots { get; private set; }
 
@@ -59,6 +64,34 @@ namespace MoreCityStatistics
 
             // allow user to change language
             groupGeneral.AddDropdown(translation.Get(Translation.Key.ChooseYourLanguage), languageNames, defaultIndex, OnLanguageChanged);
+
+
+            // allow user to set the interval that current values are updated
+            UISlider currentValueUpdateInterval = groupGeneral.AddSlider(translation.Get(Translation.Key.CurrentValueUpdateInterval), 1f, 30f, 1f, config.CurrentValueUpdateInterval, OnUpdateIntervalChanged) as UISlider;
+
+            // adjust panel that holds label and slider for interval
+            UIPanel currentValueUpdateIntervalPanel = currentValueUpdateInterval.parent as UIPanel;
+            currentValueUpdateIntervalPanel.autoSize = false;
+            currentValueUpdateIntervalPanel.size = new Vector2(0.75f * currentValueUpdateIntervalPanel.parent.size.x, currentValueUpdateIntervalPanel.size.y);
+
+            // adjust label for interval
+            UILabel currentValueUpdateIntervalLabel = currentValueUpdateIntervalPanel.Find<UILabel>("Label");
+            currentValueUpdateIntervalLabel.autoHeight = false;
+            currentValueUpdateIntervalLabel.autoSize = false;
+            currentValueUpdateIntervalLabel.size = new Vector2(currentValueUpdateIntervalPanel.size.x, 20f);
+
+            // adjust actual slider for interval
+            UISlider currentValueUpdateIntervalSlider = currentValueUpdateIntervalPanel.Find<UISlider>("Slider");
+            currentValueUpdateIntervalSlider.autoSize = false;
+            currentValueUpdateIntervalSlider.size = new Vector2(currentValueUpdateIntervalPanel.size.x, currentValueUpdateIntervalSlider.size.y);
+
+            // create new label to show the selected interval value to the right of the slider
+            _intervalValue = currentValueUpdateIntervalSlider.AddUIComponent<UILabel>();
+            _intervalValue.autoSize = false;
+            _intervalValue.size = new Vector2(30f, currentValueUpdateIntervalLabel.size.y);
+            _intervalValue.relativePosition = new Vector3(currentValueUpdateIntervalSlider.size.x + 10f, 0f);
+            _intervalValue.text = config.CurrentValueUpdateInterval.ToString();
+
 
             // create in-game options only when a game is loaded
             if (MCSLoading.IsGameLoaded)
@@ -133,6 +166,22 @@ namespace MoreCityStatistics
 
             // update UI for the rest of this mod's UI
             UserInterface.instance.UpdateUI();
+        }
+
+        /// <summary>
+        /// handle change in update interval
+        /// </summary>
+        private void OnUpdateIntervalChanged(float val)
+        {
+            // save the new value
+            CurrentValueUpdateInterval = (int)val;
+            Configuration.SaveCurrentValueUpdateInterval(CurrentValueUpdateInterval);
+
+            // show new interval value
+            if (_intervalValue != null)
+            {
+                _intervalValue.text = CurrentValueUpdateInterval.ToString();
+            }
         }
 
         /// <summary>

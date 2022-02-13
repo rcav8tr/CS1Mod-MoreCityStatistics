@@ -414,9 +414,11 @@ Industry Areas
 • Warehouses and Unique Factories-Income (₡/week)
 • Warehouses and Unique Factories-Expenses (₡/week)
 • Warehouses and Unique Factories-Profit (₡/week)
-• Fishing Industry-Income (₡/week)
-• Fishing Industry-Expenses (₡/week)
-• Fishing Industry-Profit (₡/week)
+
+Fishing Industry
+• Fishing-Income (₡/week)
+• Fishing-Expenses (₡/week)
+• Fishing-Profit (₡/week)
 
 Campus Areas
 • Total-Income (% of City Income)
@@ -515,9 +517,9 @@ Game Limits
 • Network Segments-Used (% of Capacity)
 • Network Segments-Used (amount)
 • Network Segments-Capacity (amount)
-• Park, Industry, Campus Areas-Used (% of Capacity)
-• Park, Industry, Campus Areas-Used (amount)
-• Park, Industry, Campus Areas-Capacity (amount)
+• Painted Areas-Used (% of Capacity)
+• Painted Areas-Used (amount)
+• Painted Areas-Capacity (amount)
 • Path Units-Used (% of Capacity)
 • Path Units-Used (amount)
 • Path Units-Capacity (amount)

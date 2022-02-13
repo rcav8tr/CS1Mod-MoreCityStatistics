@@ -1,5 +1,7 @@
-﻿using ColossalFramework.UI;
+﻿using ColossalFramework.Globalization;
+using ColossalFramework.UI;
 using System.IO;
+using System.Reflection;
 using UnityEngine;
 
 namespace MoreCityStatistics
@@ -116,7 +118,7 @@ namespace MoreCityStatistics
             IndustryAreasOreIncome, IndustryAreasOreExpenses, IndustryAreasOreProfit,
             IndustryAreasOilIncome, IndustryAreasOilExpenses, IndustryAreasOilProfit,
             IndustryAreasWarehousesFactoriesIncome, IndustryAreasWarehousesFactoriesExpenses, IndustryAreasWarehousesFactoriesProfit,
-            IndustryAreasFishingIndustryIncome, IndustryAreasFishingIndustryExpenses, IndustryAreasFishingIndustryProfit,
+            FishingIndustryFishingIncome, FishingIndustryFishingExpenses, FishingIndustryFishingProfit,
             CampusAreasTotalIncomePercent, CampusAreasTotalIncome, CampusAreasTotalExpensesPercent, CampusAreasTotalExpenses, CampusAreasTotalProfit,
             CampusAreasTradeSchoolIncome, CampusAreasTradeSchoolExpenses, CampusAreasTradeSchoolProfit,
             CampusAreasLiberalArtsCollegeIncome, CampusAreasLiberalArtsCollegeExpenses, CampusAreasLiberalArtsCollegeProfit,
@@ -147,7 +149,7 @@ namespace MoreCityStatistics
             GameLimitsNetworkLanesUsedPercent, GameLimitsNetworkLanesUsed, GameLimitsNetworkLanesCapacity,
             GameLimitsNetworkNodesUsedPercent, GameLimitsNetworkNodesUsed, GameLimitsNetworkNodesCapacity,
             GameLimitsNetworkSegmentsUsedPercent, GameLimitsNetworkSegmentsUsed, GameLimitsNetworkSegmentsCapacity,
-            GameLimitsParkAreasUsedPercent, GameLimitsParkAreasUsed, GameLimitsParkAreasCapacity,
+            GameLimitsPaintedAreasUsedPercent, GameLimitsPaintedAreasUsed, GameLimitsPaintedAreasCapacity,
             GameLimitsPathUnitsUsedPercent, GameLimitsPathUnitsUsed, GameLimitsPathUnitsCapacity,
             GameLimitsPropsUsedPercent, GameLimitsPropsUsed, GameLimitsPropsCapacity,
             GameLimitsRadioChannelsUsedPercent, GameLimitsRadioChannelsUsed, GameLimitsRadioChannelsCapacity,
@@ -166,6 +168,8 @@ namespace MoreCityStatistics
         private readonly Translation.Key _descriptionKey2;
         private readonly Translation.Key _unitsKey;
         private readonly Color32 _textColor;
+        private readonly FieldInfo _snapshotField;
+        private readonly PropertyInfo _snapshotProperty;
 
         // properties needed for UI operations
         private bool _selected;
@@ -175,7 +179,8 @@ namespace MoreCityStatistics
         // UI elements that are referenced after they are created
         private UIPanel _panel;
         private UISprite _checkbox;
-        private UILabel _label;
+        private UILabel _description;
+        private UILabel _amount;
 
         // needed by the graph
         private string _categoryDescription;
@@ -202,18 +207,6 @@ namespace MoreCityStatistics
             {
                 _descriptionKey1 = Translation.Key.WaterSewageHeating;
             }
-            if (_descriptionKey1 == Translation.Key.ParkIndustryCampusAreas)
-            {
-                bool dlcParkLife   = SteamHelper.IsDLCOwned(SteamHelper.DLC.ParksDLC);               // 05/24/18
-                bool dlcIndustries = SteamHelper.IsDLCOwned(SteamHelper.DLC.IndustryDLC);            // 10/23/18
-                bool dlcCampus     = SteamHelper.IsDLCOwned(SteamHelper.DLC.CampusDLC);              // 05/21/19
-                if      ( dlcParkLife && !dlcIndustries && !dlcCampus) { _descriptionKey1 = Translation.Key.ParkAreas;           }
-                else if (!dlcParkLife &&  dlcIndustries && !dlcCampus) { _descriptionKey1 = Translation.Key.IndustryAreas;       }
-                else if (!dlcParkLife && !dlcIndustries &&  dlcCampus) { _descriptionKey1 = Translation.Key.CampusAreas;         }
-                else if ( dlcParkLife &&  dlcIndustries && !dlcCampus) { _descriptionKey1 = Translation.Key.ParkIndustryAreas;   }
-                else if ( dlcParkLife && !dlcIndustries &&  dlcCampus) { _descriptionKey1 = Translation.Key.ParkCampusAreas;     }
-                else if (!dlcParkLife &&  dlcIndustries &&  dlcCampus) { _descriptionKey1 = Translation.Key.IndustryCampusAreas; }
-            }
 
             // compute line color from text color
             // for unknown reasons, graph lines appear brighter than the text, so make the line color a bit darker than the text so they match more closely
@@ -236,6 +229,9 @@ namespace MoreCityStatistics
             {
                 _numberFormat = "N0";
             }
+
+            // get field or property info
+            Snapshot.GetFieldProperty(_type, out _snapshotField, out _snapshotProperty);
 
             // initialize UI text
             UpdateUIText();
@@ -308,18 +304,33 @@ namespace MoreCityStatistics
             _checkbox.size = new Vector2(componentHeight, componentHeight);
             _checkbox.relativePosition = new Vector3(20f, 0f);
 
-            // create the label
-            _label = _panel.AddUIComponent<UILabel>();
-            if (_label == null)
+            // create the description label
+            _description = _panel.AddUIComponent<UILabel>();
+            if (_description == null)
             {
-                LogUtil.LogError($"Unable to create statistic label for [{_type}].");
+                LogUtil.LogError($"Unable to create statistic description label for [{_type}].");
                 return false;
             }
-            _label.name = namePrefix + "Label";
-            _label.textScale = 0.625f;
-            _label.relativePosition = new Vector3(_checkbox.relativePosition.x + _checkbox.size.x + 3f, 3f);
-            _label.autoSize = false;
-            _label.size = new Vector2(_panel.size.x - _label.relativePosition.x, componentHeight);
+            _description.name = namePrefix + "Description";
+            _description.textScale = 0.625f;
+            _description.relativePosition = new Vector3(_checkbox.relativePosition.x + _checkbox.size.x + 3f, 3f);
+            _description.autoSize = false;
+            _description.size = new Vector2(_panel.size.x - _description.relativePosition.x, componentHeight);
+
+            // create the amount label on top of the description
+            _amount = _panel.AddUIComponent<UILabel>();
+            if (_amount == null)
+            {
+                LogUtil.LogError($"Unable to create statistic amount label for [{_type}].");
+                return false;
+            }
+            _amount.name = namePrefix + "Amount";
+            _amount.textScale = _description.textScale;
+            _amount.autoSize = false;
+            _amount.size = new Vector2(_description.size.x - 100f, componentHeight);
+            _amount.relativePosition = new Vector3(_panel.size.x - _amount.size.x - 2f, _description.relativePosition.y);
+            _amount.textAlignment = UIHorizontalAlignment.Right;
+            _amount.BringToFront();
 
             // set initial selection status to the status previously read from the game save file
             Selected = Selected;
@@ -335,6 +346,7 @@ namespace MoreCityStatistics
             bool dlcIndustries          = SteamHelper.IsDLCOwned(SteamHelper.DLC.IndustryDLC);            // 10/23/18
             bool dlcCampus              = SteamHelper.IsDLCOwned(SteamHelper.DLC.CampusDLC);              // 05/21/19
             bool dlcSunsetHarbor        = SteamHelper.IsDLCOwned(SteamHelper.DLC.UrbanDLC);               // 03/26/20
+            bool dlcAirports            = SteamHelper.IsDLCOwned(SteamHelper.DLC.AirportDLC);             // 01/25/22
 
             // disable statistic for inactive DLC
             // statistic is still present, just hidden so it cannot be selected
@@ -486,9 +498,9 @@ namespace MoreCityStatistics
                     DisableForInactiveDLC(dlcIndustries);
                     break;
 
-                case StatisticType.IndustryAreasFishingIndustryIncome:
-                case StatisticType.IndustryAreasFishingIndustryExpenses:
-                case StatisticType.IndustryAreasFishingIndustryProfit:
+                case StatisticType.FishingIndustryFishingIncome:
+                case StatisticType.FishingIndustryFishingExpenses:
+                case StatisticType.FishingIndustryFishingProfit:
                     DisableForInactiveDLC(dlcSunsetHarbor);
                     break;
 
@@ -556,10 +568,10 @@ namespace MoreCityStatistics
                     DisableForInactiveDLC(dlcNaturalDisasters);
                     break;
 
-                case StatisticType.GameLimitsParkAreasUsedPercent:
-                case StatisticType.GameLimitsParkAreasUsed:
-                case StatisticType.GameLimitsParkAreasCapacity:
-                    DisableForInactiveDLC(dlcParkLife || dlcIndustries || dlcCampus);
+                case StatisticType.GameLimitsPaintedAreasUsedPercent:
+                case StatisticType.GameLimitsPaintedAreasUsed:
+                case StatisticType.GameLimitsPaintedAreasCapacity:
+                    DisableForInactiveDLC(dlcParkLife || dlcIndustries || dlcCampus || dlcAirports);
                     break;
             }
 
@@ -619,11 +631,48 @@ namespace MoreCityStatistics
             // combine categtory, description, and units
             _categoryDescriptionUnits = _category.Description + "-" + _descriptionUnits;
 
-            // update label
-            if (_label != null)
+            // update description
+            if (_description != null)
             {
-                _label.text = _descriptionUnits;
-                _label.textColor = _textColor;
+                _description.text = _descriptionUnits;
+                _description.textColor = _textColor;
+            }
+
+            // update amount
+            if (_amount != null)
+            {
+                _amount.textColor = _textColor;
+            }
+        }
+
+        /// <summary>
+        /// update the amount from the snapshot
+        /// </summary>
+        public void UpdateAmount(Snapshot snapshot)
+        {
+            // make sure label is valid
+            if (_amount != null)
+            {
+                // get the value from the field or property
+                object snapshotValue = null;
+                if (_snapshotField != null)
+                {
+                    snapshotValue = _snapshotField.GetValue(snapshot);
+                }
+                else if (_snapshotProperty != null)
+                {
+                    snapshotValue = _snapshotProperty.GetValue(snapshot, null);
+                }
+
+                // display the value
+                if (snapshotValue == null)
+                {
+                    _amount.text = "";
+                }
+                else
+                {
+                    _amount.text = System.Convert.ToDouble(snapshotValue).ToString(_numberFormat, LocaleManager.cultureInfo);
+                }
             }
         }
 

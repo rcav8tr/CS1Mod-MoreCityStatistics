@@ -77,6 +77,18 @@ namespace MoreCityStatistics
         }
 
         /// <summary>
+        /// update amounts
+        /// </summary>
+        public void UpdateAmounts(Snapshot snapshot)
+        {
+            // update the amount for each statistic
+            foreach (Statistic statistic in this)
+            {
+                statistic.UpdateAmount(snapshot);
+            }
+        }
+
+        /// <summary>
         /// write the statistics to the game save file
         /// </summary>
         public void Serialize(BinaryWriter writer)

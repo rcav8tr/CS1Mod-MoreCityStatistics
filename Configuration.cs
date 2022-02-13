@@ -22,6 +22,9 @@ namespace MoreCityStatistics
         // language code
         public string LanguageCode = Options.GameLanguageCode;
 
+        // current value update interval
+        public int CurrentValueUpdateInterval = Options.DefaultUpdateInterval;
+
         /// <summary>
         /// save the button position to the global config file
         /// </summary>
@@ -51,6 +54,16 @@ namespace MoreCityStatistics
         {
             Configuration config = ConfigurationUtil<Configuration>.Load();
             config.LanguageCode = languageCode;
+            ConfigurationUtil<Configuration>.Save();
+        }
+
+        /// <summary>
+        /// save the current value update interval to the global config file
+        /// </summary>
+        public static void SaveCurrentValueUpdateInterval(int interval)
+        {
+            Configuration config = ConfigurationUtil<Configuration>.Load();
+            config.CurrentValueUpdateInterval = interval;
             ConfigurationUtil<Configuration>.Save();
         }
     }
