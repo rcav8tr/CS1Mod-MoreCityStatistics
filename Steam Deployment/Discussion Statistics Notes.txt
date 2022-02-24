@@ -1,5 +1,7 @@
-Statistics are color coded.  Used percent and used amount are generally the same color because it is expected amount and percent won't be selected at the same time.  The color for available amount is generally a darker versin of the used color.  Line color in the graph matches the text color of the corresponding selected statistic.
+[h3]Colors[/h3]
+Statistics are color coded.  Used percent and used amount are generally the same color because it is expected amount and percent won't be selected at the same time.  The color for available amount is generally a darker version of the used color.  Line color in the graph matches the text color of the corresponding selected statistic.
 
+[h3]Availability Percent vs Used Percent[/h3]
 The game computes "Availability" percent for some things (e.g. Electricity Availability).  Availability is not always useful.  Instead of availability, this mod computes used percent, which is a little like the inverse of the game's availability percent.  Used percent is computed as:  the amount of the thing used divided by the amount of the thing available.  For example, Electricity-Consumption percent is computed as:  Electricity-Consumption (MW) divided by Electricity-Production (MW).  Used percent can be above 100% (e.g. if you disable/bulldoze electricity production), but usually for only a brief time while the game logic reacts.  Here are some examples that compare availability percent to used percent for Electricity.  Note that the game does not show availability above 100%.[table]
 [tr][td][b]Consumption[/b][/td][td][b]Production[/b][/td][td][b]Availability[/b][/td][td][b]Used[/b][/td][/tr]
 [tr][td] 4 MW[/td][td]16 MW[/td][td]200.0%[/td][td] 25.0%[/td][/tr]
@@ -11,49 +13,92 @@ The game computes "Availability" percent for some things (e.g. Electricity Avail
 [tr][td]16 MW[/td][td]16 MW[/td][td] 50.0%[/td][td]100.0%[/td][/tr]
 [tr][td]18 MW[/td][td]16 MW[/td][td] 44.4%[/td][td]112.5%[/td][/tr][/table]
 
+[h3]Campus Area Students[/h3]
 Education-University includes students in Campus Areas.
 
+[h3]Zoning[/h3]
 The Zoning category calculates zones according to the number of squares.  A zoned square is counted according to the square's zone type regardless of the type of any building on the square.  An unzoned square is counted as follows:[list]
 [*]If an unzoned square has no building on it, the square is counted as Unzoned.
 [*]If an unzoned square has a building that is a RICO zoned type (e.g. from [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2016920607]Ploppable RICO Revisited[/url] mod or Industries DLC), the square is counted according to the building's zone type.
 [*]If an unzoned square has any other building (e.g. service buildings, parks, and other structures/props that prevent zoning), the square is counted as Unzoned.  Note that some buildings/structures cause underlying squares to be removed instead of unzoned.[/list]
 
+[h3]Zone Buildings[/h3]
 The Zone Buildings category mimics the calculation for Zoned Building Distribution on the game's City Info panel.  The calculation uses the combination of households available and jobs available.
 
+[h3]Tax Rates[/h3]
+Tax rates are the base tax rates, excluding any taxation policies.
+
+[h3]Bank Balance[/h3]
+Starting with Version 1.7 of this mod, Bank Balance is the game's internal cash amount, which is not affected by the Unlimited Money mod.  Before Version 1.7 of this mod, Bank Balance had a huge value when the Unlimited Money mod was enabled.  In snapshots taken before Version 1.7, the huge values are removed.
+
+[h3]City Value[/h3]
+City Value is the construction cost of player buildings and networks plus the Bank Balance minus the Loan Balance.  The game's City Value statistic includes a huge value for Bank Balance when the Unlimited Money mod is enabled.  In this mod, City Value includes the internal cash amount as described above.  Note that if the Unlimited Money mod is enabled, it is possible to accumulate a large negative Bank Balance which will adversely affect the City Value.
+
+[h3]Gross Domestic Product[/h3]
+Gross Domestic Product in the real world is usually computed using annual data.  In this mod, Gross Domestic Product is computed using weekly data.  The formula for [url=https://en.wikipedia.org/wiki/Gross_domestic_product]Gross Domestic Product[/url] using the expenditure approach is:  Consumption + Investment + Government Spending + Net Exports where:[list]
+[*]Consumption is the sum of consumption across all zone types.  Consumption is the zone type's income minus taxes (i.e. assume all nontaxed income is eventually spent and not saved forever in a bank).  The taxes your city collects from a zone type is the zone type's income times its tax rate, so a zone type's income is the zone type's taxes divided by the tax rate.  For example, if a zone type's taxes are ₡100 and the tax rate is 10%, then the zone type's income is ₡100 / 10% = ₡1,000 and consumption is ₡1,000 - ₡100 = ₡900.
+[*]Investment includes, for example, business investment in equipment.  Investment may be considered the consumption of commercial, industrial, and office zone types and is already included in Consumption above.
+[*]Government spending is all city expenses except loan expenses.
+[*]Net Exports is Exports value minus Imports value.  The values of Exports and Imports are the resource counts from the Outside Connections view times the rates from the table below (which were obtained from game logic).  Mail is not included.[table]
+[tr][td][b]Resource[/b][/td][td][b]Rate[/b][/td][/tr]
+[tr][td]Goods   [/td][td]₡15/count[/td][/tr]
+[tr][td]Forestry[/td][td]₡2/count [/td][/tr]
+[tr][td]Farming [/td][td]₡2/count [/td][/tr]
+[tr][td]Ore     [/td][td]₡3/count [/td][/tr]
+[tr][td]Oil     [/td][td]₡4/count [/td][/tr]
+[tr][td]Fish    [/td][td]₡6/count [/td][/tr]
+[/table]
+[/list]
+
+[h3]Tourism Income[/h3]
 The game's Economy panel shows Tourism income from Commercial Zones, Public Transportation, and Park Areas.  Income from tourists is already included in those incomes.  Therefore, these three Tourism incomes are not added to other incomes to compute total income.
 
+[h3]Toll Booth Expenses[/h3]
 The game's Economy panel combines Toll Booth expenses with Road expenses.  In this mod, Toll Booth expenses are separate (see the Transport Economy-Toll Booth statistics).
 
+[h3]Emergency Expenses[/h3]
 The game's Economy panel combines Emergency (i.e. Disaster) expenses with Fire expenses.  In this mod, Emergency expenses are separate (see the Service Expenses-Emergency statistics).
 
+[h3]Generic Sports Arena Expenses[/h3]
 A Generic Sports Arena is a varsity sports arena either inside a generic campus area (i.e. no administration building) or outside all campus areas.  The game's Economy panel combines Generic Sports Arena expenses with Unique Building expenses.  In this mod, Generic Sports Arena expenses are separate (see the Service Expenses-Generic Sports Arenas statistics).  The "Sports Arena", "Ice Hockey Arena", "Snowboard Arena", "Football Stadium", and "Stadium" are considered Unique Buildings, not Generic Sports Arenas.
 
+[h3]Park Area Expenses[/h3]
 The game's Economy panel combines Park Area expenses with Park expenses.  In this mod, Park Areas are separate (see the Park Areas category).  A Park Area with no gate is considered City Park.
 
+[h3]Fishing Industry[/h3]
 When Industries DLC and Sunset Harbor DLC are both enabled, the game's Economy panel combines Fishing Industry with Industry Areas even though Fishing Industry is not required to be in an Industry Area.  In this mod, Fishing Industry is separate (see the Fishing Industry category).
 
+[h3]Campus Area Expenses[/h3]
 The game's Economy panel combines Campus Area expenses with Education expenses.  In this mod, Campus Areas are separate (see the Campus Areas category).
 
+[h3]Airport Areas[/h3]
 Airport Area income and expenses are included in the Transport Economy-Air statistics.
 
+[h3]Mail and Space Elevator Profit[/h3]
 Mail and Space Elevator have no income, therefore all corresponding expenses are negative profit.
 
+[h3]Mod Income vs Game Income[/h3]
 Income varies greatly and quickly as public transportation is used, park areas are visited, industry areas produce goods/materials, students attend college at campus areas, varsity sporting events are held, etc.  Therefore, income reported by this mod may differ slightly (up to about +/-0.1%) from the game's income due to the way the data is obtained.
 
-In the Game Limits category:  Park, Industry, Campus, and Airport areas a called Painted Areas and share the same limits.
+[h3]Painted Areas[/h3]
+In the Game Limits category:  Park, Industry, Campus, and Airport areas are called Painted Areas.  All painted areas share the same limits.
 
+[h3]Rounding[/h3]
 Snapshot values may not exactly match the corresponding game value due to rounding.
 
+[h3]Date Gaps[/h3]
 If there is a gap in the snapshot dates due to disabling and later re-enabling this mod or due to using the [url=https://steamcommunity.com/sharedfiles/filedetails/?id=1729576238]Date Changer[/url] mod, the graph will have a line between the two points on either side of the gap.
 
+[h3]Computed Statistics[/h3]
 Many of the statistics are computed from other statistics.  For example, Profit is computed as Income minus Expenses.  To save space in the game save file, the computed statistics are not saved.  Only the base statistics are saved.
 
-A single snapshot uses 1,615 bytes in the game save file.  The snapshot space in the game save file is listed below for various date ranges and the two snapshot frequencies.  For comparison, a new blank game is about 5-6MB.
+[h3]Game Save File Space[/h3]
+A single snapshot uses 1,634 bytes in the game save file.  The snapshot space in the game save file is listed below for various date ranges and the two snapshot frequencies.  For comparison, a new blank game is about 5-6MB.
 [table]
 [tr][td][b]Date range[/b][/td][td][b]1/mo[/b][/td][td][b]1/day[/b][/td][/tr]
-[tr][td]1 month    [/td][td]1,615[/td][td] 49KB[/td][/tr]
-[tr][td]1 year     [/td][td] 19KB[/td][td]590KB[/td][/tr]
-[tr][td]10 years   [/td][td]194KB[/td][td]5.9MB[/td][/tr]
-[tr][td]100 years  [/td][td]1.9MB[/td][td] 59MB[/td][/tr]
-[tr][td]1,000 years[/td][td] 19MB[/td][td]590MB[/td][/tr]
+[tr][td]1 month    [/td][td] 1,634[/td][td]49.6KB[/td][/tr]
+[tr][td]1 year     [/td][td]19.6KB[/td][td] 597KB[/td][/tr]
+[tr][td]10 years   [/td][td] 196KB[/td][td]5.97MB[/td][/tr]
+[tr][td]100 years  [/td][td]1.96MB[/td][td]59.7MB[/td][/tr]
+[tr][td]1,000 years[/td][td]19.6MB[/td][td] 597MB[/td][/tr]
 [/table]

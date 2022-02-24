@@ -413,34 +413,41 @@ namespace MoreCityStatistics
                 maxValue = Math.Floor(minValue) + 1d;
             }
 
-            // compute whole number increment, must be at least 1
-            _incrementValue = (long)Math.Ceiling(Math.Pow(10d, (long)Math.Floor(Math.Log10(0.5 * (maxValue - minValue)))));
-            if (_incrementValue == 0d)
+            // compute increment, start, and end values
+            ComputeIncrementStartEnd(minValue, maxValue, out _incrementValue, out _startValue, out _endValue);
+
+            // When the curve has very large values (like Bank Balance when the Unlimited Money built-in mod is enabled) and only that one curve is included,
+            // the min and max values are the same because the 1 added above to the max value is insignificant compared to the magnitude of the values.
+            // Furthermore, the increment is insignificant compared to the magnitude of the values.
+            // The insignificant increment value would result in an infinite loop when the horizontal lines and labels are drawn on the graph.
+            // When the increment is insignificant, increase the max value by 10, 100, 1000 etc. over the min value
+            // until the increment is significant compared to the magnitude of the start and end values.
+            double adder = 10d;
+            while (_incrementValue <= Math.Max(Math.Abs(_endValue), Math.Abs(_startValue)) * 1E-14)
             {
-                _incrementValue = 1d;
+                // compute new max value
+                maxValue = Math.Floor(minValue) + adder;
+                adder *= 10d;
+
+                // compute new increment, start, and end values
+                ComputeIncrementStartEnd(minValue, maxValue, out _incrementValue, out _startValue, out _endValue);
             }
 
-            // compute start and end values
-            _startValue = _incrementValue * Math.Floor(minValue / _incrementValue);
-            _endValue = _incrementValue * Math.Ceiling(maxValue / _incrementValue);
-
-            // if more than 15 divisions, double the increment and recompute
+            // if more than 15 divisions, double the increment and recompute start and end
             if ((_endValue - _startValue) / _incrementValue > 15d)
             {
                 _incrementValue *= 2d;
-                _startValue = _incrementValue * Math.Floor(minValue / _incrementValue);
-                _endValue = _incrementValue * Math.Ceiling(maxValue / _incrementValue);
+                ComputeStartEnd(minValue, maxValue, _incrementValue, out _startValue, out _endValue);
             }
 
-            // if less than 5 divisions and increment divides evenly by 2, halve the increment and recompute
+            // if less than 5 divisions and increment divides evenly by 2, halve the increment and recompute start and end
             if ((_endValue - _startValue) / _incrementValue < 5d && _incrementValue % 2d == 0)
             {
                 _incrementValue /= 2d;
-                _startValue = _incrementValue * Math.Floor(minValue / _incrementValue);
-                _endValue = _incrementValue * Math.Ceiling(maxValue / _incrementValue);
+                ComputeStartEnd(minValue, maxValue, _incrementValue, out _startValue, out _endValue);
             }
 
-            // compute graph range, if range is 1,2,3, then use an increment smaller than 1
+            // compute graph range, if range is 1,2,3, then use an increment smaller than 1, but keep the same start and end values
             _graphValueRange = _endValue - _startValue;
             if (_graphValueRange == 1d)
             {
@@ -454,6 +461,34 @@ namespace MoreCityStatistics
             {
                 _incrementValue = 0.5d;
             }
+        }
+
+        /// <summary>
+        /// compute increment, start, and end values from the min and max values
+        /// </summary>
+        private void ComputeIncrementStartEnd(double minValue, double maxValue, out double incrementValue, out double startValue, out double endValue)
+        {
+            // compute whole number increment
+            incrementValue = (long)Math.Ceiling(Math.Pow(10d, (long)Math.Floor(Math.Log10(0.5 * (maxValue - minValue)))));
+
+            // increment cannot be zero
+            if (incrementValue == 0d)
+            {
+                incrementValue = 1d;
+            }
+
+            // compute start and end values
+            ComputeStartEnd(minValue, maxValue, incrementValue, out startValue, out endValue);
+        }
+
+        /// <summary>
+        /// compute start and end values from the min, max, and increment values
+        /// </summary>
+        private void ComputeStartEnd(double minValue, double maxValue, double incrementValue, out double startValue, out double endValue)
+        {
+            // compute whole number start and end values
+            startValue = incrementValue * Math.Floor(minValue / incrementValue);
+            endValue = incrementValue * Math.Ceiling(maxValue / incrementValue);
         }
 
         /// <summary>
@@ -699,7 +734,7 @@ namespace MoreCityStatistics
             lineWidth = AxesWidth;
             lineColor = AxesColor;
             string numberformat = _incrementValue < 1d ? "N1" : "N0";
-            for (double value = _startValue; value <= _endValue + 0.01d; value += _incrementValue)
+            for (double value = _startValue; value <= _endValue + _incrementValue / 2d; value += _incrementValue)
             {
                 // compute normalized Y value
                 normalizedY = NormalizeValue(value);

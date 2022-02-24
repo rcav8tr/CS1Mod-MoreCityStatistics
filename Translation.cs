@@ -248,6 +248,13 @@ namespace MoreCityStatistics
             Expenses,
             Profit,
             BankBalance,
+            LoanBalance,
+            CityValue,
+            GrossDomesticProduct,
+            GovernmentSpending,
+            Exports,
+            Imports,
+            NetExports,
             LowDensity,
             HighDensity,
             SelfSufficient,
@@ -347,6 +354,9 @@ namespace MoreCityStatistics
             PctOfCityExpenses,
             MoneyPerSquareMeter,
             MoneyPerWeek,
+            MoneyPerCapita,
+            MoneyPerWeekPerCapita,
+            PctOfGrossDomesticProduct,
             Money,
             Amount
         }

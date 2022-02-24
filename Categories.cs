@@ -187,8 +187,10 @@ namespace MoreCityStatistics
             Color32 colorStatisticsBirthRate  = new Color32(0, 0, 0, 0);
             Color32 colorStatisticsDeathRate  = new Color32(0, 0, 0, 0);
             Color32 colorStatisticsPopulation = new Color32(0, 0, 0, 0);
-            Color32 colorstatisticsEmployment = new Color32(0, 0, 0, 0);
-            Color32 colorstatisticsJobs       = new Color32(0, 0, 0, 0);
+            Color32 colorStatisticsEmployment = new Color32(0, 0, 0, 0);
+            Color32 colorStatisticsJobs       = new Color32(0, 0, 0, 0);
+            Color32 colorStatisticsCityValue  = new Color32(0, 0, 0, 0);
+            Color32 colorStatisticsCityBudget = new Color32(0, 0, 0, 0);
             for (int i = 0; i < statisticsNames.Length; i++)
             {
                 switch (statisticsNames[i])
@@ -197,8 +199,10 @@ namespace MoreCityStatistics
                     case "Birth":      colorStatisticsBirthRate  = statisticsPanel.StatisticsColors[i]; break;
                     case "Death":      colorStatisticsDeathRate  = statisticsPanel.StatisticsColors[i]; break;
                     case "Population": colorStatisticsPopulation = statisticsPanel.StatisticsColors[i]; break;
-                    case "Employment": colorstatisticsEmployment = statisticsPanel.StatisticsColors[i]; break;
-                    case "Jobs":       colorstatisticsJobs       = statisticsPanel.StatisticsColors[i]; break;
+                    case "Employment": colorStatisticsEmployment = statisticsPanel.StatisticsColors[i]; break;
+                    case "Jobs":       colorStatisticsJobs       = statisticsPanel.StatisticsColors[i]; break;
+                    case "Value":      colorStatisticsCityValue  = statisticsPanel.StatisticsColors[i]; break;
+                    case "Budget":     colorStatisticsCityBudget = statisticsPanel.StatisticsColors[i]; break;
                 }
             }
 
@@ -270,14 +274,15 @@ namespace MoreCityStatistics
             Color32 colorHouseholds1 = new Color32(206, 248, 000, 255);            // color taken manually from CityInfoPanel for households text
             Color32 colorHouseholds2 = colorHouseholds1.Multiply(DarkerMultipler);
 
-            Color32 colorEmployment1 = colorstatisticsJobs;
+            Color32 colorEmployment1 = colorStatisticsJobs;
             Color32 colorEmployment2 = colorEmployment1.Multiply(DarkerMultipler);
             Color32 colorEmployment3 = colorEmployment2.Multiply(DarkerMultipler);
-            Color32 colorUnemployment1 = colorstatisticsEmployment;
+            Color32 colorUnemployment1 = colorStatisticsEmployment;
             Color32 colorUnemployment2 = colorUnemployment1.Multiply(DarkerMultipler);
 
             Color32 colorTransferTotal1 = new Color32(128, 128, 128, 255);         // a shade of gray
             Color32 colorTransferTotal2 = colorTransferTotal1.Multiply(DarkerMultipler);
+            Color32 colorTransferTotal3 = colorTransferTotal2.Multiply(DarkerMultipler);
 
             Color32 colorCityTotalIncome   = new Color32(090, 225, 020, 255);      // color taken manually from EconomyPanel
             Color32 colorCityTotalExpenses = new Color32(254, 150, 089, 255);      // color taken manually from EconomyPanel
@@ -558,21 +563,21 @@ namespace MoreCityStatistics
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.EmploymentEligibleWorkers,                  Translation.Key.EligibleWorkers,        Translation.Key.None,           Translation.Key.Citizens,                   colorUnemployment2          ));
 
             _instance.Add(category = new Category(Category.CategoryType.OutsideConnections, Translation.Key.OutsideConnections));
-            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.OutsideConnectionsImportTotal,              Translation.Key.Import,                 Translation.Key.Total,          Translation.Key.Units,                      colorTransferTotal1         ));
-            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.OutsideConnectionsImportGoods,              Translation.Key.Import,                 Translation.Key.Goods,          Translation.Key.Units,                      colorTransferGoods1         ));
-            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.OutsideConnectionsImportForestry,           Translation.Key.Import,                 Translation.Key.Forestry,       Translation.Key.Units,                      colorTransferForestry1      ));
-            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.OutsideConnectionsImportFarming,            Translation.Key.Import,                 Translation.Key.Farming,        Translation.Key.Units,                      colorTransferFarming1       ));
-            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.OutsideConnectionsImportOre,                Translation.Key.Import,                 Translation.Key.Ore,            Translation.Key.Units,                      colorTransferOre1           ));
-            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.OutsideConnectionsImportOil,                Translation.Key.Import,                 Translation.Key.Oil,            Translation.Key.Units,                      colorTransferOil1           ));
-            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.OutsideConnectionsImportMail,               Translation.Key.Import,                 Translation.Key.Mail,           Translation.Key.Units,                      colorTransferMail1          ));
-            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.OutsideConnectionsExportTotal,              Translation.Key.Export,                 Translation.Key.Total,          Translation.Key.Units,                      colorTransferTotal2         ));
-            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.OutsideConnectionsExportGoods,              Translation.Key.Export,                 Translation.Key.Goods,          Translation.Key.Units,                      colorTransferGoods2         ));
-            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.OutsideConnectionsExportForestry,           Translation.Key.Export,                 Translation.Key.Forestry,       Translation.Key.Units,                      colorTransferForestry2      ));
-            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.OutsideConnectionsExportFarming,            Translation.Key.Export,                 Translation.Key.Farming,        Translation.Key.Units,                      colorTransferFarming2       ));
-            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.OutsideConnectionsExportOre,                Translation.Key.Export,                 Translation.Key.Ore,            Translation.Key.Units,                      colorTransferOre2           ));
-            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.OutsideConnectionsExportOil,                Translation.Key.Export,                 Translation.Key.Oil,            Translation.Key.Units,                      colorTransferOil2           ));
-            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.OutsideConnectionsExportMail,               Translation.Key.Export,                 Translation.Key.Mail,           Translation.Key.Units,                      colorTransferMail2          ));
-            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.OutsideConnectionsExportFish,               Translation.Key.Export,                 Translation.Key.Fish,           Translation.Key.Units,                      colorTransferFish2          ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.OutsideConnectionsImportTotal,              Translation.Key.Import,                 Translation.Key.Total,          Translation.Key.UnitsPerWeek,               colorTransferTotal1         ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.OutsideConnectionsImportGoods,              Translation.Key.Import,                 Translation.Key.Goods,          Translation.Key.UnitsPerWeek,               colorTransferGoods1         ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.OutsideConnectionsImportForestry,           Translation.Key.Import,                 Translation.Key.Forestry,       Translation.Key.UnitsPerWeek,               colorTransferForestry1      ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.OutsideConnectionsImportFarming,            Translation.Key.Import,                 Translation.Key.Farming,        Translation.Key.UnitsPerWeek,               colorTransferFarming1       ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.OutsideConnectionsImportOre,                Translation.Key.Import,                 Translation.Key.Ore,            Translation.Key.UnitsPerWeek,               colorTransferOre1           ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.OutsideConnectionsImportOil,                Translation.Key.Import,                 Translation.Key.Oil,            Translation.Key.UnitsPerWeek,               colorTransferOil1           ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.OutsideConnectionsImportMail,               Translation.Key.Import,                 Translation.Key.Mail,           Translation.Key.UnitsPerWeek,               colorTransferMail1          ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.OutsideConnectionsExportTotal,              Translation.Key.Export,                 Translation.Key.Total,          Translation.Key.UnitsPerWeek,               colorTransferTotal2         ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.OutsideConnectionsExportGoods,              Translation.Key.Export,                 Translation.Key.Goods,          Translation.Key.UnitsPerWeek,               colorTransferGoods2         ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.OutsideConnectionsExportForestry,           Translation.Key.Export,                 Translation.Key.Forestry,       Translation.Key.UnitsPerWeek,               colorTransferForestry2      ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.OutsideConnectionsExportFarming,            Translation.Key.Export,                 Translation.Key.Farming,        Translation.Key.UnitsPerWeek,               colorTransferFarming2       ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.OutsideConnectionsExportOre,                Translation.Key.Export,                 Translation.Key.Ore,            Translation.Key.UnitsPerWeek,               colorTransferOre2           ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.OutsideConnectionsExportOil,                Translation.Key.Export,                 Translation.Key.Oil,            Translation.Key.UnitsPerWeek,               colorTransferOil2           ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.OutsideConnectionsExportMail,               Translation.Key.Export,                 Translation.Key.Mail,           Translation.Key.UnitsPerWeek,               colorTransferMail2          ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.OutsideConnectionsExportFish,               Translation.Key.Export,                 Translation.Key.Fish,           Translation.Key.UnitsPerWeek,               colorTransferFish2          ));
 
             _instance.Add(category = new Category(Category.CategoryType.LandValue, Translation.Key.LandValue));
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.LandValueAverage,                           Translation.Key.Average,                Translation.Key.None,           Translation.Key.MoneyPerSquareMeter,        colorInfoLandValue          ));
@@ -634,6 +639,19 @@ namespace MoreCityStatistics
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.CityEconomyTotalExpenses,                   Translation.Key.Total,                  Translation.Key.Expenses,       Translation.Key.MoneyPerWeek,               colorCityTotalExpenses      ));
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.CityEconomyTotalProfit,                     Translation.Key.Total,                  Translation.Key.Profit,         Translation.Key.MoneyPerWeek,               colorCityTotalProfit        ));
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.CityEconomyBankBalance,                     Translation.Key.BankBalance,            Translation.Key.None,           Translation.Key.Money,                      colorBankBalance            ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.CityEconomyLoanBalance,                     Translation.Key.LoanBalance,            Translation.Key.None,           Translation.Key.Money,                      colorEconomy                ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.CityEconomyCityValue,                       Translation.Key.CityValue,              Translation.Key.None,           Translation.Key.Money,                      colorStatisticsCityValue    ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.CityEconomyCityValuePerCapita,              Translation.Key.CityValue,              Translation.Key.None,           Translation.Key.MoneyPerCapita,             colorStatisticsCityValue    ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.CityEconomyGrossDomesticProduct,            Translation.Key.GrossDomesticProduct,   Translation.Key.None,           Translation.Key.MoneyPerWeek,               colorStatisticsCityBudget   ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.CityEconomyGrossDomesticProductPerCapita,   Translation.Key.GrossDomesticProduct,   Translation.Key.None,           Translation.Key.MoneyPerWeekPerCapita,      colorStatisticsCityBudget   ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.CityEconomyConsumption,                     Translation.Key.Consumption,            Translation.Key.None,           Translation.Key.MoneyPerWeek,               colorZoneResidentialMid     ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.CityEconomyConsumptionPercent,              Translation.Key.Consumption,            Translation.Key.None,           Translation.Key.PctOfGrossDomesticProduct,  colorZoneResidentialMid     ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.CityEconomyGovernmentSpending,              Translation.Key.GovernmentSpending,     Translation.Key.None,           Translation.Key.MoneyPerWeek,               colorStatisticsDeathRate    ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.CityEconomyGovernmentSpendingPercent,       Translation.Key.GovernmentSpending,     Translation.Key.None,           Translation.Key.PctOfGrossDomesticProduct,  colorStatisticsDeathRate    ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.CityEconomyExports,                         Translation.Key.Exports,                Translation.Key.None,           Translation.Key.MoneyPerWeek,               colorTransferTotal2         ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.CityEconomyImports,                         Translation.Key.Imports,                Translation.Key.None,           Translation.Key.MoneyPerWeek,               colorTransferTotal1         ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.CityEconomyNetExports,                      Translation.Key.NetExports,             Translation.Key.None,           Translation.Key.MoneyPerWeek,               colorTransferTotal3         ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.CityEconomyNetExportsPercent,               Translation.Key.NetExports,             Translation.Key.None,           Translation.Key.PctOfGrossDomesticProduct,  colorTransferTotal3         ));
 
             _instance.Add(category = new Category(Category.CategoryType.ResidentialIncome, Translation.Key.ResidentialIncome));
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.ResidentialIncomeTotalPercent,              Translation.Key.Total,                  Translation.Key.None,           Translation.Key.PctOfCityIncome,            colorZoneResidentialMid     ));

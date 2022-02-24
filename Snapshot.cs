@@ -354,7 +354,66 @@ namespace MoreCityStatistics
         public long CityEconomyTotalIncome;
         public long CityEconomyTotalExpenses;
         public long CityEconomyTotalProfit                  { get { return CityEconomyTotalIncome - CityEconomyTotalExpenses; } }
-        public long CityEconomyBankBalance;
+        public long? CityEconomyBankBalance;
+        public long? CityEconomyLoanBalance;
+        public long? CityEconomyCityValue;
+        public float? CityEconomyCityValuePerCapita         { get { return ComputePerCapita(CityEconomyCityValue); } }
+        public long CityEconomyGrossDomesticProduct         { get { return CityEconomyConsumption + CityEconomyGovernmentSpending + CityEconomyNetExports; } }
+        public float CityEconomyGrossDomesticProductPerCapita { get { return (float)ComputePerCapita(CityEconomyGrossDomesticProduct); } }
+        public long CityEconomyConsumption
+        {
+            get
+            {
+                // Consumption is the sum of consumption across all zone types.
+                // Consumption is the zone type's income minus taxes (i.e. assume all nontaxed income is eventually spent and not saved forever in a bank).
+                // The taxes your city collects from a zone type is the zone type's income times its tax rate, so a zone type's income is the zone type's taxes divided by the tax rate.
+                // The tax rate for a zone type in this calculation is the zone type's base tax rate excluding any taxation policies.
+                // For example, if a zone type's taxes are ₡100 and the tax rate is 10%, then the zone type's income is ₡100 / 10% = ₡1,000 and consumption is ₡1,000 - ₡100 = ₡900.
+
+                // logic in CommercialBuildingAI.GetTaxRate for specialized zones uses either low or high density commercial tax rate depending on each individual building
+                // because this consumption logic is not at the building level, use the average of the low and high density commercial tax rates for specialized commercial
+                return
+                    (TaxRateResidentialLow                        == 0 ? 0 : (100 * ResidentialIncomeLowDensityTotal        / TaxRateResidentialLow                                - ResidentialIncomeLowDensityTotal       )) +
+                    (TaxRateResidentialHigh                       == 0 ? 0 : (100 * ResidentialIncomeHighDensityTotal       / TaxRateResidentialHigh                               - ResidentialIncomeHighDensityTotal      )) +
+                    (TaxRateCommercialLow                         == 0 ? 0 : (100 * CommercialIncomeLowDensityTotal         / TaxRateCommercialLow                                 - CommercialIncomeLowDensityTotal        )) +
+                    (TaxRateCommercialHigh                        == 0 ? 0 : (100 * CommercialIncomeHighDensityTotal        / TaxRateCommercialHigh                                - CommercialIncomeHighDensityTotal       )) +
+                    (TaxRateCommercialLow + TaxRateCommercialHigh == 0 ? 0 : (100 * (CommercialIncomeSpecializedTotal ?? 0) / ((TaxRateCommercialLow + TaxRateCommercialHigh) / 2) - (CommercialIncomeSpecializedTotal ?? 0))) +
+                    (TaxRateIndustrial                            == 0 ? 0 : (100 * IndustrialIncomeTotal                   / TaxRateIndustrial                                    - IndustrialIncomeTotal                  )) +
+                    (TaxRateOffice                                == 0 ? 0 : (100 * OfficeIncomeTotal                       / TaxRateOffice                                        - OfficeIncomeTotal                      ));
+            }
+        }
+        public float CityEconomyConsumptionPercent          { get { return ComputePercent(CityEconomyConsumption, CityEconomyGrossDomesticProduct); } }
+        public long CityEconomyGovernmentSpending           { get { return CityEconomyTotalExpenses - ServiceExpensesLoans; } }
+        public float CityEconomyGovernmentSpendingPercent   { get { return ComputePercent(CityEconomyGovernmentSpending, CityEconomyGrossDomesticProduct); } }
+
+        // in IndustryWorldInfoPanel.UpdateBindings, the value of a resource is computed as:  resource units * resource price / 10000
+        // resource price is obtained from IndustryBuildingAI.GetResourcePrice and there are 1000 units/ton
+        // for example, the resource price for forestry is ₡200, so 1000 units (i.e. 1 ton) of forestry is valued at:  1000 * 200 / 10000 = ₡20
+        // but the counts on the outside connections view are not in tons because the resource units there are divided by 100, not 1000
+        // this means the outside connection counts are 10 times too high (it is not known why the game does this)
+        // this is handled here by setting the value per outside connection count to 1/10th of the corresponding value/ton from the IndustryWorldInfoPanel logic
+        // for example, the value per outside connection count for forestry is ₡2 (from below), so 1000 units is valued at:  1000 / 100 * 2 = ₡20  (i.e. same as 1000 units above)
+        // the outside connection counts have already performed the calculation of:  resource units / 100, so all that is left is to multiply OC counts by the value/OC count
+        // mail is not included in the calculations because no value for mail is given in IndustryBuildingAI.GetResourcePrice (i.e. mail has no real value)
+        private const int ValuePerOCCountGoods    = 15;
+        private const int ValuePerOCCountForestry = 2;
+        private const int ValuePerOCCountFarming  = 2;
+        private const int ValuePerOCCountOre      = 3;
+        private const int ValuePerOCCountOil      = 4;
+        private const int ValuePerOCCountFish     = 6;
+        public int CityEconomyExports                       { get { return OutsideConnectionsExportGoods     * ValuePerOCCountGoods +
+                                                                           OutsideConnectionsExportForestry  * ValuePerOCCountForestry +
+                                                                           OutsideConnectionsExportFarming   * ValuePerOCCountFarming +
+                                                                           OutsideConnectionsExportOre       * ValuePerOCCountOre +
+                                                                           OutsideConnectionsExportOil       * ValuePerOCCountOil +
+                                                                           OutsideConnectionsExportFish ?? 0 * ValuePerOCCountFish; } }
+        public int CityEconomyImports                       { get { return OutsideConnectionsImportGoods     * ValuePerOCCountGoods +
+                                                                           OutsideConnectionsImportForestry  * ValuePerOCCountForestry +
+                                                                           OutsideConnectionsImportFarming   * ValuePerOCCountFarming +
+                                                                           OutsideConnectionsImportOre       * ValuePerOCCountOre +
+                                                                           OutsideConnectionsImportOil       * ValuePerOCCountOil; } }
+        public int CityEconomyNetExports                    { get { return CityEconomyExports - CityEconomyImports; } }
+        public float CityEconomyNetExportsPercent           { get { return ComputePercent(CityEconomyNetExports, CityEconomyGrossDomesticProduct); } }
 
         // Residential Income
         public float ResidentialIncomeTotalPercent          { get { return ComputePercent(ResidentialIncomeTotal, CityEconomyTotalIncome); } }
@@ -797,6 +856,27 @@ namespace MoreCityStatistics
         }
 
         /// <summary>
+        /// compute a per capita value from a nullable long value
+        /// </summary>
+        private float? ComputePerCapita(long? value)
+        {
+            // check for null
+            if (!value.HasValue)
+            {
+                return null;
+            }
+
+            // check for divide by zero
+            if (PopulationTotal == 0)
+            {
+                return 0f;
+            }
+
+            // normal per capita calculation
+            return (float?)((double)value / PopulationTotal);
+        }
+
+        /// <summary>
         /// compute the zone level weighted average from the individual zone level percents
         /// </summary>
         private float ComputeZoneLevelAverage(byte level1, byte level2, byte level3, byte level4 = 0, byte level5 = 0)
@@ -1130,11 +1210,14 @@ namespace MoreCityStatistics
             snapshot.TaxRateIndustrial      = economyManagerInstance.GetTaxRate(ItemClass.Service.Industrial,  ItemClass.SubService.None,            ItemClass.Level.None);
             snapshot.TaxRateOffice          = economyManagerInstance.GetTaxRate(ItemClass.Service.Office,      ItemClass.SubService.None,            ItemClass.Level.None);
 
-            // City Economy - logic for income and expenses copied from EconomyPanel.IncomeExpensesPoll.Poll; logic for bank balance copied from global::Bindings.cash
+            // City Economy - logic for income and expenses copied from EconomyPanel.IncomeExpensesPoll.Poll;
             // total income and total expenses are read directly from the game versus summing the component incomes and expenses; the result should be the same
+            // bank balance uses internal cash (not logic from global::Bindings.cash) to avoid a huge number when the Unlmited Money mod is enabled
             snapshot.CityEconomyTotalIncome   = GetEconomyIncome (ItemClass.Service.None, ItemClass.SubService.None, ItemClass.Level.None);
             snapshot.CityEconomyTotalExpenses = GetEconomyExpense(ItemClass.Service.None, ItemClass.SubService.None, ItemClass.Level.None);
-            snapshot.CityEconomyBankBalance   = ConvertMoney(economyManagerInstance.LastCashAmount);  // can be negative; Unlimited Money mod results in large bank balance
+            snapshot.CityEconomyBankBalance   = ConvertMoney(economyManagerInstance.InternalCashAmount);  // can be negative
+            snapshot.CityEconomyLoanBalance   = GetLoanBalance();
+            snapshot.CityEconomyCityValue     = GetCityValue(snapshot.CityEconomyBankBalance.Value, snapshot.CityEconomyLoanBalance.Value);   // can be negative
 
             // Residential Income - logic copied from EconomyPanel.InitializePolls
                                 snapshot.ResidentialIncomeLowDensity1               = GetEconomyIncome(ItemClass.Service.Residential, ItemClass.SubService.ResidentialLow,     ItemClass.Level.Level1);
@@ -1815,6 +1898,121 @@ namespace MoreCityStatistics
         }
 
         /// <summary>
+        /// get loan balance
+        /// </summary>
+        private static long GetLoanBalance()
+        {
+            // initialize
+            long loanBalance = 0;
+
+            // loop over all loans
+            // logic adapted from EconomyManager.SimulationStepImpl
+            FieldInfo fieldInfo = typeof(EconomyManager).GetField("m_loans", BindingFlags.NonPublic | BindingFlags.Instance);
+            EconomyManager.Loan[] loans = fieldInfo.GetValue(EconomyManager.instance) as EconomyManager.Loan[];
+			foreach (EconomyManager.Loan loan in loans)
+			{
+                // loan must be active
+				if (loan.m_length != 0)
+				{
+                    // loan must have an amount left
+					if (loan.m_amountLeft > 0)
+					{
+                        // subtract the amount left
+						loanBalance += loan.m_amountLeft;
+					}
+				}
+			}
+
+            // return loan balance
+            return loanBalance / 100L;
+        }
+
+        /// <summary>
+        /// get city value
+        /// logic adapted from StatisticsPanel.OnCheckboxChanged
+        /// </summary>
+        private static long GetCityValue(long bankBalance, long loanBalance)
+        {
+            // city value is computed:
+            //     construction cost of player buildings
+            //     plus construction cost of player network segments
+            //     plus bank balance
+            //     minus loan balance
+
+            // initialize
+            long cityValue = 0;
+
+            // loop over all buildings
+            // logic adapted from PlayerBuildingAI.SimulationStep
+            Building[] buildings = BuildingManager.instance.m_buildings.m_buffer;
+            for (ushort buildingID = 1; buildingID < buildings.Length; buildingID++)
+            {
+                // building must be created
+                Building building = buildings[buildingID];
+                if ((building.m_flags & Building.Flags.Created) != 0)
+                {
+                    // AI must be PlayerBuildingAI or derived from it
+                    if (building.Info != null && building.Info.m_buildingAI != null && building.Info.m_buildingAI.GetType().IsSubclassOf(typeof(PlayerBuildingAI)))
+                    {
+                        // add the building construction cost
+                        cityValue += building.Info.m_buildingAI.GetConstructionCost();
+                    }
+                }
+            }
+
+            // loop over all network segments
+            // logic adapted from PlayerNetAI.SimulationStep
+            NetNode[] netNodes = NetManager.instance.m_nodes.m_buffer;
+            NetSegment[] netSegments = NetManager.instance.m_segments.m_buffer;
+            for (ushort segmentID = 1; segmentID < netSegments.Length; segmentID++)
+            {
+                // segment must be created
+                NetSegment segment = netSegments[segmentID];
+                if ((segment.m_flags & NetSegment.Flags.Created) != 0)
+                {
+                    // segment must be not original
+                    if ((segment.m_flags & NetSegment.Flags.Original) == 0)
+                    {
+                        // AI must be PlayerNetAI or derived from it
+                        if (segment.Info != null && segment.Info.m_netAI != null && segment.Info.m_netAI.GetType().IsSubclassOf(typeof(PlayerNetAI)))
+                        {
+                            // get start and end node positions
+		                    Vector3 startNodePosition = netNodes[segment.m_startNode].m_position;
+		                    Vector3 endNodePosition   = netNodes[segment.m_endNode].m_position;
+
+                            // get start and end node elevations
+			                float startNodeElevation = netNodes[segment.m_startNode].m_elevation;
+			                float endNodeElevation   = netNodes[segment.m_endNode].m_elevation;
+
+                            // adjust node elevations if underground
+                            NetAI segmentAI = segment.Info.m_netAI;
+			                if (segmentAI.IsUnderground())
+			                {
+				                startNodeElevation = 0f - startNodeElevation;
+				                endNodeElevation = 0f - endNodeElevation;
+			                }
+
+                            // add the segment construction cost
+                            cityValue += segmentAI.GetConstructionCost(startNodePosition, endNodePosition, startNodeElevation, endNodeElevation);
+                        }
+                    }
+                }
+            }
+
+            // adjust city value
+            cityValue /= 100L;
+
+            // add bank balance
+            cityValue += bankBalance;
+
+            // subtract loan balance
+            cityValue -= loanBalance;
+
+            // return city value
+            return cityValue;
+        }
+
+        /// <summary>
         /// write the snapshot to the game save file
         /// </summary>
         public void Serialize(BinaryWriter writer)
@@ -2009,6 +2207,8 @@ namespace MoreCityStatistics
             writer.Write(CityEconomyTotalIncome);
             writer.Write(CityEconomyTotalExpenses);
             writer.Write(CityEconomyBankBalance);
+            writer.Write(CityEconomyLoanBalance);
+            writer.Write(CityEconomyCityValue);
 
             writer.Write(ResidentialIncomeLowDensity1);
             writer.Write(ResidentialIncomeLowDensity2);
@@ -2362,7 +2562,15 @@ namespace MoreCityStatistics
 
             snapshot.CityEconomyTotalIncome                     = reader.ReadInt64();
             snapshot.CityEconomyTotalExpenses                   = reader.ReadInt64();
-            snapshot.CityEconomyBankBalance                     = reader.ReadInt64();
+            snapshot.CityEconomyBankBalance                     = version < 3 ? reader.ReadInt64() : reader.ReadNullableInt64();
+            snapshot.CityEconomyLoanBalance                     = version < 3 ? null : reader.ReadNullableInt64();
+            snapshot.CityEconomyCityValue                       = version < 3 ? null : reader.ReadNullableInt64();
+
+            // if bank balance is huge due to Unlimited Money mod, replace with null
+            if (snapshot.CityEconomyBankBalance.HasValue && snapshot.CityEconomyBankBalance.Value > 1000000000000000L)
+            {
+                snapshot.CityEconomyBankBalance = null;
+            }
 
             snapshot.ResidentialIncomeLowDensity1               = reader.ReadInt64();
             snapshot.ResidentialIncomeLowDensity2               = reader.ReadInt64();

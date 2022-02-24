@@ -77,7 +77,7 @@ namespace MoreCityStatistics
                 }
                 graphPanel.name = "GraphPanel";
                 graphPanel.autoSize = false;
-                graphPanel.size = new Vector3(1030f, size.y - 60f);
+                graphPanel.size = new Vector3(1000f, size.y - 60f);
                 graphPanel.relativePosition = new Vector3(10f, 50f);
                 graphPanel.backgroundSprite = "GenericPanel";
                 graphPanel.color = panelColor;
@@ -213,6 +213,7 @@ namespace MoreCityStatistics
             dragHandle.size = new Vector3(size.x, 40f);
             dragHandle.relativePosition = Vector3.zero;
             dragHandle.eventMouseUp += DragHandle_eventMouseUp;
+            dragHandle.constrainToScreen = false;   // allow panel to dragged off screen
 
             // make sure drag handle is in front of icon and title
             dragHandle.BringToFront();

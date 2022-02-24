@@ -18,7 +18,8 @@ namespace MoreCityStatistics
         // statistic type
         // all the enums are prefixed with the category to ensure they are differentiated (e.g. Electricity Consumption vs Water Consumption)
         // the enum member names must exactly match the Snapshot field/property names
-        // the enums are in the same order that the categories and statistics are shown on the UI
+        // the enums are in the same order that the categories and statistics are shown on the UI,
+        // but the order here is not important because the value of the enum is not saved
         public enum StatisticType
         {
             ElectricityConsumptionPercent, ElectricityConsumption, ElectricityProduction,
@@ -87,7 +88,13 @@ namespace MoreCityStatistics
             ToursSightseeingTotal, ToursSightseeingResidents, ToursSightseeingTourists,
             ToursBalloonTotal, ToursBalloonResidents, ToursBalloonToursits,
             TaxRateResidentialLow, TaxRateResidentialHigh, TaxRateCommercialLow, TaxRateCommercialHigh, TaxRateIndustrial, TaxRateOffice,
-            CityEconomyTotalIncome, CityEconomyTotalExpenses, CityEconomyTotalProfit, CityEconomyBankBalance,
+            CityEconomyTotalIncome, CityEconomyTotalExpenses, CityEconomyTotalProfit,
+            CityEconomyBankBalance, CityEconomyLoanBalance,
+            CityEconomyCityValue, CityEconomyCityValuePerCapita,
+            CityEconomyGrossDomesticProduct, CityEconomyGrossDomesticProductPerCapita,
+            CityEconomyConsumption, CityEconomyConsumptionPercent,
+            CityEconomyGovernmentSpending, CityEconomyGovernmentSpendingPercent,
+            CityEconomyExports, CityEconomyImports, CityEconomyNetExports, CityEconomyNetExportsPercent,
             ResidentialIncomeTotalPercent, ResidentialIncomeTotal,
             ResidentialIncomeLowDensityTotal, ResidentialIncomeLowDensity1, ResidentialIncomeLowDensity2, ResidentialIncomeLowDensity3, ResidentialIncomeLowDensity4, ResidentialIncomeLowDensity5, ResidentialIncomeLowDensitySelfSufficient,
             ResidentialIncomeHighDensityTotal, ResidentialIncomeHighDensity1, ResidentialIncomeHighDensity2, ResidentialIncomeHighDensity3, ResidentialIncomeHighDensity4, ResidentialIncomeHighDensity5, ResidentialIncomeHighDensitySelfSufficient,
@@ -214,7 +221,7 @@ namespace MoreCityStatistics
             _lineColor = new Color32((byte)(_textColor.r * LineColorMultiplier), (byte)(_textColor.g * LineColorMultiplier), (byte)(_textColor.b * LineColorMultiplier), 255);
 
             // set number format
-            if (_type.ToString().EndsWith("Percent") || _type == StatisticType.TourismExchangeStudentBonus)
+            if (_type.ToString().EndsWith("Percent") || _type.ToString().EndsWith("PerCapita") || _type == StatisticType.TourismExchangeStudentBonus)
             {
                 _numberFormat = "N1";
             }
@@ -690,8 +697,30 @@ namespace MoreCityStatistics
         /// </summary>
         public void Deserialize(BinaryReader reader, int version)
         {
-            // read selection status
-            Selected = reader.ReadBoolean();
+            // check version
+            if (version < 3 &&
+                (_type == StatisticType.CityEconomyLoanBalance                      ||
+                 _type == StatisticType.CityEconomyCityValue                        ||
+                 _type == StatisticType.CityEconomyCityValuePerCapita               ||
+                 _type == StatisticType.CityEconomyGrossDomesticProduct             ||
+                 _type == StatisticType.CityEconomyGrossDomesticProductPerCapita    ||
+                 _type == StatisticType.CityEconomyConsumption                      ||
+                 _type == StatisticType.CityEconomyConsumptionPercent               ||
+                 _type == StatisticType.CityEconomyGovernmentSpending               ||
+                 _type == StatisticType.CityEconomyGovernmentSpendingPercent        ||
+                 _type == StatisticType.CityEconomyExports                          ||
+                 _type == StatisticType.CityEconomyImports                          ||
+                 _type == StatisticType.CityEconomyNetExports                       ||
+                 _type == StatisticType.CityEconomyNetExportsPercent))
+            {
+                // not selected by default
+                Selected = false;
+            }
+            else
+            {
+                // read selection status
+                Selected = reader.ReadBoolean();
+            }
         }
     }
 }
