@@ -401,17 +401,17 @@ namespace MoreCityStatistics
         private const int ValuePerOCCountOre      = 3;
         private const int ValuePerOCCountOil      = 4;
         private const int ValuePerOCCountFish     = 6;
-        public int CityEconomyExports                       { get { return OutsideConnectionsExportGoods     * ValuePerOCCountGoods +
-                                                                           OutsideConnectionsExportForestry  * ValuePerOCCountForestry +
-                                                                           OutsideConnectionsExportFarming   * ValuePerOCCountFarming +
-                                                                           OutsideConnectionsExportOre       * ValuePerOCCountOre +
-                                                                           OutsideConnectionsExportOil       * ValuePerOCCountOil +
-                                                                           OutsideConnectionsExportFish ?? 0 * ValuePerOCCountFish; } }
-        public int CityEconomyImports                       { get { return OutsideConnectionsImportGoods     * ValuePerOCCountGoods +
-                                                                           OutsideConnectionsImportForestry  * ValuePerOCCountForestry +
-                                                                           OutsideConnectionsImportFarming   * ValuePerOCCountFarming +
-                                                                           OutsideConnectionsImportOre       * ValuePerOCCountOre +
-                                                                           OutsideConnectionsImportOil       * ValuePerOCCountOil; } }
+        public int CityEconomyExports                       { get { return OutsideConnectionsExportGoods       * ValuePerOCCountGoods +
+                                                                           OutsideConnectionsExportForestry    * ValuePerOCCountForestry +
+                                                                           OutsideConnectionsExportFarming     * ValuePerOCCountFarming +
+                                                                           OutsideConnectionsExportOre         * ValuePerOCCountOre +
+                                                                           OutsideConnectionsExportOil         * ValuePerOCCountOil +
+                                                                           (OutsideConnectionsExportFish ?? 0) * ValuePerOCCountFish; } }
+        public int CityEconomyImports                       { get { return OutsideConnectionsImportGoods       * ValuePerOCCountGoods +
+                                                                           OutsideConnectionsImportForestry    * ValuePerOCCountForestry +
+                                                                           OutsideConnectionsImportFarming     * ValuePerOCCountFarming +
+                                                                           OutsideConnectionsImportOre         * ValuePerOCCountOre +
+                                                                           OutsideConnectionsImportOil         * ValuePerOCCountOil; } }
         public int CityEconomyNetExports                    { get { return CityEconomyExports - CityEconomyImports; } }
         public float CityEconomyNetExportsPercent           { get { return ComputePercent(CityEconomyNetExports, CityEconomyGrossDomesticProduct); } }
 
