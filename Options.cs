@@ -232,7 +232,14 @@ namespace MoreCityStatistics
             if (configuredLanguageCode == GameLanguageCode)
             {
                 // use game language code
-                return LocaleManager.instance.language;
+                if (LocaleManager.exists)
+                {
+                    return LocaleManager.instance.language;
+                }
+                else
+                {
+                    return Translation.DefaultLanguageCode;
+                }
             }
             else
             {

@@ -363,7 +363,7 @@ namespace MoreCityStatistics
 
         // default language code
         // used when working with translation keys and as the language code when a translation is not present
-        private const string DefaultLanguageCode = "en";    // English
+        public const string DefaultLanguageCode = "en";    // English
 
         // translations for a single language
         // the dictionary key is the translation key
