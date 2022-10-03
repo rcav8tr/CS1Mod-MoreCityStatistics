@@ -417,7 +417,7 @@ namespace MoreCityStatistics
 
         // Residential Income
         public float ResidentialIncomeTotalPercent          { get { return ComputePercent(ResidentialIncomeTotal, CityEconomyTotalIncome); } }
-        public long ResidentialIncomeTotal                  { get { return ResidentialIncomeLowDensityTotal + ResidentialIncomeHighDensityTotal; } }
+        public long ResidentialIncomeTotal                  { get { return ResidentialIncomeLowDensityTotal + ResidentialIncomeHighDensityTotal + (ResidentialIncomeWallToWall ?? 0); } }
         public long ResidentialIncomeLowDensityTotal        { get { return ResidentialIncomeLowDensity1 +
                                                                            ResidentialIncomeLowDensity2 +
                                                                            ResidentialIncomeLowDensity3 +
@@ -442,6 +442,7 @@ namespace MoreCityStatistics
         public long ResidentialIncomeHighDensity4;
         public long ResidentialIncomeHighDensity5;
         public long? ResidentialIncomeHighDensitySelfSufficient;
+        public long? ResidentialIncomeWallToWall;
 
         // Commercial Income
         public float CommercialIncomeTotalPercent           { get { return ComputePercent(CommercialIncomeTotal, CityEconomyTotalIncome); } }
@@ -458,9 +459,9 @@ namespace MoreCityStatistics
         {
             get
             {
-                if (CommercialIncomeLeisure.HasValue || CommercialIncomeTourism.HasValue || CommercialIncomeOrganic.HasValue)
+                if (CommercialIncomeLeisure.HasValue || CommercialIncomeTourism.HasValue || CommercialIncomeOrganic.HasValue || CommercialIncomeWallToWall.HasValue)
                 {
-                    return (CommercialIncomeLeisure ?? 0) + (CommercialIncomeTourism ?? 0) + (CommercialIncomeOrganic ?? 0);
+                    return (CommercialIncomeLeisure ?? 0) + (CommercialIncomeTourism ?? 0) + (CommercialIncomeOrganic ?? 0) + (CommercialIncomeWallToWall ?? 0);
                 }
                 return null;
             }
@@ -468,6 +469,7 @@ namespace MoreCityStatistics
         public long? CommercialIncomeLeisure;
         public long? CommercialIncomeTourism;
         public long? CommercialIncomeOrganic;
+        public long? CommercialIncomeWallToWall;
 
         // Industrial Income
         public float IndustrialIncomeTotalPercent           { get { return ComputePercent(IndustrialIncomeTotal, CityEconomyTotalIncome); } }
@@ -484,12 +486,24 @@ namespace MoreCityStatistics
 
         //  Office Income
         public float OfficeIncomeTotalPercent               { get { return ComputePercent(OfficeIncomeTotal, CityEconomyTotalIncome); } }
-        public long OfficeIncomeTotal                       { get { return OfficeIncomeGenericTotal + (OfficeIncomeITCluster ?? 0); } }
+        public long OfficeIncomeTotal                       { get { return OfficeIncomeGenericTotal + (OfficeIncomeSpecializedTotal ?? 0); } }
         public long OfficeIncomeGenericTotal                { get { return OfficeIncomeGeneric1 + OfficeIncomeGeneric2 + OfficeIncomeGeneric3; } }
         public long OfficeIncomeGeneric1;
         public long OfficeIncomeGeneric2;
         public long OfficeIncomeGeneric3;
+        public long? OfficeIncomeSpecializedTotal
+        {
+            get
+            {
+                if (OfficeIncomeITCluster.HasValue || OfficeIncomeWallToWall.HasValue)
+                {
+                    return (OfficeIncomeITCluster ?? 0) + (OfficeIncomeWallToWall ?? 0);
+                }
+                return null;
+            }
+        }
         public long? OfficeIncomeITCluster;
+        public long? OfficeIncomeWallToWall;
 
         // Tourism Income
         public float TourismIncomeTotalPercent              { get { return ComputePercent(TourismIncomeTotal, CityEconomyTotalIncome); } }
@@ -510,6 +524,7 @@ namespace MoreCityStatistics
                                                                            ServiceExpensesPolice +
                                                                            ServiceExpensesEducation +
                                                                            ServiceExpensesParksPlazas +
+                                                                           (ServiceExpensesServicePoints ?? 0) +
                                                                            ServiceExpensesUniqueBuildings +
                                                                            (ServiceExpensesGenericSportsArenas ?? 0) +
                                                                            ServiceExpensesLoans +
@@ -524,6 +539,7 @@ namespace MoreCityStatistics
         public long ServiceExpensesPolice;
         public long ServiceExpensesEducation;
         public long ServiceExpensesParksPlazas;
+        public long? ServiceExpensesServicePoints;
         public long ServiceExpensesUniqueBuildings;
         public long? ServiceExpensesGenericSportsArenas;
         public long ServiceExpensesLoans;
@@ -768,6 +784,8 @@ namespace MoreCityStatistics
             property = typeof(Snapshot).GetProperty(statisticType.ToString(), BindingFlags.Public | BindingFlags.Instance);
         }
 
+        #region Compute Properties
+
         /// <summary>
         /// compute a percent from ints
         /// </summary>
@@ -901,6 +919,8 @@ namespace MoreCityStatistics
             }
         }
 
+        #endregion
+
         /// <summary>
         /// return a snapshot of current statistics
         /// </summary>
@@ -969,6 +989,7 @@ namespace MoreCityStatistics
             bool dlcCampus           = SteamHelper.IsDLCOwned(SteamHelper.DLC.CampusDLC);               // 05/21/19
             bool dlcSunsetHarbor     = SteamHelper.IsDLCOwned(SteamHelper.DLC.UrbanDLC);                // 03/26/20
             bool dlcAirports         = SteamHelper.IsDLCOwned(SteamHelper.DLC.AirportDLC);              // 01/25/22
+            bool dlcPlazasPromenades = SteamHelper.IsDLCOwned(SteamHelper.DLC.PlazasAndPromenadesDLC);  // 09/14/22
 
             // get the city-wide district where much of the data is obtained
             District cityDistrict = districtManagerInstance.m_districts.m_buffer[0];
@@ -1220,29 +1241,31 @@ namespace MoreCityStatistics
             snapshot.CityEconomyCityValue     = GetCityValue(snapshot.CityEconomyBankBalance.Value, snapshot.CityEconomyLoanBalance.Value);   // can be negative
 
             // Residential Income - logic copied from EconomyPanel.InitializePolls
-                                snapshot.ResidentialIncomeLowDensity1               = GetEconomyIncome(ItemClass.Service.Residential, ItemClass.SubService.ResidentialLow,     ItemClass.Level.Level1);
-                                snapshot.ResidentialIncomeLowDensity2               = GetEconomyIncome(ItemClass.Service.Residential, ItemClass.SubService.ResidentialLow,     ItemClass.Level.Level2);
-                                snapshot.ResidentialIncomeLowDensity3               = GetEconomyIncome(ItemClass.Service.Residential, ItemClass.SubService.ResidentialLow,     ItemClass.Level.Level3);
-                                snapshot.ResidentialIncomeLowDensity4               = GetEconomyIncome(ItemClass.Service.Residential, ItemClass.SubService.ResidentialLow,     ItemClass.Level.Level4);
-                                snapshot.ResidentialIncomeLowDensity5               = GetEconomyIncome(ItemClass.Service.Residential, ItemClass.SubService.ResidentialLow,     ItemClass.Level.Level5);
-            if (dlcGreenCities) snapshot.ResidentialIncomeLowDensitySelfSufficient  = GetEconomyIncome(ItemClass.Service.Residential, ItemClass.SubService.ResidentialLowEco,  ItemClass.Level.None);
-                                snapshot.ResidentialIncomeHighDensity1              = GetEconomyIncome(ItemClass.Service.Residential, ItemClass.SubService.ResidentialHigh,    ItemClass.Level.Level1);
-                                snapshot.ResidentialIncomeHighDensity2              = GetEconomyIncome(ItemClass.Service.Residential, ItemClass.SubService.ResidentialHigh,    ItemClass.Level.Level2);
-                                snapshot.ResidentialIncomeHighDensity3              = GetEconomyIncome(ItemClass.Service.Residential, ItemClass.SubService.ResidentialHigh,    ItemClass.Level.Level3);
-                                snapshot.ResidentialIncomeHighDensity4              = GetEconomyIncome(ItemClass.Service.Residential, ItemClass.SubService.ResidentialHigh,    ItemClass.Level.Level4);
-                                snapshot.ResidentialIncomeHighDensity5              = GetEconomyIncome(ItemClass.Service.Residential, ItemClass.SubService.ResidentialHigh,    ItemClass.Level.Level5);
-            if (dlcGreenCities) snapshot.ResidentialIncomeHighDensitySelfSufficient = GetEconomyIncome(ItemClass.Service.Residential, ItemClass.SubService.ResidentialHighEco, ItemClass.Level.None);
+                                     snapshot.ResidentialIncomeLowDensity1               = GetEconomyIncome(ItemClass.Service.Residential, ItemClass.SubService.ResidentialLow,        ItemClass.Level.Level1);
+                                     snapshot.ResidentialIncomeLowDensity2               = GetEconomyIncome(ItemClass.Service.Residential, ItemClass.SubService.ResidentialLow,        ItemClass.Level.Level2);
+                                     snapshot.ResidentialIncomeLowDensity3               = GetEconomyIncome(ItemClass.Service.Residential, ItemClass.SubService.ResidentialLow,        ItemClass.Level.Level3);
+                                     snapshot.ResidentialIncomeLowDensity4               = GetEconomyIncome(ItemClass.Service.Residential, ItemClass.SubService.ResidentialLow,        ItemClass.Level.Level4);
+                                     snapshot.ResidentialIncomeLowDensity5               = GetEconomyIncome(ItemClass.Service.Residential, ItemClass.SubService.ResidentialLow,        ItemClass.Level.Level5);
+            if (dlcGreenCities     ) snapshot.ResidentialIncomeLowDensitySelfSufficient  = GetEconomyIncome(ItemClass.Service.Residential, ItemClass.SubService.ResidentialLowEco,     ItemClass.Level.None);
+                                     snapshot.ResidentialIncomeHighDensity1              = GetEconomyIncome(ItemClass.Service.Residential, ItemClass.SubService.ResidentialHigh,       ItemClass.Level.Level1);
+                                     snapshot.ResidentialIncomeHighDensity2              = GetEconomyIncome(ItemClass.Service.Residential, ItemClass.SubService.ResidentialHigh,       ItemClass.Level.Level2);
+                                     snapshot.ResidentialIncomeHighDensity3              = GetEconomyIncome(ItemClass.Service.Residential, ItemClass.SubService.ResidentialHigh,       ItemClass.Level.Level3);
+                                     snapshot.ResidentialIncomeHighDensity4              = GetEconomyIncome(ItemClass.Service.Residential, ItemClass.SubService.ResidentialHigh,       ItemClass.Level.Level4);
+                                     snapshot.ResidentialIncomeHighDensity5              = GetEconomyIncome(ItemClass.Service.Residential, ItemClass.SubService.ResidentialHigh,       ItemClass.Level.Level5);
+            if (dlcGreenCities     ) snapshot.ResidentialIncomeHighDensitySelfSufficient = GetEconomyIncome(ItemClass.Service.Residential, ItemClass.SubService.ResidentialHighEco,    ItemClass.Level.None);
+            if (dlcPlazasPromenades) snapshot.ResidentialIncomeWallToWall                = GetEconomyIncome(ItemClass.Service.Residential, ItemClass.SubService.ResidentialWallToWall, ItemClass.Level.None);
 
             // Commercial Income - logic copied from EconomyPanel.InitializePolls
-                                snapshot.CommercialIncomeLowDensity1  = GetEconomyIncome(ItemClass.Service.Commercial, ItemClass.SubService.CommercialLow,     ItemClass.Level.Level1);
-                                snapshot.CommercialIncomeLowDensity2  = GetEconomyIncome(ItemClass.Service.Commercial, ItemClass.SubService.CommercialLow,     ItemClass.Level.Level2);
-                                snapshot.CommercialIncomeLowDensity3  = GetEconomyIncome(ItemClass.Service.Commercial, ItemClass.SubService.CommercialLow,     ItemClass.Level.Level3);
-                                snapshot.CommercialIncomeHighDensity1 = GetEconomyIncome(ItemClass.Service.Commercial, ItemClass.SubService.CommercialHigh,    ItemClass.Level.Level1);
-                                snapshot.CommercialIncomeHighDensity2 = GetEconomyIncome(ItemClass.Service.Commercial, ItemClass.SubService.CommercialHigh,    ItemClass.Level.Level2);
-                                snapshot.CommercialIncomeHighDensity3 = GetEconomyIncome(ItemClass.Service.Commercial, ItemClass.SubService.CommercialHigh,    ItemClass.Level.Level3);
-            if (dlcAfterDark  ) snapshot.CommercialIncomeLeisure      = GetEconomyIncome(ItemClass.Service.Commercial, ItemClass.SubService.CommercialLeisure, ItemClass.Level.None);
-            if (dlcAfterDark  ) snapshot.CommercialIncomeTourism      = GetEconomyIncome(ItemClass.Service.Commercial, ItemClass.SubService.CommercialTourist, ItemClass.Level.None);
-            if (dlcGreenCities) snapshot.CommercialIncomeOrganic      = GetEconomyIncome(ItemClass.Service.Commercial, ItemClass.SubService.CommercialEco,     ItemClass.Level.None);
+                                     snapshot.CommercialIncomeLowDensity1  = GetEconomyIncome(ItemClass.Service.Commercial, ItemClass.SubService.CommercialLow,        ItemClass.Level.Level1);
+                                     snapshot.CommercialIncomeLowDensity2  = GetEconomyIncome(ItemClass.Service.Commercial, ItemClass.SubService.CommercialLow,        ItemClass.Level.Level2);
+                                     snapshot.CommercialIncomeLowDensity3  = GetEconomyIncome(ItemClass.Service.Commercial, ItemClass.SubService.CommercialLow,        ItemClass.Level.Level3);
+                                     snapshot.CommercialIncomeHighDensity1 = GetEconomyIncome(ItemClass.Service.Commercial, ItemClass.SubService.CommercialHigh,       ItemClass.Level.Level1);
+                                     snapshot.CommercialIncomeHighDensity2 = GetEconomyIncome(ItemClass.Service.Commercial, ItemClass.SubService.CommercialHigh,       ItemClass.Level.Level2);
+                                     snapshot.CommercialIncomeHighDensity3 = GetEconomyIncome(ItemClass.Service.Commercial, ItemClass.SubService.CommercialHigh,       ItemClass.Level.Level3);
+            if (dlcAfterDark       ) snapshot.CommercialIncomeLeisure      = GetEconomyIncome(ItemClass.Service.Commercial, ItemClass.SubService.CommercialLeisure,    ItemClass.Level.None);
+            if (dlcAfterDark       ) snapshot.CommercialIncomeTourism      = GetEconomyIncome(ItemClass.Service.Commercial, ItemClass.SubService.CommercialTourist,    ItemClass.Level.None);
+            if (dlcGreenCities     ) snapshot.CommercialIncomeOrganic      = GetEconomyIncome(ItemClass.Service.Commercial, ItemClass.SubService.CommercialEco,        ItemClass.Level.None);
+            if (dlcPlazasPromenades) snapshot.CommercialIncomeWallToWall   = GetEconomyIncome(ItemClass.Service.Commercial, ItemClass.SubService.CommercialWallToWall, ItemClass.Level.None);
 
             // Industrial Income - logic copied from EconomyPanel.InitializePolls
             snapshot.IndustrialIncomeGeneric1 = GetEconomyIncome(ItemClass.Service.Industrial, ItemClass.SubService.IndustrialGeneric,  ItemClass.Level.Level1);
@@ -1254,10 +1277,11 @@ namespace MoreCityStatistics
             snapshot.IndustrialIncomeOil      = GetEconomyIncome(ItemClass.Service.Industrial, ItemClass.SubService.IndustrialOil,      ItemClass.Level.None);
 
             // Office Income - logic copied from EconomyPanel.InitializePolls
-                                snapshot.OfficeIncomeGeneric1  = GetEconomyIncome(ItemClass.Service.Office, ItemClass.SubService.OfficeGeneric,  ItemClass.Level.Level1);
-                                snapshot.OfficeIncomeGeneric2  = GetEconomyIncome(ItemClass.Service.Office, ItemClass.SubService.OfficeGeneric,  ItemClass.Level.Level2);
-                                snapshot.OfficeIncomeGeneric3  = GetEconomyIncome(ItemClass.Service.Office, ItemClass.SubService.OfficeGeneric,  ItemClass.Level.Level3);
-            if (dlcGreenCities) snapshot.OfficeIncomeITCluster = GetEconomyIncome(ItemClass.Service.Office, ItemClass.SubService.OfficeHightech, ItemClass.Level.None);
+                                     snapshot.OfficeIncomeGeneric1   = GetEconomyIncome(ItemClass.Service.Office, ItemClass.SubService.OfficeGeneric,    ItemClass.Level.Level1);
+                                     snapshot.OfficeIncomeGeneric2   = GetEconomyIncome(ItemClass.Service.Office, ItemClass.SubService.OfficeGeneric,    ItemClass.Level.Level2);
+                                     snapshot.OfficeIncomeGeneric3   = GetEconomyIncome(ItemClass.Service.Office, ItemClass.SubService.OfficeGeneric,    ItemClass.Level.Level3);
+            if (dlcGreenCities     ) snapshot.OfficeIncomeITCluster  = GetEconomyIncome(ItemClass.Service.Office, ItemClass.SubService.OfficeHightech,   ItemClass.Level.None);
+            if (dlcPlazasPromenades) snapshot.OfficeIncomeWallToWall = GetEconomyIncome(ItemClass.Service.Office, ItemClass.SubService.OfficeWallToWall, ItemClass.Level.None);
 
             // Tourism Income - logic copied from EconomyPanel.InitializePolls
                              snapshot.TourismIncomeCommercialZones = GetEconomyIncome(ItemClass.Service.Tourism, ItemClass.SubService.None, ItemClass.Level.None);
@@ -1275,7 +1299,8 @@ namespace MoreCityStatistics
             if (dlcNaturalDisasters) snapshot.ServiceExpensesEmergency           = GetEconomyExpense(ItemClass.Service.Disaster,         ItemClass.SubService.None, ItemClass.Level.None);
                                      snapshot.ServiceExpensesPolice              = GetEconomyExpense(ItemClass.Service.PoliceDepartment, ItemClass.SubService.None, ItemClass.Level.None);
                                      snapshot.ServiceExpensesEducation           = GetEconomyExpense(ItemClass.Service.Education,        ItemClass.SubService.None, ItemClass.Level.None);    // does not include Campus Areas
-                                     snapshot.ServiceExpensesParksPlazas         = GetEconomyExpense(ItemClass.Service.Beautification,   ItemClass.SubService.None, ItemClass.Level.None);    // value includes Park Area expenses, which get subtracted later
+                                     snapshot.ServiceExpensesParksPlazas         = GetEconomyExpense(ItemClass.Service.Beautification,   ItemClass.SubService.None, ItemClass.Level.None);    // value includes Park Area expenses and Service Point expenses, which get subtracted later
+            if (dlcPlazasPromenades) snapshot.ServiceExpensesServicePoints       = GetEconomyExpense(ItemClass.Service.ServicePoint,     ItemClass.SubService.None, ItemClass.Level.None);
                                      snapshot.ServiceExpensesUniqueBuildings     = GetEconomyExpense(ItemClass.Service.Monument,         ItemClass.SubService.None, ItemClass.Level.None);
             if (dlcCampus          ) snapshot.ServiceExpensesGenericSportsArenas = CalculateArenasExpenses(arenas[(int)EconomyPanel.ArenaIndex.NonVarsity]);
                                      snapshot.ServiceExpensesLoans               = ConvertMoney(economyManagerInstance.GetLoanExpenses());
@@ -1416,7 +1441,7 @@ namespace MoreCityStatistics
             snapshot.GameLimitsNetworkNodesCapacity        = netManagerInstance.m_nodes                     == null ? 0 : (netManagerInstance.m_nodes.m_buffer              == null ? 0 : netManagerInstance.m_nodes.m_buffer.Length);
             snapshot.GameLimitsNetworkSegmentsUsed         = netManagerInstance.m_segmentCount;
             snapshot.GameLimitsNetworkSegmentsCapacity     = netManagerInstance.m_segments                  == null ? 0 : (netManagerInstance.m_segments.m_buffer           == null ? 0 : netManagerInstance.m_segments.m_buffer.Length);
-            if (dlcParkLife || dlcIndustries || dlcCampus || dlcAirports)
+            if (dlcParkLife || dlcIndustries || dlcCampus || dlcAirports || dlcPlazasPromenades)
             {
                 snapshot.GameLimitsPaintedAreasUsed        = districtManagerInstance.m_parkCount;
                 snapshot.GameLimitsPaintedAreasCapacity    = districtManagerInstance.m_parks                == null ? 0 : (districtManagerInstance.m_parks.m_buffer         == null ? 0 : districtManagerInstance.m_parks.m_buffer.Length);
@@ -1449,11 +1474,13 @@ namespace MoreCityStatistics
 
             // now that some other values have been obtained, adjust some Expenses Services
             snapshot.ServiceExpensesRoads       -= snapshot.TransportEconomyTollBoothExpenses;
-            snapshot.ServiceExpensesParksPlazas -= (snapshot.ParkAreasTotalExpenses ?? 0);
+            snapshot.ServiceExpensesParksPlazas -= (snapshot.ParkAreasTotalExpenses ?? 0) + (snapshot.ServiceExpensesServicePoints ?? 0);
 
             // return the snapshot
             return snapshot;
         }
+
+        #region TakeSnapshot Helpers
 
         /// <summary>
         /// get income from EconomyManager
@@ -1725,6 +1752,7 @@ namespace MoreCityStatistics
                                                         case ItemClass.SubService.ResidentialHigh:
                                                         case ItemClass.SubService.ResidentialLowEco:
                                                         case ItemClass.SubService.ResidentialHighEco:
+                                                        case ItemClass.SubService.ResidentialWallToWall:
                                                             residential++;
                                                             break;
 
@@ -1733,6 +1761,7 @@ namespace MoreCityStatistics
                                                         case ItemClass.SubService.CommercialTourist:
                                                         case ItemClass.SubService.CommercialLeisure:
                                                         case ItemClass.SubService.CommercialEco:
+                                                        case ItemClass.SubService.CommercialWallToWall:
                                                             commercial++;
                                                             break;
 
@@ -1750,6 +1779,7 @@ namespace MoreCityStatistics
 
                                                         case ItemClass.SubService.OfficeGeneric:
                                                         case ItemClass.SubService.OfficeHightech:
+                                                        case ItemClass.SubService.OfficeWallToWall:
                                                             office++;
                                                             break;
 
@@ -2012,6 +2042,8 @@ namespace MoreCityStatistics
             return cityValue;
         }
 
+        #endregion
+
         /// <summary>
         /// write the snapshot to the game save file
         /// </summary>
@@ -2222,6 +2254,7 @@ namespace MoreCityStatistics
             writer.Write(ResidentialIncomeHighDensity4);
             writer.Write(ResidentialIncomeHighDensity5);
             writer.Write(ResidentialIncomeHighDensitySelfSufficient);
+            writer.Write(ResidentialIncomeWallToWall);
 
             writer.Write(CommercialIncomeLowDensity1);
             writer.Write(CommercialIncomeLowDensity2);
@@ -2232,6 +2265,7 @@ namespace MoreCityStatistics
             writer.Write(CommercialIncomeLeisure);
             writer.Write(CommercialIncomeTourism);
             writer.Write(CommercialIncomeOrganic);
+            writer.Write(CommercialIncomeWallToWall);
 
             writer.Write(IndustrialIncomeGeneric1);
             writer.Write(IndustrialIncomeGeneric2);
@@ -2245,6 +2279,7 @@ namespace MoreCityStatistics
             writer.Write(OfficeIncomeGeneric2);
             writer.Write(OfficeIncomeGeneric3);
             writer.Write(OfficeIncomeITCluster);
+            writer.Write(OfficeIncomeWallToWall);
 
             writer.Write(TourismIncomeCommercialZones);
             writer.Write(TourismIncomeTransportation);
@@ -2260,6 +2295,7 @@ namespace MoreCityStatistics
             writer.Write(ServiceExpensesPolice);
             writer.Write(ServiceExpensesEducation);
             writer.Write(ServiceExpensesParksPlazas);
+            writer.Write(ServiceExpensesServicePoints);
             writer.Write(ServiceExpensesUniqueBuildings);
             writer.Write(ServiceExpensesGenericSportsArenas);
             writer.Write(ServiceExpensesLoans);
@@ -2584,6 +2620,7 @@ namespace MoreCityStatistics
             snapshot.ResidentialIncomeHighDensity4              = reader.ReadInt64();
             snapshot.ResidentialIncomeHighDensity5              = reader.ReadInt64();
             snapshot.ResidentialIncomeHighDensitySelfSufficient = reader.ReadNullableInt64();
+            snapshot.ResidentialIncomeWallToWall                = version < 4 ? null : reader.ReadNullableInt64();
 
             snapshot.CommercialIncomeLowDensity1                = reader.ReadInt64();
             snapshot.CommercialIncomeLowDensity2                = reader.ReadInt64();
@@ -2594,6 +2631,7 @@ namespace MoreCityStatistics
             snapshot.CommercialIncomeLeisure                    = reader.ReadNullableInt64();
             snapshot.CommercialIncomeTourism                    = reader.ReadNullableInt64();
             snapshot.CommercialIncomeOrganic                    = reader.ReadNullableInt64();
+            snapshot.CommercialIncomeWallToWall                 = version < 4 ? null : reader.ReadNullableInt64();
 
             snapshot.IndustrialIncomeGeneric1                   = reader.ReadInt64();
             snapshot.IndustrialIncomeGeneric2                   = reader.ReadInt64();
@@ -2607,6 +2645,7 @@ namespace MoreCityStatistics
             snapshot.OfficeIncomeGeneric2                       = reader.ReadInt64();
             snapshot.OfficeIncomeGeneric3                       = reader.ReadInt64();
             snapshot.OfficeIncomeITCluster                      = reader.ReadNullableInt64();
+            snapshot.OfficeIncomeWallToWall                     = version < 4 ? null : reader.ReadNullableInt64();
 
             snapshot.TourismIncomeCommercialZones               = reader.ReadInt64();
             snapshot.TourismIncomeTransportation                = reader.ReadInt64();
@@ -2622,6 +2661,7 @@ namespace MoreCityStatistics
             snapshot.ServiceExpensesPolice                      = reader.ReadInt64();
             snapshot.ServiceExpensesEducation                   = reader.ReadInt64();
             snapshot.ServiceExpensesParksPlazas                 = reader.ReadInt64();
+            snapshot.ServiceExpensesServicePoints               = version < 4 ? null : reader.ReadNullableInt64();
             snapshot.ServiceExpensesUniqueBuildings             = reader.ReadInt64();
             snapshot.ServiceExpensesGenericSportsArenas         = reader.ReadNullableInt64();
             snapshot.ServiceExpensesLoans                       = reader.ReadInt64();

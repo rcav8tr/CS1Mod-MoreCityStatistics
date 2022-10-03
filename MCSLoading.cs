@@ -25,6 +25,9 @@ namespace MoreCityStatistics
                 // game is not loaded
                 IsGameLoaded = false;
 
+                // dump game translations to file
+                // Translation.instance.DumpGameTranslations();
+
                 // check for new or loaded game
                 if (mode == LoadMode.NewGame || mode == LoadMode.NewGameFromScenario || mode == LoadMode.LoadGame)
                 {

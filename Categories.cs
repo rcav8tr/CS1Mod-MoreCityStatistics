@@ -298,10 +298,16 @@ namespace MoreCityStatistics
             Color32 colorIncomeOrganic = new Color32(132, 159, 000, 255);          // color taken manually from specialized district icon
 
             Color32 colorIncomeITCluster = new Color32(039, 192, 231, 255);        // color taken manually from specialized district icon
+            Color32 colorIncomeOfficeSpecialized = new Color32((byte)(colorIncomeITCluster.r / 2 + colorZoneOffice.r / 2),     // color is halfway between IT Cluster and Office Zone
+                                                               (byte)(colorIncomeITCluster.g / 2 + colorZoneOffice.g / 2),
+                                                               (byte)(colorIncomeITCluster.b / 2 + colorZoneOffice.b / 2), 255);
+
+            Color32 colorIncomeWallToWall = new Color32(217, 142, 69, 255);        // color taken manually from specialized district icon
 
             Color32 colorParks = new Color32(073, 115, 122, 255);                  // color taken manually from the horse of the Parks & Plazas toolbar icon
 
             Color32 colorEmergency           = new Color32(254, 131, 000, 255);    // color taken manually from Landscape toolbar Disaster tab icon
+            Color32 colorServicePoints       = new Color32(211, 212, 212, 255);    // color taken manually from Pedestrian Areas tab icon
             Color32 colorUniqueBuildings     = new Color32(082, 108, 113, 255);    // color taken manually from Unique Buildings toolbar icon
             Color32 colorGenericSportsArenas = new Color32(076, 108, 173, 255);    // color taken manually from Education toolbar Varsity Sports tab icon
             Color32 colorEconomy             = new Color32(061, 159, 010, 255);    // color taken manually from Economy toolbar icon
@@ -670,6 +676,7 @@ namespace MoreCityStatistics
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.ResidentialIncomeHighDensity4,              Translation.Key.HighDensity,            Translation.Key.Level4,         Translation.Key.MoneyPerWeek,               colorResidentialLevel4      ));
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.ResidentialIncomeHighDensity5,              Translation.Key.HighDensity,            Translation.Key.Level5,         Translation.Key.MoneyPerWeek,               colorResidentialLevel5      ));
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.ResidentialIncomeHighDensitySelfSufficient, Translation.Key.HighDensity,            Translation.Key.SelfSufficient, Translation.Key.MoneyPerWeek,               colorIncomeSelfSufficient   ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.ResidentialIncomeWallToWall,                Translation.Key.WallToWall,             Translation.Key.None,           Translation.Key.MoneyPerWeek,               colorIncomeWallToWall       ));
 
             _instance.Add(category = new Category(Category.CategoryType.CommercialIncome, Translation.Key.CommercialIncome));
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.CommercialIncomeTotalPercent,               Translation.Key.Total,                  Translation.Key.None,           Translation.Key.PctOfCityIncome,            colorZoneCommercialMid      ));
@@ -686,6 +693,7 @@ namespace MoreCityStatistics
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.CommercialIncomeLeisure,                    Translation.Key.Leisure,                Translation.Key.None,           Translation.Key.MoneyPerWeek,               colorIncomeLeisure          ));
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.CommercialIncomeTourism,                    Translation.Key.Tourism,                Translation.Key.None,           Translation.Key.MoneyPerWeek,               colorTourismIncome          ));
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.CommercialIncomeOrganic,                    Translation.Key.OrganicAndLocalProduce, Translation.Key.None,           Translation.Key.MoneyPerWeek,               colorIncomeOrganic          ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.CommercialIncomeWallToWall,                 Translation.Key.WallToWall,             Translation.Key.None,           Translation.Key.MoneyPerWeek,               colorIncomeWallToWall       ));
 
             _instance.Add(category = new Category(Category.CategoryType.IndustrialIncome, Translation.Key.IndustrialIncome));
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.IndustrialIncomeTotalPercent,               Translation.Key.Total,                  Translation.Key.None,           Translation.Key.PctOfCityIncome,            colorZoneIndustrial         ));
@@ -707,7 +715,9 @@ namespace MoreCityStatistics
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.OfficeIncomeGeneric1,                       Translation.Key.Generic,                Translation.Key.Level1,         Translation.Key.MoneyPerWeek,               colorOfficeLevel1           ));
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.OfficeIncomeGeneric2,                       Translation.Key.Generic,                Translation.Key.Level2,         Translation.Key.MoneyPerWeek,               colorOfficeLevel2           ));
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.OfficeIncomeGeneric3,                       Translation.Key.Generic,                Translation.Key.Level3,         Translation.Key.MoneyPerWeek,               colorOfficeLevel3           ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.OfficeIncomeSpecializedTotal,               Translation.Key.SpecializedTotal,       Translation.Key.None,           Translation.Key.MoneyPerWeek,               colorIncomeOfficeSpecialized));
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.OfficeIncomeITCluster,                      Translation.Key.ITCluster,              Translation.Key.None,           Translation.Key.MoneyPerWeek,               colorIncomeITCluster        ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.OfficeIncomeWallToWall,                     Translation.Key.WallToWall,             Translation.Key.None,           Translation.Key.MoneyPerWeek,               colorIncomeWallToWall       ));
 
             _instance.Add(category = new Category(Category.CategoryType.TourismIncome, Translation.Key.TourismIncome));
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.TourismIncomeTotalPercent,                  Translation.Key.Total,                  Translation.Key.None,           Translation.Key.PctOfCityIncome,            colorZoneCommercialMid      ));
@@ -729,6 +739,7 @@ namespace MoreCityStatistics
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.ServiceExpensesPolice,                      Translation.Key.Police,                 Translation.Key.None,           Translation.Key.MoneyPerWeek,               colorCrimeRate              ));
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.ServiceExpensesEducation,                   Translation.Key.Education,              Translation.Key.None,           Translation.Key.MoneyPerWeek,               colorEducated1              ));
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.ServiceExpensesParksPlazas,                 Translation.Key.ParksPlazasLandscaping, Translation.Key.None,           Translation.Key.MoneyPerWeek,               colorParks                  ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.ServiceExpensesServicePoints,               Translation.Key.ServicePoints,          Translation.Key.None,           Translation.Key.MoneyPerWeek,               colorServicePoints          ));
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.ServiceExpensesUniqueBuildings,             Translation.Key.UniqueBuildings,        Translation.Key.None,           Translation.Key.MoneyPerWeek,               colorUniqueBuildings        ));
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.ServiceExpensesGenericSportsArenas,         Translation.Key.GenericSportsArenas,    Translation.Key.None,           Translation.Key.MoneyPerWeek,               colorGenericSportsArenas    ));
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.ServiceExpensesLoans,                       Translation.Key.Loans,                  Translation.Key.None,           Translation.Key.MoneyPerWeek,               colorEconomy                ));

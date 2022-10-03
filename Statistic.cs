@@ -98,22 +98,23 @@ namespace MoreCityStatistics
             ResidentialIncomeTotalPercent, ResidentialIncomeTotal,
             ResidentialIncomeLowDensityTotal, ResidentialIncomeLowDensity1, ResidentialIncomeLowDensity2, ResidentialIncomeLowDensity3, ResidentialIncomeLowDensity4, ResidentialIncomeLowDensity5, ResidentialIncomeLowDensitySelfSufficient,
             ResidentialIncomeHighDensityTotal, ResidentialIncomeHighDensity1, ResidentialIncomeHighDensity2, ResidentialIncomeHighDensity3, ResidentialIncomeHighDensity4, ResidentialIncomeHighDensity5, ResidentialIncomeHighDensitySelfSufficient,
+            ResidentialIncomeWallToWall,
             CommercialIncomeTotalPercent, CommercialIncomeTotal,
             CommercialIncomeLowDensityTotal, CommercialIncomeLowDensity1, CommercialIncomeLowDensity2, CommercialIncomeLowDensity3,
             CommercialIncomeHighDensityTotal, CommercialIncomeHighDensity1, CommercialIncomeHighDensity2, CommercialIncomeHighDensity3,
-            CommercialIncomeSpecializedTotal, CommercialIncomeLeisure, CommercialIncomeTourism, CommercialIncomeOrganic,
+            CommercialIncomeSpecializedTotal, CommercialIncomeLeisure, CommercialIncomeTourism, CommercialIncomeOrganic, CommercialIncomeWallToWall,
             IndustrialIncomeTotalPercent, IndustrialIncomeTotal,
             IndustrialIncomeGenericTotal, IndustrialIncomeGeneric1, IndustrialIncomeGeneric2, IndustrialIncomeGeneric3,
             IndustrialIncomeSpecializedTotal, IndustrialIncomeForestry, IndustrialIncomeFarming, IndustrialIncomeOre, IndustrialIncomeOil,
             OfficeIncomeTotalPercent, OfficeIncomeTotal,
             OfficeIncomeGenericTotal, OfficeIncomeGeneric1, OfficeIncomeGeneric2, OfficeIncomeGeneric3,
-            OfficeIncomeITCluster,
+            OfficeIncomeSpecializedTotal, OfficeIncomeITCluster, OfficeIncomeWallToWall,
             TourismIncomeTotalPercent, TourismIncomeTotal,
             TourismIncomeCommercialZones, TourismIncomeTransportation, TourismIncomeParkAreas,
             ServiceExpensesTotalPercent, ServiceExpensesTotal,
             ServiceExpensesRoads, ServiceExpensesElectricity, ServiceExpensesWaterSewageHeating, ServiceExpensesGarbage,
-            ServiceExpensesHealthcare, ServiceExpensesFire, ServiceExpensesEmergency, ServiceExpensesPolice, ServiceExpensesEducation,
-            ServiceExpensesParksPlazas, ServiceExpensesUniqueBuildings, ServiceExpensesGenericSportsArenas, ServiceExpensesLoans, ServiceExpensesPolicies,
+            ServiceExpensesHealthcare, ServiceExpensesFire, ServiceExpensesEmergency, ServiceExpensesPolice, ServiceExpensesEducation, ServiceExpensesParksPlazas,
+            ServiceExpensesServicePoints, ServiceExpensesUniqueBuildings, ServiceExpensesGenericSportsArenas, ServiceExpensesLoans, ServiceExpensesPolicies,
             ParkAreasTotalIncomePercent, ParkAreasTotalIncome, ParkAreasTotalExpensesPercent, ParkAreasTotalExpenses, ParkAreasTotalProfit,
             ParkAreasCityParkIncome, ParkAreasCityParkExpenses, ParkAreasCityParkProfit,
             ParkAreasAmusementParkIncome, ParkAreasAmusementParkExpenses, ParkAreasAmusementParkProfit,
@@ -354,6 +355,7 @@ namespace MoreCityStatistics
             bool dlcCampus              = SteamHelper.IsDLCOwned(SteamHelper.DLC.CampusDLC);              // 05/21/19
             bool dlcSunsetHarbor        = SteamHelper.IsDLCOwned(SteamHelper.DLC.UrbanDLC);               // 03/26/20
             bool dlcAirports            = SteamHelper.IsDLCOwned(SteamHelper.DLC.AirportDLC);             // 01/25/22
+            bool dlcPlazasPromenades    = SteamHelper.IsDLCOwned(SteamHelper.DLC.PlazasAndPromenadesDLC); // 09/14/22
 
             // disable statistic for inactive DLC
             // statistic is still present, just hidden so it cannot be selected
@@ -435,7 +437,15 @@ namespace MoreCityStatistics
                     DisableForInactiveDLC(dlcGreenCities);
                     break;
 
+                case StatisticType.ResidentialIncomeWallToWall:
+                    DisableForInactiveDLC(dlcPlazasPromenades);
+                    break;
+
                 case StatisticType.CommercialIncomeSpecializedTotal:
+                    // display specialized total only if there are at least 2 specialized incomes
+                    DisableForInactiveDLC((dlcAfterDark ? 2 : 0) + (dlcGreenCities ? 1 : 0) + (dlcPlazasPromenades ? 1 : 0) >= 2);
+                    break;
+
                 case StatisticType.CommercialIncomeLeisure:
                 case StatisticType.CommercialIncomeTourism:
                     DisableForInactiveDLC(dlcAfterDark);
@@ -445,9 +455,26 @@ namespace MoreCityStatistics
                     DisableForInactiveDLC(dlcGreenCities);
                     break;
 
+                case StatisticType.CommercialIncomeWallToWall:
+                    DisableForInactiveDLC(dlcPlazasPromenades);
+                    break;
+
                 case StatisticType.OfficeIncomeGenericTotal:
+                    // display generic total only if there is at least 1 specialized income
+                    DisableForInactiveDLC((dlcGreenCities ? 1 : 0) + (dlcPlazasPromenades ? 1 : 0) >= 1);
+                    break;
+
+                case StatisticType.OfficeIncomeSpecializedTotal:
+                    // display specialized total only if there are at least 2 specialized incomes
+                    DisableForInactiveDLC((dlcGreenCities ? 1 : 0) + (dlcPlazasPromenades ? 1 : 0) >= 2);
+                    break;
+
                 case StatisticType.OfficeIncomeITCluster:
                     DisableForInactiveDLC(dlcGreenCities);
+                    break;
+
+                case StatisticType.OfficeIncomeWallToWall:
+                    DisableForInactiveDLC(dlcPlazasPromenades);
                     break;
 
                 case StatisticType.TourismIncomeParkAreas:
@@ -456,6 +483,10 @@ namespace MoreCityStatistics
 
                 case StatisticType.ServiceExpensesEmergency:
                     DisableForInactiveDLC(dlcNaturalDisasters);
+                    break;
+
+                case StatisticType.ServiceExpensesServicePoints:
+                    DisableForInactiveDLC(dlcPlazasPromenades);
                     break;
 
                 case StatisticType.ServiceExpensesGenericSportsArenas:
@@ -698,20 +729,35 @@ namespace MoreCityStatistics
         public void Deserialize(BinaryReader reader, int version)
         {
             // check version
-            if (version < 3 &&
-                (_type == StatisticType.CityEconomyLoanBalance                      ||
-                 _type == StatisticType.CityEconomyCityValue                        ||
-                 _type == StatisticType.CityEconomyCityValuePerCapita               ||
-                 _type == StatisticType.CityEconomyGrossDomesticProduct             ||
-                 _type == StatisticType.CityEconomyGrossDomesticProductPerCapita    ||
-                 _type == StatisticType.CityEconomyConsumption                      ||
-                 _type == StatisticType.CityEconomyConsumptionPercent               ||
-                 _type == StatisticType.CityEconomyGovernmentSpending               ||
-                 _type == StatisticType.CityEconomyGovernmentSpendingPercent        ||
-                 _type == StatisticType.CityEconomyExports                          ||
-                 _type == StatisticType.CityEconomyImports                          ||
-                 _type == StatisticType.CityEconomyNetExports                       ||
-                 _type == StatisticType.CityEconomyNetExportsPercent))
+            if (
+                (version < 3 &&
+                    (
+                    _type == StatisticType.CityEconomyLoanBalance                       ||
+                    _type == StatisticType.CityEconomyCityValue                         ||
+                    _type == StatisticType.CityEconomyCityValuePerCapita                ||
+                    _type == StatisticType.CityEconomyGrossDomesticProduct              ||
+                    _type == StatisticType.CityEconomyGrossDomesticProductPerCapita     ||
+                    _type == StatisticType.CityEconomyConsumption                       ||
+                    _type == StatisticType.CityEconomyConsumptionPercent                ||
+                    _type == StatisticType.CityEconomyGovernmentSpending                ||
+                    _type == StatisticType.CityEconomyGovernmentSpendingPercent         ||
+                    _type == StatisticType.CityEconomyExports                           ||
+                    _type == StatisticType.CityEconomyImports                           ||
+                    _type == StatisticType.CityEconomyNetExports                        ||
+                    _type == StatisticType.CityEconomyNetExportsPercent
+                    )
+                )
+                ||
+                (version < 4 &&
+                    (
+                    _type == StatisticType.ResidentialIncomeWallToWall                  ||
+                    _type == StatisticType.CommercialIncomeWallToWall                   ||
+                    _type == StatisticType.OfficeIncomeSpecializedTotal                 ||
+                    _type == StatisticType.OfficeIncomeWallToWall                       ||
+                    _type == StatisticType.ServiceExpensesServicePoints
+                    )
+                )
+               )
             {
                 // not selected by default
                 Selected = false;

@@ -1,9 +1,9 @@
 Record and graph more city statistics.
 
-[img=https://i.imgur.com/f2iRAPU.gif]
+[img=https://i.imgur.com/ys8eGPj.png]
 
 [h1]Detailed Description[/h1]
-This mod records and graphs 473 statistics over time ([url=https://steamcommunity.com/workshop/filedetails/discussion/2685974449/5545618081300254710/]full list here[/url]), many more than the game's City Statistics graph.  Most statistics from the Info Views, the City Info panels, the Economy panel, and game limits are available to be graphed over time.  The game's City Statistics graph is not changed.
+This mod records and graphs 478 statistics over time ([url=https://steamcommunity.com/workshop/filedetails/discussion/2685974449/5545618081300254710/]full list here[/url]), many more than the game's City Statistics graph.  Most statistics from the Info Views, the City Info panels, the Economy panel, and game limits are available to be graphed over time.  The game's City Statistics graph is not changed.
 
 Click on the More City Statistics button to view the graph.  The button and graph can be moved and the positions are remembered between games.
 
@@ -11,7 +11,7 @@ A snapshot of statistics is taken on the first day of each game month at midnigh
 
 Statistics are grouped into categories (e.g. Electricity, Water) to make it easier to find desired statistics.  Click on a category to expand the list of statistics available in that category.  Click on Expand All to expand all categories or Collapse All to collapse all categories.
 
-Click on a statistic to add it to the graph.  Click on the statistic again to remove it from the graph.  Click on Deselect All to remove all statistics from the graph.  Up to 10 statistics may be included at the same time.  Hover the cursor over a data point on the graph to view the detail for the data point.  Collapsing a category does not change the selection of statistics in the category.  The current value of each statistic is shown next to each statistic.
+Click on a statistic to add it to the graph.  Click on the statistic again to remove it from the graph.  Click on Deselect All to remove all statistics from the graph.  Up to 10 statistics may be included at the same time.  Hover the cursor over a data point on the graph to view the detail for the data point.  Collapsing a category does not change the selection of statistics in the category.  The current value of each statistic is shown next to each statistic.  A category or statistic unique to a DLC package is available only if that DLC is active.
 
 You can choose to show all snapshots or only a range of snapshots.  Select the From To option and move the sliders to zoom in on any year range.  If the [url=https://steamcommunity.com/sharedfiles/filedetails/?id=1420955187]Real Time[/url] mod is enabled, the sliders instead zoom in on any date range.  The total number of snapshots (not just the range selected) is displayed.
 
@@ -33,14 +33,12 @@ These options are available only while in a game (i.e. they are hidden when view
 
 Click the "Export All Statistics" button to export all statistics to a file.  Click the "Export Selected Statistics" button to export only the statistics currently selected on the graph.  The location and name of the file is shown and cannot be changed.  Even though the file has a "csv" extension (for Comma Separated Values), the file uses the tab character as a separator because some languages use a comma as a decimal symbol for numbers.  The file includes all snapshots.  Snapshot dates in the file are formatted using your system short date format, which may be different than the format of dates in the game.  The exported data can be used for further analysis, for example in a spreadsheet program.
 
-Click the "Delete Snapshots" button to immediately delete all existing snapshots.  This can be used to restart snapshots from the current game date, for example if don't care about the history.
+Click the "Delete Snapshots" button to immediately delete all existing snapshots.  This can be used to restart snapshots from the current game date, for example if you don't care about the history.
 
 The default is to "Save settings and snapshots with the game" (i.e. the option is checked).  When the option is not checked, no settings or snapshots will be saved with the game, including for Auto-Save.  This can be used to completely remove More City Statistics data from your game save file, for example if you are going to unsubscribe this mod.
 
 [h1]Compatibility[/h1]
 This mod is translated into all languages supported by the base game plus Japanese.  The translations were accomplished using a combination of the game's translations and Google Translate.  If a translation does not make sense, please provide an alternative.
-
-This mod is compatible with all Down Loadable Content (DLC) packages thru Airports and all Content Creator Packs (CCP) thru Map Pack and Vehicles of the World.  This mod does not require any DLC or CCP to work properly.  A category or statistic unique to a DLC package is available only if that DLC is active.
 
 This mod is compatible with [url=https://steamcommunity.com/sharedfiles/filedetails/?id=1729576238]Date Changer[/url] mod.  If the date is changed, snapshots will be taken starting from that new date.  Previously taken snapshots will be overwritten if/when the game date reaches those snapshot dates.
 

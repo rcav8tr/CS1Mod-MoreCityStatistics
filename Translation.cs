@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using ColossalFramework.Globalization;
 
 namespace MoreCityStatistics
 {
@@ -41,7 +42,7 @@ namespace MoreCityStatistics
         //      translated text cannot be blank for the default language
         //      blank translated text in a non-default language will use the translated text for the default language
 
-        // use singleton pattern:  there can be only one Translation in the game
+        // use singleton pattern:  there can be only one Translation in the mod
         private static readonly Translation _instance = new Translation();
         public static Translation instance { get { return _instance; } }
         private Translation() { Initialize(); }
@@ -263,6 +264,7 @@ namespace MoreCityStatistics
             OrganicAndLocalProduce,
             Generic,
             ITCluster,
+            WallToWall,
             CommercialZones,
             Roads,
             WaterSewage,
@@ -271,6 +273,7 @@ namespace MoreCityStatistics
             Emergency,
             Police,
             ParksPlazasLandscaping,
+            ServicePoints,
             UniqueBuildings,
             GenericSportsArenas,
             Loans,
@@ -630,6 +633,56 @@ namespace MoreCityStatistics
 
             // return the translated text
             return translatedText;
+        }
+
+        /// <summary>
+        /// dump game translations to files
+        /// </summary>
+        public void DumpGameTranslations()
+        {
+            // get field for Locale.m_LocalizedStrings
+            FieldInfo fieldLocalizedStrings = typeof(Locale).GetField("m_LocalizedStrings", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            // do each language code in the game
+            foreach (string localeID in LocaleManager.instance.supportedLocaleIDs)
+            {
+                // construct full path and file name of the game's locale file
+                string gameLocaleFile = Path.Combine(Path.Combine(ColossalFramework.IO.DataLocation.gameContentPath, "Locale"), localeID + ".locale");
+		        if (File.Exists(gameLocaleFile))
+		        {
+                    // open the game's locale file
+			        using (Stream streamLocaleFile = new FileStream(gameLocaleFile, FileMode.Open, FileAccess.Read))
+			        {
+                        // load the game's locale file
+                        Locale locale = ColossalFramework.IO.DataSerializer.Deserialize<Locale>(streamLocaleFile, ColossalFramework.IO.DataSerializer.Mode.File);
+
+                        // get the localized strings value
+                        object value = fieldLocalizedStrings.GetValue(locale);
+                        if (value == null)
+                        {
+                            LogUtil.LogError($"Unable to get localized strings for [{localeID}]");
+                        }
+                        else
+                        {
+                            // open output file
+                            string outputFileName = Path.Combine(ColossalFramework.IO.DataLocation.localApplicationData, "Game Translations " + localeID + ".txt");
+                            using (StreamWriter streamOutputFile = new StreamWriter(outputFileName, false))
+                            {
+                                // write each localized string to output file
+                                Dictionary<Locale.Key, string> localizedStrings = (Dictionary<Locale.Key, string>)value;
+                                foreach (Locale.Key key in localizedStrings.Keys)
+                                {
+                                    streamOutputFile.WriteLine($"[{key.m_Identifier}] [{key.m_Key}] [{key.m_Index}] \"{locale.Get(key).Replace("\"", "\"\"")}\"");
+                                }
+                            }
+                        }
+			        }
+		        }
+                else
+                {
+                    LogUtil.LogError($"Unable to find locale file for [{localeID}].");
+                }
+            }
         }
     }
 }

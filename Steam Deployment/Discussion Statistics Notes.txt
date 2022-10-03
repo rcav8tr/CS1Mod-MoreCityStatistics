@@ -57,10 +57,13 @@ The game's Economy panel shows Tourism income from Commercial Zones, Public Tran
 The game's Economy panel combines Toll Booth expenses with Road expenses.  In this mod, Toll Booth expenses are separate (see the Transport Economy-Toll Booth statistics).
 
 [h3]Emergency Expenses[/h3]
-The game's Economy panel combines Emergency (i.e. Disaster) expenses with Fire expenses.  In this mod, Emergency expenses are separate (see the Service Expenses-Emergency statistics).
+The game's Economy panel combines Emergency (i.e. Disaster) expenses with Fire expenses.  In this mod, Emergency expenses are separate (see the Service Expenses-Emergency statistic).
 
 [h3]Generic Sports Arena Expenses[/h3]
 A Generic Sports Arena is a varsity sports arena either inside a generic campus area (i.e. no administration building) or outside all campus areas.  The game's Economy panel combines Generic Sports Arena expenses with Unique Building expenses.  In this mod, Generic Sports Arena expenses are separate (see the Service Expenses-Generic Sports Arenas statistics).  The "Sports Arena", "Ice Hockey Arena", "Snowboard Arena", "Football Stadium", and "Stadium" are considered Unique Buildings, not Generic Sports Arenas.
+
+[h3]Pedestrian Area Expenses[/h3]
+The game's Economy panel combines Service Point expenses with Parks, Plazas, and Landscaping expenses.  In this mod, Service Points are separate (see the Service Expenses-Service Points statistic).  Pedestrian Area landmark building expenses are included in Unique Buildings expenses.
 
 [h3]Park Area Expenses[/h3]
 The game's Economy panel combines Park Area expenses with Park expenses.  In this mod, Park Areas are separate (see the Park Areas category).  A Park Area with no gate is considered City Park.
@@ -81,7 +84,7 @@ Mail and Space Elevator have no income, therefore all corresponding expenses are
 Income varies greatly and quickly as public transportation is used, park areas are visited, industry areas produce goods/materials, students attend college at campus areas, varsity sporting events are held, etc.  Therefore, income reported by this mod may differ slightly (up to about +/-0.1%) from the game's income due to the way the data is obtained.
 
 [h3]Painted Areas[/h3]
-In the Game Limits category:  Park, Industry, Campus, and Airport areas are called Painted Areas.  All painted areas share the same limits.
+In the Game Limits category:  Pedestrian, Park, Industry, Campus, and Airport areas are called Painted Areas.  All painted areas share the same limits.
 
 [h3]Rounding[/h3]
 Snapshot values may not exactly match the corresponding game value due to rounding.
@@ -93,12 +96,12 @@ If there is a gap in the snapshot dates due to disabling and later re-enabling t
 Many of the statistics are computed from other statistics.  For example, Profit is computed as Income minus Expenses.  To save space in the game save file, the computed statistics are not saved.  Only the base statistics are saved.
 
 [h3]Game Save File Space[/h3]
-A single snapshot uses 1,634 bytes in the game save file.  The snapshot space in the game save file is listed below for various date ranges and the two snapshot frequencies.  For comparison, a new blank game is about 5-6MB.
+A single snapshot uses 1,670 bytes in the game save file.  The snapshot space in the game save file is listed below for various date ranges and the two snapshot frequencies.  For comparison, a new blank game is about 5-6MB.
 [table]
 [tr][td][b]Date range[/b][/td][td][b]1/mo[/b][/td][td][b]1/day[/b][/td][/tr]
-[tr][td]1 month    [/td][td] 1,634[/td][td]49.6KB[/td][/tr]
-[tr][td]1 year     [/td][td]19.6KB[/td][td] 597KB[/td][/tr]
-[tr][td]10 years   [/td][td] 196KB[/td][td]5.97MB[/td][/tr]
-[tr][td]100 years  [/td][td]1.96MB[/td][td]59.7MB[/td][/tr]
-[tr][td]1,000 years[/td][td]19.6MB[/td][td] 597MB[/td][/tr]
+[tr][td]1 month    [/td][td] 1,670[/td][td]50.8KB[/td][/tr]
+[tr][td]1 year     [/td][td]20.0KB[/td][td] 610KB[/td][/tr]
+[tr][td]10 years   [/td][td] 200KB[/td][td]6.10MB[/td][/tr]
+[tr][td]100 years  [/td][td]2.00MB[/td][td]61.0MB[/td][/tr]
+[tr][td]1,000 years[/td][td]20.0MB[/td][td] 610MB[/td][/tr]
 [/table]
