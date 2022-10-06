@@ -19,9 +19,17 @@ namespace MoreCityStatistics
         // special language code for game language
         public const string GameLanguageCode = "00";
 
+        // category and statistic text size
+        public enum CategoryStatisticTextSize
+        {
+            Normal,
+            Large,
+            ExtraLarge
+        }
+        public const CategoryStatisticTextSize DefaultCategoryStatisticTextSize = CategoryStatisticTextSize.Normal;
+
         // interval to update current values (seconds)
         public const int DefaultUpdateInterval = 10;
-        public int CurrentValueUpdateInterval { get; private set; }
         private UILabel _intervalValue;
 
         // status of settings check box
@@ -64,6 +72,11 @@ namespace MoreCityStatistics
 
             // allow user to change language
             groupGeneral.AddDropdown(translation.Get(Translation.Key.ChooseYourLanguage), languageNames, defaultIndex, OnLanguageChanged);
+
+
+            // allow user to choose category/statistic text size
+            string[] textSizes = new string[] { translation.Get(Translation.Key.Normal), translation.Get(Translation.Key.Large), translation.Get(Translation.Key.ExtraLarge) };
+            groupGeneral.AddDropdown(translation.Get(Translation.Key.CategoryStatisticTextSize), textSizes, config.CategoryStatisticTextSize, OnCategoryStatisticTextSizeChanged);
 
 
             // allow user to set the interval that current values are updated
@@ -139,7 +152,7 @@ namespace MoreCityStatistics
 
             // save the selected language code so it is available next time it is needed
             Configuration.SaveLanguageCode(languageCode);
-            LogUtil.LogInfo($"Languaged changed to [{languageCode}]");
+            LogUtil.LogInfo($"Language changed to [{languageCode}]");
 
             // inform the Main Options Panel about locale change
             // this will trigger MoreCityStatistics.OnSettingsUI which calls Options.CreateUI to recreate this mod's Options UI with the newly selected language
@@ -169,18 +182,30 @@ namespace MoreCityStatistics
         }
 
         /// <summary>
+        /// handle change in category/statistic text size
+        /// </summary>
+        private void OnCategoryStatisticTextSizeChanged(int index)
+        {
+            // save the selected text size; index corresponds to enum value
+            Configuration.SaveCurrentValueCategoryStatisticTextSize((CategoryStatisticTextSize)index);
+
+            // update UI for the rest of this mod's UI
+            UserInterface.instance.UpdateUI();
+        }
+
+        /// <summary>
         /// handle change in update interval
         /// </summary>
         private void OnUpdateIntervalChanged(float val)
         {
             // save the new value
-            CurrentValueUpdateInterval = (int)val;
-            Configuration.SaveCurrentValueUpdateInterval(CurrentValueUpdateInterval);
+            int updateInterval = (int)val;
+            Configuration.SaveCurrentValueUpdateInterval(updateInterval);
 
             // show new interval value
             if (_intervalValue != null)
             {
-                _intervalValue.text = CurrentValueUpdateInterval.ToString();
+                _intervalValue.text = updateInterval.ToString();
             }
         }
 

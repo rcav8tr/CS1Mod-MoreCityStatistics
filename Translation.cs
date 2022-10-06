@@ -62,6 +62,10 @@ namespace MoreCityStatistics
             ChooseYourLanguage,
             GameLanguage,
             LanguageName,
+            CategoryStatisticTextSize,
+            Normal,
+            Large,
+            ExtraLarge,
             CurrentValueUpdateInterval,
 
             // in-game options UI

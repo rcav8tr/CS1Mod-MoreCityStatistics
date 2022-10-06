@@ -51,10 +51,10 @@ namespace MoreCityStatistics
                 canFocus = true;
                 autoSize = false;
 
-                // the width is the maximum that still fits on the screen using the game's narrower 4:3 aspect ratio
+                // the width is the maximum that still fits on the screen using the game's narrow 4:3 aspect ratio
                 // the height is just enough so that the vertical scroll bar is not needed when all categories are collapsed
-                // the user's screen resolution setting and the game's graphics display settings resolution do not matter
-                size = new Vector2(1430f, 920f);
+                // the user's screen resolution and the game's graphics resolution do not matter
+                size = new Vector2(1440f, 940f);
 
                 // if panel positon is negative (i.e. default), then center panel on the view
                 if (relativePosition.x < 0f)
@@ -69,6 +69,7 @@ namespace MoreCityStatistics
                 Color32 panelColor = new Color32(45, 52, 61, 255);
 
                 // create graph panel
+                // the width of the graph panel is set so that the statistic descriptions and amounts don't overlap in English at Normal text size
                 UIPanel graphPanel = AddUIComponent<UIPanel>();
                 if (graphPanel == null)
                 {
@@ -77,7 +78,7 @@ namespace MoreCityStatistics
                 }
                 graphPanel.name = "GraphPanel";
                 graphPanel.autoSize = false;
-                graphPanel.size = new Vector3(1000f, size.y - 60f);
+                graphPanel.size = new Vector3(980f, size.y - 60f);
                 graphPanel.relativePosition = new Vector3(10f, 50f);
                 graphPanel.backgroundSprite = "GenericPanel";
                 graphPanel.color = panelColor;

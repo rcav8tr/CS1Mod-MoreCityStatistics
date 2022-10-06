@@ -300,7 +300,7 @@ namespace MoreCityStatistics
             _panel.eventClicked += Statistic_eventClicked;
 
             // create the checkbox
-            const float componentHeight = UIHeight - 2f;
+            const float checkboxSize = UIHeight - 2f;
             _checkbox = _panel.AddUIComponent<UISprite>();
             if (_checkbox == null)
             {
@@ -309,7 +309,7 @@ namespace MoreCityStatistics
             }
             _checkbox.name = namePrefix + "Checkbox";
             _checkbox.autoSize = false;
-            _checkbox.size = new Vector2(componentHeight, componentHeight);
+            _checkbox.size = new Vector2(checkboxSize, checkboxSize);
             _checkbox.relativePosition = new Vector3(20f, 0f);
 
             // create the description label
@@ -323,7 +323,7 @@ namespace MoreCityStatistics
             _description.textScale = 0.625f;
             _description.relativePosition = new Vector3(_checkbox.relativePosition.x + _checkbox.size.x + 3f, 3f);
             _description.autoSize = false;
-            _description.size = new Vector2(_panel.size.x - _description.relativePosition.x, componentHeight);
+            _description.size = new Vector2(_panel.size.x - _description.relativePosition.x, UIHeight);
 
             // create the amount label on top of the description
             _amount = _panel.AddUIComponent<UILabel>();
@@ -335,7 +335,7 @@ namespace MoreCityStatistics
             _amount.name = namePrefix + "Amount";
             _amount.textScale = _description.textScale;
             _amount.autoSize = false;
-            _amount.size = new Vector2(_description.size.x - 100f, componentHeight);
+            _amount.size = new Vector2(_description.size.x - 100f, UIHeight);
             _amount.relativePosition = new Vector3(_panel.size.x - _amount.size.x - 2f, _description.relativePosition.y);
             _amount.textAlignment = UIHorizontalAlignment.Right;
             _amount.BringToFront();
@@ -674,12 +674,24 @@ namespace MoreCityStatistics
             {
                 _description.text = _descriptionUnits;
                 _description.textColor = _textColor;
+                Configuration config = ConfigurationUtil<Configuration>.Load();
+                switch ((Options.CategoryStatisticTextSize)config.CategoryStatisticTextSize)
+                {
+                    case Options.CategoryStatisticTextSize.Normal:      _description.textScale = 0.625f; _description.relativePosition = new Vector3(_description.relativePosition.x, 3.0f); break;
+                    case Options.CategoryStatisticTextSize.Large:       _description.textScale = 0.750f; _description.relativePosition = new Vector3(_description.relativePosition.x, 2.0f); break;
+                    case Options.CategoryStatisticTextSize.ExtraLarge:  _description.textScale = 0.875f; _description.relativePosition = new Vector3(_description.relativePosition.x, 0.5f); break;
+                }
             }
 
             // update amount
             if (_amount != null)
             {
                 _amount.textColor = _textColor;
+                if (_description != null)
+                {
+                    _amount.textScale = _description.textScale;
+                    _amount.relativePosition = new Vector3(_amount.relativePosition.x, _description.relativePosition.y);
+                }
             }
         }
 

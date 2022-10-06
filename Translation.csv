@@ -8,7 +8,11 @@
 "ChooseYourLanguage","Choose your language:","Wähle deine Sprache:","Elige tu idioma:","Choisissez votre langue:","당신의 언어를 선택하세요:","Wybierz swój język:","Escolha o seu idioma:","Выберите ваш язык:","选择你的语言：","言語を選択してください："
 "GameLanguage","Game language","Spielsprache","Idioma del juego","Langue du jeu","게임 언어","Język gry","Linguagem do Jogo","Язык игры","游戏语言","ゲームの言語"
 "LanguageName","English","Deutsch","Español","Français","한국어","Polski","Português","Русский","中文 (简体)","日本語"
-"CurrentValueUpdateInterval","Current value update interval (seconds)","Aktualisierungsintervall des aktuellen Werts (Sekunden)","Intervalo de actualización del valor actual (segundos)","Intervalle de mise à jour de la valeur actuelle (secondes)","현재 값 업데이트 간격(초)","Interwał aktualizacji wartości bieżącej (sekundy)","Intervalo de atualização do valor atual (segundos)","Интервал обновления текущего значения (секунды)","当前值更新间隔（秒）","現在の値の更新間隔（秒）"
+"CategoryStatisticTextSize","Category/Statistic text size:","Textgröße Kategorie/Statistik:","Tamaño de texto de categoría/estadística:","Taille du texte de la catégorie/statistique :","카테고리/통계 텍스트 크기:","Rozmiar tekstu kategorii/statystyki:","Tamanho do texto da categoria/estatística:","Размер текста категории/статистики:","类别/统计文本大小：","カテゴリ/統計のテキスト サイズ:"
+"Normal","Normal","Normal","Normal","Normal","정상","Normalna","Normal","Обычный","普通的","いつもの"
+"Large","Large","Groß","Grande","Grand","크기가 큰","Wielki","Grande","Большой","大的","大きい"
+"ExtraLarge","Extra Large","Extra groß","Extra grande","Extra grand","특대","Bardzo duży","Extra grande","Очень большой","特大号","特大"
+"CurrentValueUpdateInterval","Current value update interval (seconds):","Aktualisierungsintervall des aktuellen Werts (Sekunden):","Intervalo de actualización del valor actual (segundos):","Intervalle de mise à jour de la valeur actuelle (secondes):","현재 값 업데이트 간격(초):","Interwał aktualizacji wartości bieżącej (sekundy):","Intervalo de atualização do valor atual (segundos):","Интервал обновления текущего значения (секунды):","当前值更新间隔（秒）:","現在の値の更新間隔（秒）:"
 ,,,,,,,,,,
 "# In-game options UI",,,,,,,,,,
 "InGame","In Game","Im Spiel","En el juego","Dans le jeu","게임 내","W grze","No jogo","В игре","在游戏中","ゲームで"

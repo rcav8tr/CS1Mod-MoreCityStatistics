@@ -22,6 +22,9 @@ namespace MoreCityStatistics
         // language code
         public string LanguageCode = Options.GameLanguageCode;
 
+        // category/statistic text size
+        public int CategoryStatisticTextSize = (int)Options.DefaultCategoryStatisticTextSize;
+
         // current value update interval
         public int CurrentValueUpdateInterval = Options.DefaultUpdateInterval;
 
@@ -54,6 +57,16 @@ namespace MoreCityStatistics
         {
             Configuration config = ConfigurationUtil<Configuration>.Load();
             config.LanguageCode = languageCode;
+            ConfigurationUtil<Configuration>.Save();
+        }
+
+        /// <summary>
+        /// save the current value category/statistic text size to the global config file as an int
+        /// </summary>
+        public static void SaveCurrentValueCategoryStatisticTextSize(Options.CategoryStatisticTextSize textSize)
+        {
+            Configuration config = ConfigurationUtil<Configuration>.Load();
+            config.CategoryStatisticTextSize = (int)textSize;
             ConfigurationUtil<Configuration>.Save();
         }
 

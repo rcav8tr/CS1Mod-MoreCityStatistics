@@ -165,7 +165,7 @@ namespace MoreCityStatistics
             expansionPanel.eventClicked += Category_eventClicked;
 
             // create the expansion icon
-            const float componentHeight = UIHeight - 2f;
+            const float iconSize = UIHeight - 2f;
             _expansionIcon = expansionPanel.AddUIComponent<UISprite>();
             if (_expansionIcon == null)
             {
@@ -174,7 +174,7 @@ namespace MoreCityStatistics
             }
             _expansionIcon.name = namePrefix + "ExpansionIcon";
             _expansionIcon.autoSize = false;
-            _expansionIcon.size = new Vector2(componentHeight, componentHeight);
+            _expansionIcon.size = new Vector2(iconSize, iconSize);
             _expansionIcon.relativePosition = new Vector3(0f, 0f);
 
             // create the label
@@ -187,7 +187,7 @@ namespace MoreCityStatistics
             _label.name = namePrefix + "Label";
             _label.relativePosition = new Vector3(_expansionIcon.relativePosition.x + _expansionIcon.size.x + 3f, 3.5f);
             _label.autoSize = false;
-            _label.size = new Vector2(_panel.size.x - _label.relativePosition.x, componentHeight);
+            _label.size = new Vector2(_panel.size.x - _label.relativePosition.x, UIHeight);
             _label.textScale = 0.75f;
             _label.textColor = new Color32(185, 221, 254, 255);;
 
@@ -247,6 +247,13 @@ namespace MoreCityStatistics
             if (_label != null)
             {
                 _label.text = _description;
+                Configuration config = ConfigurationUtil<Configuration>.Load();
+                switch ((Options.CategoryStatisticTextSize)config.CategoryStatisticTextSize)
+                {
+                    case Options.CategoryStatisticTextSize.Normal:      _label.textScale = 0.750f; _label.relativePosition = new Vector3(_label.relativePosition.x, 3.5f); break;
+                    case Options.CategoryStatisticTextSize.Large:       _label.textScale = 0.875f; _label.relativePosition = new Vector3(_label.relativePosition.x, 2.0f); break;
+                    case Options.CategoryStatisticTextSize.ExtraLarge:  _label.textScale = 1.000f; _label.relativePosition = new Vector3(_label.relativePosition.x, 0.0f); break;
+                }
             }
 
             // update the statistics

@@ -26,6 +26,8 @@ You can choose to use the "Game language" (default) or a specific language for t
 
 Regardless of the language chosen for this mod, if the game's language is one of the base game's languages (i.e not due to a mod), numbers are formatted according to the game's language.  If the game's language is some other language due to a mod, numbers use a default format.
 
+You can choose the text size for category and statistic selections (default is Normal).  Choosing Large or Extra Large may cause some statistic descriptions to overlap with the statistic value.
+
 The current value of statistics can be updated every 1 to 30 seconds (default is 10).
 
 [h3]In Game Options[/h3]
