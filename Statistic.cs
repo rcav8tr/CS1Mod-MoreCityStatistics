@@ -51,6 +51,11 @@ namespace MoreCityStatistics
             ZoneBuildingsTotal, ZoneBuildingsResidential, ZoneBuildingsCommercial, ZoneBuildingsIndustrial, ZoneBuildingsOffice,
             ZoneDemandResidential, ZoneDemandCommercial, ZoneDemandIndustrialOffice,
             TrafficAverageFlow,
+            TrafficPedestriansPercent, TrafficCyclistsPercent, TrafficPrivateVehiclesPercent, TrafficPublicTransportCargoPercent,
+            TrafficTrucksPercent, TrafficCityServiceVehiclesPercent, TrafficDummyTrafficPercent,
+            TrafficTotalCount,
+            TrafficPedestriansCount, TrafficCyclistsCount, TrafficPrivateVehiclesCount, TrafficPublicTransportCargoCount,
+            TrafficTrucksCount, TrafficCityServiceVehiclesCount, TrafficDummyTrafficCount,
             PollutionAverageGround, PollutionAverageDrinkingWater, PollutionAverageNoise,
             FireSafetyHazard,
             CrimeRate, CrimeDetainedCriminalsPercent, CrimeDetainedCriminals, CrimeJailsCapacity,
@@ -366,6 +371,11 @@ namespace MoreCityStatistics
                 case StatisticType.WaterTankReserved:
                 case StatisticType.WaterTankStorageCapacity:
                     DisableForInactiveDLC(dlcNaturalDisasters);
+                    break;
+
+                case StatisticType.TrafficCyclistsPercent:
+                case StatisticType.TrafficCyclistsCount:
+                    DisableForInactiveDLC(dlcAfterDark);
                     break;
 
                 case StatisticType.PublicTransportationTrolleybusTotal:
@@ -767,6 +777,26 @@ namespace MoreCityStatistics
                     _type == StatisticType.OfficeIncomeSpecializedTotal                 ||
                     _type == StatisticType.OfficeIncomeWallToWall                       ||
                     _type == StatisticType.ServiceExpensesServicePoints
+                    )
+                )
+                ||
+                (version < 5 &&
+                    (
+                    _type == StatisticType.TrafficPedestriansPercent                    ||
+                    _type == StatisticType.TrafficCyclistsPercent                       ||
+                    _type == StatisticType.TrafficPrivateVehiclesPercent                ||
+                    _type == StatisticType.TrafficPublicTransportCargoPercent           ||
+                    _type == StatisticType.TrafficTrucksPercent                         ||
+                    _type == StatisticType.TrafficCityServiceVehiclesPercent            ||
+                    _type == StatisticType.TrafficDummyTrafficPercent                   ||
+                    _type == StatisticType.TrafficTotalCount                            ||
+                    _type == StatisticType.TrafficPedestriansCount                      ||
+                    _type == StatisticType.TrafficCyclistsCount                         ||
+                    _type == StatisticType.TrafficPrivateVehiclesCount                  ||
+                    _type == StatisticType.TrafficPublicTransportCargoCount             ||
+                    _type == StatisticType.TrafficTrucksCount                           ||
+                    _type == StatisticType.TrafficCityServiceVehiclesCount              ||
+                    _type == StatisticType.TrafficDummyTrafficCount
                     )
                 )
                )

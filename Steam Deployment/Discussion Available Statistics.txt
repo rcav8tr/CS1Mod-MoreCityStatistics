@@ -139,6 +139,21 @@ Zone Demand
 
 Traffic
 • Average-Flow (%)
+• Pedestrians (% of Total)
+• Cyclists (% of Total)
+• Private vehicles (% of Total)
+• Public transport & Cargo (% of Total)
+• Trucks (% of Total)
+• City service vehicles (% of Total)
+• Dummy traffic (% of Total)
+• Total (count)
+• Pedestrians (count)
+• Cyclists (count)
+• Private vehicles (count)
+• Public transport & Cargo (count)
+• Trucks (count)
+• City service vehicles (count)
+• Dummy traffic (count)
 
 Pollution
 • Average-Ground (%)

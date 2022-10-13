@@ -173,6 +173,27 @@ namespace MoreCityStatistics
 
         // Traffic
         public uint TrafficAverageFlow;
+        public float? TrafficPedestriansPercent             { get { return ComputePercent(TrafficPedestriansCount,          TrafficTotalCount); } }
+        public float? TrafficCyclistsPercent                { get { return ComputePercent(TrafficCyclistsCount,             TrafficTotalCount); } }
+        public float? TrafficPrivateVehiclesPercent         { get { return ComputePercent(TrafficPrivateVehiclesCount,      TrafficTotalCount); } }
+        public float? TrafficPublicTransportCargoPercent    { get { return ComputePercent(TrafficPublicTransportCargoCount, TrafficTotalCount); } }
+        public float? TrafficTrucksPercent                  { get { return ComputePercent(TrafficTrucksCount,               TrafficTotalCount); } }
+        public float? TrafficCityServiceVehiclesPercent     { get { return ComputePercent(TrafficCityServiceVehiclesCount,  TrafficTotalCount); } }
+        public float? TrafficDummyTrafficPercent            { get { return ComputePercent(TrafficDummyTrafficCount,         TrafficTotalCount); } }
+        public int? TrafficTotalCount                       { get { return TrafficPedestriansCount +
+                                                                           TrafficCyclistsCount +
+                                                                           TrafficPrivateVehiclesCount +
+                                                                           TrafficPublicTransportCargoCount +
+                                                                           TrafficTrucksCount +
+                                                                           TrafficCityServiceVehiclesCount +
+                                                                           TrafficDummyTrafficCount; } }
+        public int? TrafficPedestriansCount;
+        public int? TrafficCyclistsCount;
+        public int? TrafficPrivateVehiclesCount;
+        public int? TrafficPublicTransportCargoCount;
+        public int? TrafficTrucksCount;
+        public int? TrafficCityServiceVehiclesCount;
+        public int? TrafficDummyTrafficCount;
 
         // Pollution
         public int PollutionAverageGround;
@@ -1099,6 +1120,10 @@ namespace MoreCityStatistics
 
             // Traffic - logic copied from TrafficInfoViewPanel.UpdatePanel
             snapshot.TrafficAverageFlow = vehicleManagerInstance.m_lastTrafficFlow;
+
+            // Traffic Counts
+            GetVehicleTrafficCounts(ref snapshot.TrafficPrivateVehiclesCount, ref snapshot.TrafficPublicTransportCargoCount, ref snapshot.TrafficTrucksCount, ref snapshot.TrafficCityServiceVehiclesCount, ref snapshot.TrafficDummyTrafficCount);
+            GetCitizenTrafficCounts(ref snapshot.TrafficPedestriansCount, ref snapshot.TrafficCyclistsCount);
 
             // Pollution - logic copied from PollutionInfoViewPanel.UpdatePanel and NoisePollutionInfoViewPanel.UpdatePanel
             snapshot.PollutionAverageGround        = cityDistrict.GetGroundPollution();
@@ -2042,6 +2067,215 @@ namespace MoreCityStatistics
             return cityValue;
         }
 
+        /// <summary>
+        /// get vehicle traffic counts
+        /// </summary>
+        private static void GetVehicleTrafficCounts(ref int? trafficPrivateVehiclesCount,
+                                                    ref int? trafficPublicTransportCargoCount,
+                                                    ref int? trafficTrucksCount,
+                                                    ref int? trafficCityServiceVehiclesCount,
+                                                    ref int? trafficDummyTrafficCount)
+        {
+            // initialize traffic counts
+            trafficPrivateVehiclesCount         = 0;
+            trafficPublicTransportCargoCount    = 0;
+            trafficTrucksCount                  = 0;
+            trafficCityServiceVehiclesCount     = 0;
+            trafficDummyTrafficCount            = 0;
+
+            // get manager instances
+            BuildingManager bmInstance = BuildingManager.instance;
+            CitizenManager cmInstance = CitizenManager.instance;
+            VehicleManager vmInstance = VehicleManager.instance;
+
+            // do each vehicle
+            uint maximumVehicles = vmInstance.m_vehicles.m_size;
+            for (uint vehicleID = 0; vehicleID < maximumVehicles; vehicleID++)
+            {
+                // get the vehicle
+                Vehicle vehicle = vmInstance.m_vehicles.m_buffer[vehicleID];
+
+                // the vehicle must be created, not deleted, and not waiting for path
+                // logic adapted from PathVisualizer.AddPathsImpl
+                if ((vehicle.m_flags & (Vehicle.Flags.Created | Vehicle.Flags.Deleted | Vehicle.Flags.WaitingPath)) != Vehicle.Flags.Created)
+                {
+                    continue;
+                }
+
+                // the vehicle info must be valid
+                VehicleInfo vehicleInfo = vehicle.Info;
+                if (vehicleInfo == null)
+                {
+                    continue;
+                }
+
+                // do not count bicycles; cyclists are counted with citizens, not vehicles
+                if (vehicleInfo.m_vehicleType == VehicleInfo.VehicleType.Bicycle)
+                {
+                    continue;
+                }
+
+                // do not count trailing vehicles; only the leading vehicle is counted
+                if (vehicle.m_leadingVehicle != 0)
+                {
+                    continue;
+                }
+
+                // if the vehicle is marked as dummy traffic, then the vehicle is dummy traffic
+                if ((vehicle.m_flags & Vehicle.Flags.DummyTraffic) != 0)
+                {
+                    trafficDummyTrafficCount++;
+                    continue;
+                }
+
+                // if the first citizen in the vehicle is dummy traffic, then assume all citizens in the vehicle are dummy traffic and the vehicle is dummy traffic
+                if (vehicle.m_citizenUnits != 0)
+                {
+                    uint citizenID = cmInstance.m_units.m_buffer[vehicle.m_citizenUnits].m_citizen0;
+                    if (citizenID != 0)
+                    {
+                        if ((cmInstance.m_citizens.m_buffer[citizenID].m_flags & Citizen.Flags.DummyTraffic) != 0)
+                        {
+                            trafficDummyTrafficCount++;
+                            continue;
+                        }
+                    }
+                }
+
+                // if both source building and target building are OutsideConnectionAI, then the vehicle is dummy traffic
+                // not sure if the game logic will always mark these vehicles as dummy traffic, so it is checked here
+                if (vehicle.m_sourceBuilding != 0)
+                {
+                    Building sourceBuilding = bmInstance.m_buildings.m_buffer[vehicle.m_sourceBuilding];
+                    if (sourceBuilding.Info != null && sourceBuilding.Info.m_buildingAI.GetType() == typeof(OutsideConnectionAI))
+                    {
+                        if (vehicle.m_targetBuilding != 0)
+                        {
+                            Building targetBuilding = bmInstance.m_buildings.m_buffer[vehicle.m_targetBuilding];
+                            if (targetBuilding.Info != null && targetBuilding.Info.m_buildingAI.GetType() == typeof(OutsideConnectionAI))
+                            {
+                                trafficDummyTrafficCount++;
+                            }
+                        }
+                    }
+                }
+
+                // use the vehicle service to determine the traffic count to increment
+                // logic adapted from PathVisualizer.AddPathsImpl
+                switch (vehicleInfo.m_class.m_service)
+                {
+                    case ItemClass.Service.Residential:
+                        trafficPrivateVehiclesCount++;
+                        break;
+
+                    case ItemClass.Service.PublicTransport:
+                        if (vehicleInfo.m_class.m_subService == ItemClass.SubService.PublicTransportPost)
+                        {
+                            trafficCityServiceVehiclesCount++;
+                        }
+                        else
+                        {
+                            trafficPublicTransportCargoCount++;
+                        }
+                        break;
+
+                    case ItemClass.Service.Fishing:
+                        if (vehicleInfo.m_vehicleAI is FishingBoatAI)
+                        {
+                            trafficPublicTransportCargoCount++;
+                        }
+                        else
+                        {
+                            trafficTrucksCount++;
+                        }
+                        break;
+
+                    case ItemClass.Service.Industrial:
+                    case ItemClass.Service.PlayerIndustry:
+                        trafficTrucksCount++;
+                        break;
+
+                    default:
+                        trafficCityServiceVehiclesCount++;
+                        break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// get citizen traffic counts
+        /// </summary>
+        private static void GetCitizenTrafficCounts(ref int? trafficPedestriansCount, ref int? trafficCyclistsCount)
+        {
+            // initialize traffic counts
+            trafficPedestriansCount = 0;
+            trafficCyclistsCount    = 0;
+
+            // get manager instances
+            CitizenManager cmInstance = CitizenManager.instance;
+            VehicleManager vmInstance = VehicleManager.instance;
+
+            // do each citizen instance (not each citizen); a citizen instance is required for a citizen to move
+            uint maximumCitizenInstances = cmInstance.m_instances.m_size;
+            for (uint instanceID = 0; instanceID < maximumCitizenInstances; instanceID++)
+            {
+                // get the citizen instance
+                CitizenInstance citizenInstance = cmInstance.m_instances.m_buffer[instanceID];
+
+                // citizen instance must be created, not deleted, and not waiting for path
+                if ((citizenInstance.m_flags & (CitizenInstance.Flags.Created | CitizenInstance.Flags.Deleted | CitizenInstance.Flags.WaitingPath)) != CitizenInstance.Flags.Created)
+                {
+                    continue;
+                }
+
+                // ignore invalid citizens
+		        uint citizenID = citizenInstance.m_citizen;
+                if (citizenID == 0)
+                {
+                    continue;
+                }
+
+                // ignore citizens marked as dummy traffic
+                Citizen citizen = cmInstance.m_citizens.m_buffer[citizenID];
+                if ((citizen.m_flags & Citizen.Flags.DummyTraffic) != 0)
+                {
+                    continue;
+                }
+
+                // ignore citizen instances near the edge of the map; these are waiting for a car/train/ship/plane or are walking to their car spawn point
+                // the map edges are at about +/-8640, so 8450 is far enough from the edge in case the player manually lengthens the connection network segment
+                // however this also means if the player places any real network segments outside this limit, then the citizens on those segments won't be counted
+                const float MapEdgeLimit = 8450f;
+                if (Math.Abs(citizenInstance.m_targetPos.x) >= MapEdgeLimit || Math.Abs(citizenInstance.m_targetPos.z) >= MapEdgeLimit)
+                {
+                    continue;
+                }
+
+                // get the citizen's vehicle type
+                VehicleInfo.VehicleType vehicleType = VehicleInfo.VehicleType.None;
+			    ushort vehicleID = citizen.m_vehicle;
+			    if (vehicleID != 0)
+			    {
+				    VehicleInfo vehicleInfo = vmInstance.m_vehicles.m_buffer[vehicleID].Info;
+				    if (vehicleInfo != null)
+				    {
+					    vehicleType = vehicleInfo.m_vehicleType;
+				    }
+			    }
+
+                // use the vehicle type to determine the traffic count to increment
+                // logic adapted from PathVisualizer.AddPathsImpl
+		        if (vehicleType == VehicleInfo.VehicleType.Bicycle)
+		        {
+                    trafficCyclistsCount++;
+		        }
+		        else if (vehicleType == VehicleInfo.VehicleType.None)
+		        {
+                    trafficPedestriansCount++;
+		        }
+            }
+        }
+
         #endregion
 
         /// <summary>
@@ -2142,6 +2376,13 @@ namespace MoreCityStatistics
             writer.Write(ZoneDemandIndustrialOffice);
 
             writer.Write(TrafficAverageFlow);
+            writer.Write(TrafficPedestriansCount);
+            writer.Write(TrafficCyclistsCount);
+            writer.Write(TrafficPrivateVehiclesCount);
+            writer.Write(TrafficPublicTransportCargoCount);
+            writer.Write(TrafficTrucksCount);
+            writer.Write(TrafficCityServiceVehiclesCount);
+            writer.Write(TrafficDummyTrafficCount);
 
             writer.Write(PollutionAverageGround);
             writer.Write(PollutionAverageDrinkingWater);
@@ -2502,6 +2743,13 @@ namespace MoreCityStatistics
             snapshot.ZoneDemandIndustrialOffice                 = reader.ReadInt32();
 
             snapshot.TrafficAverageFlow                         = reader.ReadUInt32();
+            snapshot.TrafficPedestriansCount                    = version < 5 ? null : reader.ReadNullableInt32();
+            snapshot.TrafficCyclistsCount                       = version < 5 ? null : reader.ReadNullableInt32();
+            snapshot.TrafficPrivateVehiclesCount                = version < 5 ? null : reader.ReadNullableInt32();
+            snapshot.TrafficPublicTransportCargoCount           = version < 5 ? null : reader.ReadNullableInt32();
+            snapshot.TrafficTrucksCount                         = version < 5 ? null : reader.ReadNullableInt32();
+            snapshot.TrafficCityServiceVehiclesCount            = version < 5 ? null : reader.ReadNullableInt32();
+            snapshot.TrafficDummyTrafficCount                   = version < 5 ? null : reader.ReadNullableInt32();
 
             snapshot.PollutionAverageGround                     = reader.ReadInt32();
             snapshot.PollutionAverageDrinkingWater              = reader.ReadInt32();

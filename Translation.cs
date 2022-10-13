@@ -198,6 +198,13 @@ namespace MoreCityStatistics
             Level5,
             IndustrialOffice,
             Flow,
+            Pedestrians,
+            Cyclists,
+            PrivateVehicles,
+            PublicTransportAndCargo,
+            Trucks,
+            CityServiceVehicles,
+            DummyTraffic,
             Ground,
             DrinkingWater,
             Noise,
@@ -365,7 +372,8 @@ namespace MoreCityStatistics
             MoneyPerWeekPerCapita,
             PctOfGrossDomesticProduct,
             Money,
-            Amount
+            Amount,
+            Count
         }
 
         // default language code

@@ -25,6 +25,9 @@ The Zoning category calculates zones according to the number of squares.  A zone
 [h3]Zone Buildings[/h3]
 The Zone Buildings category mimics the calculation for Zoned Building Distribution on the game's City Info panel.  The calculation uses the combination of households available and jobs available.
 
+[h3]Traffic[/h3]
+Dummy Traffic is a vehicle marked by the game as Dummy Traffic OR the first person riding in a vehicle is marked by the game as Dummy Traffic OR a vehicle is going from outside connection to outside connection.  People near the edge of the map waiting for a car/train/ship/plane are not counted.  All other vehicles and people are counted using the same logic as the Traffic Routes info view.
+
 [h3]Tax Rates[/h3]
 Tax rates are the base tax rates, excluding any taxation policies.
 
@@ -96,12 +99,12 @@ If there is a gap in the snapshot dates due to disabling and later re-enabling t
 Many of the statistics are computed from other statistics.  For example, Profit is computed as Income minus Expenses.  To save space in the game save file, the computed statistics are not saved.  Only the base statistics are saved.
 
 [h3]Game Save File Space[/h3]
-A single snapshot uses 1,670 bytes in the game save file.  The snapshot space in the game save file is listed below for various date ranges and the two snapshot frequencies.  For comparison, a new blank game is about 5-6MB.
+A single snapshot uses 1,705 bytes in the game save file.  The snapshot space in the game save file is listed below for various date ranges and the two snapshot frequencies.  For comparison, a new blank game is about 5-6MB.
 [table]
 [tr][td][b]Date range[/b][/td][td][b]1/mo[/b][/td][td][b]1/day[/b][/td][/tr]
-[tr][td]1 month    [/td][td] 1,670[/td][td]50.8KB[/td][/tr]
-[tr][td]1 year     [/td][td]20.0KB[/td][td] 610KB[/td][/tr]
-[tr][td]10 years   [/td][td] 200KB[/td][td]6.10MB[/td][/tr]
-[tr][td]100 years  [/td][td]2.00MB[/td][td]61.0MB[/td][/tr]
-[tr][td]1,000 years[/td][td]20.0MB[/td][td] 610MB[/td][/tr]
+[tr][td]1 month    [/td][td] 1,705[/td][td]51.9KB[/td][/tr]
+[tr][td]1 year     [/td][td]20.5KB[/td][td] 623KB[/td][/tr]
+[tr][td]10 years   [/td][td] 205KB[/td][td]6.23MB[/td][/tr]
+[tr][td]100 years  [/td][td]2.05MB[/td][td]62.3MB[/td][/tr]
+[tr][td]1,000 years[/td][td]20.5MB[/td][td] 623MB[/td][/tr]
 [/table]

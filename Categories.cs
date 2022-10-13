@@ -29,7 +29,7 @@ namespace MoreCityStatistics
             #region Colors
 
             // define multiplier to make a color darker
-            const float DarkerMultipler = 0.7f;
+            const float DarkerMultiplier = 0.7f;
 
             // get colors from InfoManager
             if (!InfoManager.exists)
@@ -37,14 +37,24 @@ namespace MoreCityStatistics
                 LogUtil.LogError("InfoManager not ready.");
                 return;
             }
-            Color colorNeutral1 = InfoManager.instance.m_properties.m_neutralColor; Color colorNeutral2 = colorNeutral1 * DarkerMultipler;
+            Color colorNeutral1 = InfoManager.instance.m_properties.m_neutralColor; Color colorNeutral2 = colorNeutral1 * DarkerMultiplier;
             InfoProperties.ModeProperties[] modeProperties = InfoManager.instance.m_properties.m_modeProperties;
             Color colorInfoTrafficTarget  = modeProperties[(int)InfoManager.InfoMode.Traffic       ].m_targetColor;
             Color colorInfoPollution      = modeProperties[(int)InfoManager.InfoMode.Pollution     ].m_activeColor;
             Color colorInfoNoisePollution = modeProperties[(int)InfoManager.InfoMode.NoisePollution].m_activeColor;
             Color colorInfoLandValue      = modeProperties[(int)InfoManager.InfoMode.LandValue     ].m_activeColor;
-            Color colorInfoHeating1       = modeProperties[(int)InfoManager.InfoMode.Heating       ].m_targetColor; Color32 colorInfoHeating2 = colorInfoHeating1 * DarkerMultipler;
+            Color colorInfoHeating1       = modeProperties[(int)InfoManager.InfoMode.Heating       ].m_targetColor; Color32 colorInfoHeating2 = colorInfoHeating1 * DarkerMultiplier;
             Color colorInfoTourism        = modeProperties[(int)InfoManager.InfoMode.Tourism       ].m_activeColor;
+
+            Color[] routeColors = InfoManager.instance.m_properties.m_routeColors;
+            Color colorTrafficPedestrian1      = routeColors[(int)InfoProperties.RouteType.Pedestrian];         Color colorTrafficPedestrian2      = colorTrafficPedestrian1      * DarkerMultiplier;
+            Color colorTrafficCyclist1         = routeColors[(int)InfoProperties.RouteType.Cyclist];            Color colorTrafficCyclist2         = colorTrafficCyclist1         * DarkerMultiplier;
+            Color colorTrafficPrivateCar1      = routeColors[(int)InfoProperties.RouteType.PrivateCar];         Color colorTrafficPrivateCar2      = colorTrafficPrivateCar1      * DarkerMultiplier;
+            Color colorTrafficPublicTransport1 = routeColors[(int)InfoProperties.RouteType.PublicTransport];    Color colorTrafficPublicTransport2 = colorTrafficPublicTransport1 * DarkerMultiplier;
+            Color colorTrafficCargoTruck1      = routeColors[(int)InfoProperties.RouteType.CargoTruck];         Color colorTrafficCargoTruck2      = colorTrafficCargoTruck1      * DarkerMultiplier;
+            Color colorTrafficServiceVehicle1  = routeColors[(int)InfoProperties.RouteType.ServiceVehicle];     Color colorTrafficServiceVehicle2  = colorTrafficServiceVehicle1  * DarkerMultiplier;
+            Color colorTrafficDummy1           = colorNeutral2;                                                 Color colorTrafficDummy2           = colorTrafficDummy1           * DarkerMultiplier;
+            Color32 colorTrafficTotal          = new Color32(6, 92, 177, 255);    // color taken manually from Traffic Routes info view icon
 
             // get colors from ZoneManager
             if (!ZoneManager.exists)
@@ -73,19 +83,19 @@ namespace MoreCityStatistics
                 return;
             }
             Color[] transportColors = TransportManager.instance.m_properties.m_transportColors;
-            Color32 colorTransportBus1           = transportColors[(int)TransportInfo.TransportType.Bus          ]; Color32 colorTransportBus2           = colorTransportBus1          .Multiply(DarkerMultipler); Color32 colorTransportBus3        = colorTransportBus2       .Multiply(DarkerMultipler);
-            Color32 colorTransportTrolleybus1    = transportColors[(int)TransportInfo.TransportType.Trolleybus   ]; Color32 colorTransportTrolleybus2    = colorTransportTrolleybus1   .Multiply(DarkerMultipler); Color32 colorTransportTrolleybus3 = colorTransportTrolleybus2.Multiply(DarkerMultipler);
-            Color32 colorTransportTram1          = transportColors[(int)TransportInfo.TransportType.Tram         ]; Color32 colorTransportTram2          = colorTransportTram1         .Multiply(DarkerMultipler); Color32 colorTransportTram3       = colorTransportTram2      .Multiply(DarkerMultipler);
-            Color32 colorTransportMetro1         = transportColors[(int)TransportInfo.TransportType.Metro        ]; Color32 colorTransportMetro2         = colorTransportMetro1        .Multiply(DarkerMultipler); Color32 colorTransportMetro3      = colorTransportMetro2     .Multiply(DarkerMultipler);
-            Color32 colorTransportTrain1         = transportColors[(int)TransportInfo.TransportType.Train        ]; Color32 colorTransportTrain2         = colorTransportTrain1        .Multiply(DarkerMultipler); Color32 colorTransportTrain3      = colorTransportTrain2     .Multiply(DarkerMultipler);
-            Color32 colorTransportShip1          = transportColors[(int)TransportInfo.TransportType.Ship         ]; Color32 colorTransportShip2          = colorTransportShip1         .Multiply(DarkerMultipler); Color32 colorTransportShip3       = colorTransportShip2      .Multiply(DarkerMultipler);
-            Color32 colorTransportAir1           = transportColors[(int)TransportInfo.TransportType.Airplane     ]; Color32 colorTransportAir2           = colorTransportAir1          .Multiply(DarkerMultipler); Color32 colorTransportAir3        = colorTransportAir2       .Multiply(DarkerMultipler);
-            Color32 colorTransportMonorail1      = transportColors[(int)TransportInfo.TransportType.Monorail     ]; Color32 colorTransportMonorail2      = colorTransportMonorail1     .Multiply(DarkerMultipler); Color32 colorTransportMonorail3   = colorTransportMonorail2  .Multiply(DarkerMultipler);
-            Color32 colorTransportCableCar1      = transportColors[(int)TransportInfo.TransportType.CableCar     ]; Color32 colorTransportCableCar2      = colorTransportCableCar1     .Multiply(DarkerMultipler); Color32 colorTransportCableCar3   = colorTransportCableCar2  .Multiply(DarkerMultipler);
-            Color32 colorTransportTaxi1          = transportColors[(int)TransportInfo.TransportType.Taxi         ]; Color32 colorTransportTaxi2          = colorTransportTaxi1         .Multiply(DarkerMultipler); Color32 colorTransportTaxi3       = colorTransportTaxi2      .Multiply(DarkerMultipler);
-            Color32 colorTransportPedestrian1    = transportColors[(int)TransportInfo.TransportType.Pedestrian   ]; Color32 colorTransportPedestrian2    = colorTransportPedestrian1   .Multiply(DarkerMultipler); Color32 colorTransportPedestrian3 = colorTransportPedestrian2.Multiply(DarkerMultipler);
-            Color32 colorTransportTouristBus1    = transportColors[(int)TransportInfo.TransportType.TouristBus   ]; Color32 colorTransportTouristBus2    = colorTransportTouristBus1   .Multiply(DarkerMultipler);
-            Color32 colorTransportHotAirBalloon1 = transportColors[(int)TransportInfo.TransportType.HotAirBalloon]; Color32 colorTransportHotAirBalloon2 = colorTransportHotAirBalloon1.Multiply(DarkerMultipler);
+            Color32 colorTransportBus1           = transportColors[(int)TransportInfo.TransportType.Bus          ]; Color32 colorTransportBus2           = colorTransportBus1          .Multiply(DarkerMultiplier); Color32 colorTransportBus3        = colorTransportBus2       .Multiply(DarkerMultiplier);
+            Color32 colorTransportTrolleybus1    = transportColors[(int)TransportInfo.TransportType.Trolleybus   ]; Color32 colorTransportTrolleybus2    = colorTransportTrolleybus1   .Multiply(DarkerMultiplier); Color32 colorTransportTrolleybus3 = colorTransportTrolleybus2.Multiply(DarkerMultiplier);
+            Color32 colorTransportTram1          = transportColors[(int)TransportInfo.TransportType.Tram         ]; Color32 colorTransportTram2          = colorTransportTram1         .Multiply(DarkerMultiplier); Color32 colorTransportTram3       = colorTransportTram2      .Multiply(DarkerMultiplier);
+            Color32 colorTransportMetro1         = transportColors[(int)TransportInfo.TransportType.Metro        ]; Color32 colorTransportMetro2         = colorTransportMetro1        .Multiply(DarkerMultiplier); Color32 colorTransportMetro3      = colorTransportMetro2     .Multiply(DarkerMultiplier);
+            Color32 colorTransportTrain1         = transportColors[(int)TransportInfo.TransportType.Train        ]; Color32 colorTransportTrain2         = colorTransportTrain1        .Multiply(DarkerMultiplier); Color32 colorTransportTrain3      = colorTransportTrain2     .Multiply(DarkerMultiplier);
+            Color32 colorTransportShip1          = transportColors[(int)TransportInfo.TransportType.Ship         ]; Color32 colorTransportShip2          = colorTransportShip1         .Multiply(DarkerMultiplier); Color32 colorTransportShip3       = colorTransportShip2      .Multiply(DarkerMultiplier);
+            Color32 colorTransportAir1           = transportColors[(int)TransportInfo.TransportType.Airplane     ]; Color32 colorTransportAir2           = colorTransportAir1          .Multiply(DarkerMultiplier); Color32 colorTransportAir3        = colorTransportAir2       .Multiply(DarkerMultiplier);
+            Color32 colorTransportMonorail1      = transportColors[(int)TransportInfo.TransportType.Monorail     ]; Color32 colorTransportMonorail2      = colorTransportMonorail1     .Multiply(DarkerMultiplier); Color32 colorTransportMonorail3   = colorTransportMonorail2  .Multiply(DarkerMultiplier);
+            Color32 colorTransportCableCar1      = transportColors[(int)TransportInfo.TransportType.CableCar     ]; Color32 colorTransportCableCar2      = colorTransportCableCar1     .Multiply(DarkerMultiplier); Color32 colorTransportCableCar3   = colorTransportCableCar2  .Multiply(DarkerMultiplier);
+            Color32 colorTransportTaxi1          = transportColors[(int)TransportInfo.TransportType.Taxi         ]; Color32 colorTransportTaxi2          = colorTransportTaxi1         .Multiply(DarkerMultiplier); Color32 colorTransportTaxi3       = colorTransportTaxi2      .Multiply(DarkerMultiplier);
+            Color32 colorTransportPedestrian1    = transportColors[(int)TransportInfo.TransportType.Pedestrian   ]; Color32 colorTransportPedestrian2    = colorTransportPedestrian1   .Multiply(DarkerMultiplier); Color32 colorTransportPedestrian3 = colorTransportPedestrian2.Multiply(DarkerMultiplier);
+            Color32 colorTransportTouristBus1    = transportColors[(int)TransportInfo.TransportType.TouristBus   ]; Color32 colorTransportTouristBus2    = colorTransportTouristBus1   .Multiply(DarkerMultiplier);
+            Color32 colorTransportHotAirBalloon1 = transportColors[(int)TransportInfo.TransportType.HotAirBalloon]; Color32 colorTransportHotAirBalloon2 = colorTransportHotAirBalloon1.Multiply(DarkerMultiplier);
 
             // get colors from TransferManager
             if (!TransferManager.exists)
@@ -94,18 +104,18 @@ namespace MoreCityStatistics
                 return;
             }
             Color[] transferColors = TransferManager.instance.m_properties.m_resourceColors;
-            Color32 colorTransferGoods1    = transferColors[(int)TransferManager.TransferReason.Goods]; Color32 colorTransferGoods2    = colorTransferGoods1   .Multiply(DarkerMultipler);
-            Color32 colorTransferForestry1 = transferColors[(int)TransferManager.TransferReason.Logs ]; Color32 colorTransferForestry2 = colorTransferForestry1.Multiply(DarkerMultipler); Color32 colorTransferForestry3 = colorTransferForestry2.Multiply(DarkerMultipler);
-            Color32 colorTransferFarming1  = transferColors[(int)TransferManager.TransferReason.Grain]; Color32 colorTransferFarming2  = colorTransferFarming1 .Multiply(DarkerMultipler); Color32 colorTransferFarming3  = colorTransferFarming2 .Multiply(DarkerMultipler);
-            Color32 colorTransferOre1      = transferColors[(int)TransferManager.TransferReason.Ore  ]; Color32 colorTransferOre2      = colorTransferOre1     .Multiply(DarkerMultipler); Color32 colorTransferOre3      = colorTransferOre2     .Multiply(DarkerMultipler);
+            Color32 colorTransferGoods1    = transferColors[(int)TransferManager.TransferReason.Goods]; Color32 colorTransferGoods2    = colorTransferGoods1   .Multiply(DarkerMultiplier);
+            Color32 colorTransferForestry1 = transferColors[(int)TransferManager.TransferReason.Logs ]; Color32 colorTransferForestry2 = colorTransferForestry1.Multiply(DarkerMultiplier); Color32 colorTransferForestry3 = colorTransferForestry2.Multiply(DarkerMultiplier);
+            Color32 colorTransferFarming1  = transferColors[(int)TransferManager.TransferReason.Grain]; Color32 colorTransferFarming2  = colorTransferFarming1 .Multiply(DarkerMultiplier); Color32 colorTransferFarming3  = colorTransferFarming2 .Multiply(DarkerMultiplier);
+            Color32 colorTransferOre1      = transferColors[(int)TransferManager.TransferReason.Ore  ]; Color32 colorTransferOre2      = colorTransferOre1     .Multiply(DarkerMultiplier); Color32 colorTransferOre3      = colorTransferOre2     .Multiply(DarkerMultiplier);
             Color32 colorTransferOil1      = transferColors[(int)TransferManager.TransferReason.Oil  ];
-            Color32 colorTransferMail1     = transferColors[(int)TransferManager.TransferReason.Mail ]; Color32 colorTransferMail2     = colorTransferMail1    .Multiply(DarkerMultipler); Color32 colorTransferMail3     = colorTransferMail2    .Multiply(DarkerMultipler);
-            Color32 colorTransferFish1     = transferColors[(int)TransferManager.TransferReason.Fish ]; Color32 colorTransferFish2     = colorTransferFish1    .Multiply(DarkerMultipler); Color32 colorTransferFish3     = colorTransferFish2    .Multiply(DarkerMultipler);
+            Color32 colorTransferMail1     = transferColors[(int)TransferManager.TransferReason.Mail ]; Color32 colorTransferMail2     = colorTransferMail1    .Multiply(DarkerMultiplier); Color32 colorTransferMail3     = colorTransferMail2    .Multiply(DarkerMultiplier);
+            Color32 colorTransferFish1     = transferColors[(int)TransferManager.TransferReason.Fish ]; Color32 colorTransferFish2     = colorTransferFish1    .Multiply(DarkerMultiplier); Color32 colorTransferFish3     = colorTransferFish2    .Multiply(DarkerMultiplier);
 
             // make oil lighter because the original color is very dark
             colorTransferOil1 = colorTransferOil1.Multiply(1.4f);
-            Color32 colorTransferOil2 = colorTransferOil1.Multiply(DarkerMultipler);
-            Color32 colorTransferOil3 = colorTransferOil2.Multiply(DarkerMultipler);
+            Color32 colorTransferOil2 = colorTransferOil1.Multiply(DarkerMultiplier);
+            Color32 colorTransferOil3 = colorTransferOil2.Multiply(DarkerMultiplier);
 
             // get colors from NaturalResourceManager
             if (!NaturalResourceManager.exists)
@@ -114,14 +124,14 @@ namespace MoreCityStatistics
                 return;
             }
             Color[] resourceColors = NaturalResourceManager.instance.m_properties.m_resourceColors;
-            Color32 colorResourceForestry1  = resourceColors[(int)NaturalResourceManager.Resource.Forest   ]; Color32 colorResourceForestry2  = colorResourceForestry1 .Multiply(DarkerMultipler);
-            Color32 colorResourceFertility1 = resourceColors[(int)NaturalResourceManager.Resource.Fertility]; Color32 colorResourceFertility2 = colorResourceFertility1.Multiply(DarkerMultipler);
-            Color32 colorResourceOre1       = resourceColors[(int)NaturalResourceManager.Resource.Ore      ]; Color32 colorResourceOre2       = colorResourceOre1      .Multiply(DarkerMultipler);
+            Color32 colorResourceForestry1  = resourceColors[(int)NaturalResourceManager.Resource.Forest   ]; Color32 colorResourceForestry2  = colorResourceForestry1 .Multiply(DarkerMultiplier);
+            Color32 colorResourceFertility1 = resourceColors[(int)NaturalResourceManager.Resource.Fertility]; Color32 colorResourceFertility2 = colorResourceFertility1.Multiply(DarkerMultiplier);
+            Color32 colorResourceOre1       = resourceColors[(int)NaturalResourceManager.Resource.Ore      ]; Color32 colorResourceOre2       = colorResourceOre1      .Multiply(DarkerMultiplier);
             Color32 colorResourceOil1       = resourceColors[(int)NaturalResourceManager.Resource.Oil      ];
 
             // make oil lighter because the original color is very dark
             colorResourceOil1 = colorResourceOil1.Multiply(1.5f);
-            Color32 colorResourceOil2 = colorResourceOil1.Multiply(DarkerMultipler);
+            Color32 colorResourceOil2 = colorResourceOil1.Multiply(DarkerMultiplier);
 
             // get colors from EducationInfoViewPanel
             EducationInfoViewPanel educationInfoViewPanel = UIView.library.Get<EducationInfoViewPanel>(typeof(EducationInfoViewPanel).Name);
@@ -130,10 +140,10 @@ namespace MoreCityStatistics
                 LogUtil.LogError("Unable to find EducationInfoViewPanel.");
                 return;
             }
-            Color32 colorUneducated1     = educationInfoViewPanel.m_UneducatedColor;     Color32 colorUneducated2     = colorUneducated1    .Multiply(DarkerMultipler);
-            Color32 colorEducated1       = educationInfoViewPanel.m_EducatedColor;       Color32 colorEducated2       = colorEducated1      .Multiply(DarkerMultipler);
-            Color32 colorWellEducated1   = educationInfoViewPanel.m_WellEducatedColor;   Color32 colorWellEducated2   = colorWellEducated1  .Multiply(DarkerMultipler);
-            Color32 colorHighlyEducated1 = educationInfoViewPanel.m_HighlyEducatedColor; Color32 colorHighlyEducated2 = colorHighlyEducated1.Multiply(DarkerMultipler);
+            Color32 colorUneducated1     = educationInfoViewPanel.m_UneducatedColor;     Color32 colorUneducated2     = colorUneducated1    .Multiply(DarkerMultiplier);
+            Color32 colorEducated1       = educationInfoViewPanel.m_EducatedColor;       Color32 colorEducated2       = colorEducated1      .Multiply(DarkerMultiplier);
+            Color32 colorWellEducated1   = educationInfoViewPanel.m_WellEducatedColor;   Color32 colorWellEducated2   = colorWellEducated1  .Multiply(DarkerMultiplier);
+            Color32 colorHighlyEducated1 = educationInfoViewPanel.m_HighlyEducatedColor; Color32 colorHighlyEducated2 = colorHighlyEducated1.Multiply(DarkerMultiplier);
 
             // get colors from PopulationInfoViewPanel
             PopulationInfoViewPanel populationInfoViewPanel = UIView.library.Get<PopulationInfoViewPanel>(typeof(PopulationInfoViewPanel).Name);
@@ -157,9 +167,9 @@ namespace MoreCityStatistics
             }
             UIRadialChart touristWealthChart   = tourismInfoViewPanel.Find<UIRadialChart>("TouristWealthChart");
             UIRadialChart exchangeStudentChart = tourismInfoViewPanel.Find<UIRadialChart>("ExchangeStudentChart");
-            Color32 colorTouristsLowWealth1    = touristWealthChart.GetSlice(0).innerColor; Color32 colorTouristsLowWealth2    = colorTouristsLowWealth1   .Multiply(DarkerMultipler);
-            Color32 colorTouristsMediumWealth1 = touristWealthChart.GetSlice(1).innerColor; Color32 colorTouristsMediumWealth2 = colorTouristsMediumWealth1.Multiply(DarkerMultipler);
-            Color32 colorTouristsHighWealth1   = touristWealthChart.GetSlice(2).innerColor; Color32 colorTouristsHighWealth2   = colorTouristsHighWealth1  .Multiply(DarkerMultipler);
+            Color32 colorTouristsLowWealth1    = touristWealthChart.GetSlice(0).innerColor; Color32 colorTouristsLowWealth2    = colorTouristsLowWealth1   .Multiply(DarkerMultiplier);
+            Color32 colorTouristsMediumWealth1 = touristWealthChart.GetSlice(1).innerColor; Color32 colorTouristsMediumWealth2 = colorTouristsMediumWealth1.Multiply(DarkerMultiplier);
+            Color32 colorTouristsHighWealth1   = touristWealthChart.GetSlice(2).innerColor; Color32 colorTouristsHighWealth2   = colorTouristsHighWealth1  .Multiply(DarkerMultiplier);
             Color32 colorExchangeStudent       = exchangeStudentChart.GetSlice(0).innerColor;
             Color32 colorTouristsTotal         = exchangeStudentChart.GetSlice(1).innerColor;
 
@@ -207,39 +217,39 @@ namespace MoreCityStatistics
             }
 
             // define colors for specific statistics
-            Color32 colorElectricity1 = new Color32(002, 168, 254, 255);           // color taken manually from Electricity info view icon
-            Color32 colorElectricity2 = new Color32(045, 098, 143, 255);           // color taken manually from Electricity info view icon
+            Color32 colorElectricity1 = new Color32(002, 168, 254, 255);            // color taken manually from Electricity info view icon
+            Color32 colorElectricity2 = new Color32(045, 098, 143, 255);            // color taken manually from Electricity info view icon
 
-            Color32 colorWater1 = new Color32(134, 187, 241, 255);                 // color taken manually from Water info view icon
-            Color32 colorWater2 = new Color32(023, 113, 206, 255);                 // color taken manually from Water info view icon
+            Color32 colorWater1 = new Color32(134, 187, 241, 255);                  // color taken manually from Water info view icon
+            Color32 colorWater2 = new Color32(023, 113, 206, 255);                  // color taken manually from Water info view icon
 
-            Color32 colorWaterTank1 = colorWater1.Multiply(DarkerMultipler);      // darker version of Water
-            Color32 colorWaterTank2 = colorWater2.Multiply(DarkerMultipler);      // darker version of Water
+            Color32 colorWaterTank1 = colorWater1.Multiply(DarkerMultiplier);       // darker version of Water
+            Color32 colorWaterTank2 = colorWater2.Multiply(DarkerMultiplier);       // darker version of Water
 
-            Color32 colorSewage1 = new Color32(038, 153, 134, 255);                // color taken manually from WaterInfoViewPanel sewage section
-            Color32 colorSewage2 = colorSewage1.Multiply(DarkerMultipler);
+            Color32 colorSewage1 = new Color32(038, 153, 134, 255);                 // color taken manually from WaterInfoViewPanel sewage section
+            Color32 colorSewage2 = colorSewage1.Multiply(DarkerMultiplier);
 
-            Color32 colorGarbage1 = new Color32(163, 152, 000, 255);               // color taken manually from Garbage info view icon
-            Color32 colorGarbage2 = new Color32(091, 076, 069, 255);               // color taken manually from Garbage info view icon
+            Color32 colorGarbage1 = new Color32(163, 152, 000, 255);                // color taken manually from Garbage info view icon
+            Color32 colorGarbage2 = new Color32(091, 076, 069, 255);                // color taken manually from Garbage info view icon
 
-            Color32 colorLandfill1 = colorGarbage1.Multiply(1.4f);                // lighter version of Garbage
-            Color32 colorLandfill2 = colorGarbage2.Multiply(1.4f);                // lighter version of Garbage
+            Color32 colorLandfill1 = colorGarbage1.Multiply(1.4f);                  // lighter version of Garbage
+            Color32 colorLandfill2 = colorGarbage2.Multiply(1.4f);                  // lighter version of Garbage
 
-            Color32 colorHealthcareAverage = new Color32(013, 166, 066, 255);      // color taken manually from HealthInfoViewPanel Efficiency legend
-            Color32 colorHealthcare1 = new Color32(248, 021, 013, 255);            // color taken manually from Healthcare toolbar icon
-            Color32 colorHealthcare2 = colorHealthcare1.Multiply(DarkerMultipler);
+            Color32 colorHealthcareAverage = new Color32(013, 166, 066, 255);       // color taken manually from HealthInfoViewPanel Efficiency legend
+            Color32 colorHealthcare1 = new Color32(248, 021, 013, 255);             // color taken manually from Healthcare toolbar icon
+            Color32 colorHealthcare2 = colorHealthcare1.Multiply(DarkerMultiplier);
 
-            Color32 colorDeathcare1 = new Color32(255, 000, 128, 255);             // a shade of red
-            Color32 colorDeathcare2 = colorDeathcare1.Multiply(DarkerMultipler);
-            Color32 colorDeathcare3 = new Color32(255, 128, 128, 255);             // another shade of red
-            Color32 colorDeathcare4 = colorDeathcare3.Multiply(DarkerMultipler);
+            Color32 colorDeathcare1 = new Color32(255, 000, 128, 255);              // a shade of red
+            Color32 colorDeathcare2 = colorDeathcare1.Multiply(DarkerMultiplier);
+            Color32 colorDeathcare3 = new Color32(255, 128, 128, 255);              // another shade of red
+            Color32 colorDeathcare4 = colorDeathcare3.Multiply(DarkerMultiplier);
 
             // color is half way between Child and Teen
             Color32 colorChildcare1 = new Color32((byte)(colorChild.r / 2 + colorTeen.r / 2), (byte)(colorChild.g / 2 + colorTeen.g / 2), (byte)(colorChild.b / 2 + colorTeen.b / 2), 255);
-            Color32 colorChildcare2 = colorChildcare1.Multiply(DarkerMultipler);
+            Color32 colorChildcare2 = colorChildcare1.Multiply(DarkerMultiplier);
 
-            Color32 colorEldercare1 = colorSenior.Multiply(1.25f);                // lighter version of Senior
-            Color32 colorEldercare2 = colorEldercare1.Multiply(DarkerMultipler);
+            Color32 colorEldercare1 = colorSenior.Multiply(1.25f);                  // lighter version of Senior
+            Color32 colorEldercare2 = colorEldercare1.Multiply(DarkerMultiplier);
 
             // logic for levels colors is copied from LevelsInfoViewPanel.UpdatePanel for initializing the radial chart colors
             // basically start with a darker (i.e. 70%) version of each zone color and then interpolate between neutral color and that color
@@ -262,86 +272,86 @@ namespace MoreCityStatistics
             Color colorOfficeLevel2      = Color.Lerp(colorNeutral1, colorLevelOffice,      0.667f);
             Color colorOfficeLevel3      = Color.Lerp(colorNeutral1, colorLevelOffice,      1.000f);
 
-            Color32 colorFireSafety = new Color32(232, 159, 056, 255);             // color taken manually from Fire Department toolbar icon
+            Color32 colorFireSafety = new Color32(232, 159, 056, 255);              // color taken manually from Fire Department toolbar icon
 
-            Color32 colorCrimeRate = new Color32(128, 128, 128, 255);              // a shade of gray
-            Color32 colorCrime1    = new Color32(169, 095, 002, 255);              // color taken manually from Police Department toolbar icon
-            Color32 colorCrime2    = colorCrime1.Multiply(DarkerMultipler);
+            Color32 colorCrimeRate = new Color32(128, 128, 128, 255);               // a shade of gray
+            Color32 colorCrime1    = new Color32(169, 095, 002, 255);               // color taken manually from Police Department toolbar icon
+            Color32 colorCrime2    = colorCrime1.Multiply(DarkerMultiplier);
 
-            Color32 colorTransportTotal1 = new Color32(206, 248, 000, 255);        // color taken manually from TransportInfoViewPanel for Total text
-            Color32 colorTransportTotal2 = colorTransportTotal1.Multiply(DarkerMultipler);
+            Color32 colorTransportTotal1 = new Color32(206, 248, 000, 255);         // color taken manually from TransportInfoViewPanel for Total text
+            Color32 colorTransportTotal2 = colorTransportTotal1.Multiply(DarkerMultiplier);
 
-            Color32 colorHouseholds1 = new Color32(206, 248, 000, 255);            // color taken manually from CityInfoPanel for households text
-            Color32 colorHouseholds2 = colorHouseholds1.Multiply(DarkerMultipler);
+            Color32 colorHouseholds1 = new Color32(206, 248, 000, 255);             // color taken manually from CityInfoPanel for households text
+            Color32 colorHouseholds2 = colorHouseholds1.Multiply(DarkerMultiplier);
 
             Color32 colorEmployment1 = colorStatisticsJobs;
-            Color32 colorEmployment2 = colorEmployment1.Multiply(DarkerMultipler);
-            Color32 colorEmployment3 = colorEmployment2.Multiply(DarkerMultipler);
+            Color32 colorEmployment2 = colorEmployment1.Multiply(DarkerMultiplier);
+            Color32 colorEmployment3 = colorEmployment2.Multiply(DarkerMultiplier);
             Color32 colorUnemployment1 = colorStatisticsEmployment;
-            Color32 colorUnemployment2 = colorUnemployment1.Multiply(DarkerMultipler);
+            Color32 colorUnemployment2 = colorUnemployment1.Multiply(DarkerMultiplier);
 
-            Color32 colorTransferTotal1 = new Color32(128, 128, 128, 255);         // a shade of gray
-            Color32 colorTransferTotal2 = colorTransferTotal1.Multiply(DarkerMultipler);
-            Color32 colorTransferTotal3 = colorTransferTotal2.Multiply(DarkerMultipler);
+            Color32 colorTransferTotal1 = new Color32(128, 128, 128, 255);          // a shade of gray
+            Color32 colorTransferTotal2 = colorTransferTotal1.Multiply(DarkerMultiplier);
+            Color32 colorTransferTotal3 = colorTransferTotal2.Multiply(DarkerMultiplier);
 
-            Color32 colorCityTotalIncome   = new Color32(090, 225, 020, 255);      // color taken manually from EconomyPanel
-            Color32 colorCityTotalExpenses = new Color32(254, 150, 089, 255);      // color taken manually from EconomyPanel
+            Color32 colorCityTotalIncome   = new Color32(090, 225, 020, 255);       // color taken manually from EconomyPanel
+            Color32 colorCityTotalExpenses = new Color32(254, 150, 089, 255);       // color taken manually from EconomyPanel
             Color32 colorCityTotalProfit   = new Color32((byte)(colorCityTotalIncome.r / 2 + colorCityTotalExpenses.r / 2),     // color is halfway between income and expenses
                                                          (byte)(colorCityTotalIncome.g / 2 + colorCityTotalExpenses.g / 2),
                                                          (byte)(colorCityTotalIncome.b / 2 + colorCityTotalExpenses.b / 2), 255);
-            Color32 colorBankBalance       = new Color32(185, 221, 254, 255);      // color taken manually from InfoPanel.IncomePanel
+            Color32 colorBankBalance       = new Color32(185, 221, 254, 255);       // color taken manually from InfoPanel.IncomePanel
 
-            Color32 colorIncomeSelfSufficient = new Color32(118, 234, 122, 255);   // color taken manually from EconomyPanel
+            Color32 colorIncomeSelfSufficient = new Color32(118, 234, 122, 255);    // color taken manually from EconomyPanel
 
-            Color32 colorIncomeLeisure = new Color32(135, 209, 218, 255);          // color taken manually from specialized district icon
-            Color32 colorTourismIncome = new Color32(242, 219, 057, 255);          // color taken manually from specialized district icon
-            Color32 colorIncomeOrganic = new Color32(132, 159, 000, 255);          // color taken manually from specialized district icon
+            Color32 colorIncomeLeisure = new Color32(135, 209, 218, 255);           // color taken manually from specialized district icon
+            Color32 colorTourismIncome = new Color32(242, 219, 057, 255);           // color taken manually from specialized district icon
+            Color32 colorIncomeOrganic = new Color32(132, 159, 000, 255);           // color taken manually from specialized district icon
 
-            Color32 colorIncomeITCluster = new Color32(039, 192, 231, 255);        // color taken manually from specialized district icon
+            Color32 colorIncomeITCluster = new Color32(039, 192, 231, 255);         // color taken manually from specialized district icon
             Color32 colorIncomeOfficeSpecialized = new Color32((byte)(colorIncomeITCluster.r / 2 + colorZoneOffice.r / 2),     // color is halfway between IT Cluster and Office Zone
                                                                (byte)(colorIncomeITCluster.g / 2 + colorZoneOffice.g / 2),
                                                                (byte)(colorIncomeITCluster.b / 2 + colorZoneOffice.b / 2), 255);
 
-            Color32 colorIncomeWallToWall = new Color32(217, 142, 69, 255);        // color taken manually from specialized district icon
+            Color32 colorIncomeWallToWall = new Color32(217, 142, 69, 255);         // color taken manually from specialized district icon
 
-            Color32 colorParks = new Color32(073, 115, 122, 255);                  // color taken manually from the horse of the Parks & Plazas toolbar icon
+            Color32 colorParks = new Color32(073, 115, 122, 255);                   // color taken manually from the horse of the Parks & Plazas toolbar icon
 
-            Color32 colorEmergency           = new Color32(254, 131, 000, 255);    // color taken manually from Landscape toolbar Disaster tab icon
-            Color32 colorServicePoints       = new Color32(211, 212, 212, 255);    // color taken manually from Pedestrian Areas tab icon
-            Color32 colorUniqueBuildings     = new Color32(082, 108, 113, 255);    // color taken manually from Unique Buildings toolbar icon
-            Color32 colorGenericSportsArenas = new Color32(076, 108, 173, 255);    // color taken manually from Education toolbar Varsity Sports tab icon
-            Color32 colorEconomy             = new Color32(061, 159, 010, 255);    // color taken manually from Economy toolbar icon
-            Color32 colorPolicies            = new Color32(208, 210, 211, 255);    // color taken manually from Policies toolbar icon
+            Color32 colorEmergency           = new Color32(254, 131, 000, 255);     // color taken manually from Landscape toolbar Disaster tab icon
+            Color32 colorServicePoints       = new Color32(211, 212, 212, 255);     // color taken manually from Pedestrian Areas tab icon
+            Color32 colorUniqueBuildings     = new Color32(082, 108, 113, 255);     // color taken manually from Unique Buildings toolbar icon
+            Color32 colorGenericSportsArenas = new Color32(076, 108, 173, 255);     // color taken manually from Education toolbar Varsity Sports tab icon
+            Color32 colorEconomy             = new Color32(061, 159, 010, 255);     // color taken manually from Economy toolbar icon
+            Color32 colorPolicies            = new Color32(208, 210, 211, 255);     // color taken manually from Policies toolbar icon
 
-            Color32 colorCityPark1      = new Color32(244, 223, 168, 255);         // color taken manually from City Park main gate arch
-            Color32 colorCityPark2      = colorCityPark1.Multiply(DarkerMultipler);
-            Color32 colorCityPark3      = colorCityPark2.Multiply(DarkerMultipler);
-            Color32 colorAmusementPark1 = new Color32(204, 136, 083, 255);         // color taken manually from Amusement Park main gate path
-            Color32 colorAmusementPark2 = colorAmusementPark1.Multiply(DarkerMultipler);
-            Color32 colorAmusementPark3 = colorAmusementPark2.Multiply(DarkerMultipler);
-            Color32 colorZoo1           = new Color32(221, 185, 110, 255);         // color taken manually from Zoo main gate path
-            Color32 colorZoo2           = colorZoo1.Multiply(DarkerMultipler);
-            Color32 colorZoo3           = colorZoo2.Multiply(DarkerMultipler);
-            Color32 colorNatureReserve1 = new Color32(098, 145, 078, 255);         // color taken manually from Nature Reserve main gate building roof
-            Color32 colorNatureReserve2 = colorNatureReserve1.Multiply(DarkerMultipler);
-            Color32 colorNatureReserve3 = colorNatureReserve2.Multiply(DarkerMultipler);
+            Color32 colorCityPark1      = new Color32(244, 223, 168, 255);          // color taken manually from City Park main gate arch
+            Color32 colorCityPark2      = colorCityPark1.Multiply(DarkerMultiplier);
+            Color32 colorCityPark3      = colorCityPark2.Multiply(DarkerMultiplier);
+            Color32 colorAmusementPark1 = new Color32(204, 136, 083, 255);          // color taken manually from Amusement Park main gate path
+            Color32 colorAmusementPark2 = colorAmusementPark1.Multiply(DarkerMultiplier);
+            Color32 colorAmusementPark3 = colorAmusementPark2.Multiply(DarkerMultiplier);
+            Color32 colorZoo1           = new Color32(221, 185, 110, 255);          // color taken manually from Zoo main gate path
+            Color32 colorZoo2           = colorZoo1.Multiply(DarkerMultiplier);
+            Color32 colorZoo3           = colorZoo2.Multiply(DarkerMultiplier);
+            Color32 colorNatureReserve1 = new Color32(098, 145, 078, 255);          // color taken manually from Nature Reserve main gate building roof
+            Color32 colorNatureReserve2 = colorNatureReserve1.Multiply(DarkerMultiplier);
+            Color32 colorNatureReserve3 = colorNatureReserve2.Multiply(DarkerMultiplier);
 
-            Color32 colorTradeSchool1 = new Color32(232, 216, 172, 255);           // color taken manually from Trade School administration building roof
-            Color32 colorTradeSchool2 = colorTradeSchool1.Multiply(DarkerMultipler);
-            Color32 colorTradeSchool3 = colorTradeSchool2.Multiply(DarkerMultipler);
-            Color32 colorLiberalArts1 = new Color32(241, 181, 113, 255);           // color taken manually from Liberal Arts College administration building roof
-            Color32 colorLiberalArts2 = colorLiberalArts1.Multiply(DarkerMultipler);
-            Color32 colorLiberalArts3 = colorLiberalArts2.Multiply(DarkerMultipler);
-            Color32 colorUniversity1  = new Color32(172, 208, 203, 255);           // color taken manually from University administration building roof
-            Color32 colorUniversity2  = colorUniversity1.Multiply(DarkerMultipler);
-            Color32 colorUniversity3  = colorUniversity2.Multiply(DarkerMultipler);
+            Color32 colorTradeSchool1 = new Color32(232, 216, 172, 255);            // color taken manually from Trade School administration building roof
+            Color32 colorTradeSchool2 = colorTradeSchool1.Multiply(DarkerMultiplier);
+            Color32 colorTradeSchool3 = colorTradeSchool2.Multiply(DarkerMultiplier);
+            Color32 colorLiberalArts1 = new Color32(241, 181, 113, 255);            // color taken manually from Liberal Arts College administration building roof
+            Color32 colorLiberalArts2 = colorLiberalArts1.Multiply(DarkerMultiplier);
+            Color32 colorLiberalArts3 = colorLiberalArts2.Multiply(DarkerMultiplier);
+            Color32 colorUniversity1  = new Color32(172, 208, 203, 255);            // color taken manually from University administration building roof
+            Color32 colorUniversity2  = colorUniversity1.Multiply(DarkerMultiplier);
+            Color32 colorUniversity3  = colorUniversity2.Multiply(DarkerMultiplier);
 
-            Color32 colorTollBooth1 = new Color32(183, 148, 205, 255);             // color taken manually from Road toolbar Toll Booth icon car
-            Color32 colorTollBooth2 = colorTollBooth1.Multiply(DarkerMultipler);
-            Color32 colorTollBooth3 = colorTollBooth2.Multiply(DarkerMultipler);
+            Color32 colorTollBooth1 = new Color32(183, 148, 205, 255);              // color taken manually from Road toolbar Toll Booth icon car
+            Color32 colorTollBooth2 = colorTollBooth1.Multiply(DarkerMultiplier);
+            Color32 colorTollBooth3 = colorTollBooth2.Multiply(DarkerMultiplier);
 
-            Color32 colorSpaceElevator2 = new Color32(087, 254, 255, 255);         // color taken manually from Space Elevator rings
-            Color32 colorSpaceElevator3 = colorSpaceElevator2.Multiply(DarkerMultipler);
+            Color32 colorSpaceElevator2 = new Color32(087, 254, 255, 255);          // color taken manually from Space Elevator rings
+            Color32 colorSpaceElevator3 = colorSpaceElevator2.Multiply(DarkerMultiplier);
 
             #endregion
 
@@ -492,6 +502,21 @@ namespace MoreCityStatistics
 
             _instance.Add(category = new Category(Category.CategoryType.Traffic, Translation.Key.Traffic));
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.TrafficAverageFlow,                         Translation.Key.Average,                Translation.Key.Flow,           Translation.Key.Percent,                    colorInfoTrafficTarget      ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.TrafficPedestriansPercent,                  Translation.Key.Pedestrians,            Translation.Key.None,           Translation.Key.PctOfTotal,                 colorTrafficPedestrian1     ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.TrafficCyclistsPercent,                     Translation.Key.Cyclists,               Translation.Key.None,           Translation.Key.PctOfTotal,                 colorTrafficCyclist1        ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.TrafficPrivateVehiclesPercent,              Translation.Key.PrivateVehicles,        Translation.Key.None,           Translation.Key.PctOfTotal,                 colorTrafficPrivateCar1     ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.TrafficPublicTransportCargoPercent,         Translation.Key.PublicTransportAndCargo,Translation.Key.None,           Translation.Key.PctOfTotal,                 colorTrafficPublicTransport1));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.TrafficTrucksPercent,                       Translation.Key.Trucks,                 Translation.Key.None,           Translation.Key.PctOfTotal,                 colorTrafficCargoTruck1     ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.TrafficCityServiceVehiclesPercent,          Translation.Key.CityServiceVehicles,    Translation.Key.None,           Translation.Key.PctOfTotal,                 colorTrafficServiceVehicle1 ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.TrafficDummyTrafficPercent,                 Translation.Key.DummyTraffic,           Translation.Key.None,           Translation.Key.PctOfTotal,                 colorTrafficDummy1          ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.TrafficTotalCount,                          Translation.Key.Total,                  Translation.Key.None,           Translation.Key.Count,                      colorTrafficTotal           ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.TrafficPedestriansCount,                    Translation.Key.Pedestrians,            Translation.Key.None,           Translation.Key.Count,                      colorTrafficPedestrian2     ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.TrafficCyclistsCount,                       Translation.Key.Cyclists,               Translation.Key.None,           Translation.Key.Count,                      colorTrafficCyclist2        ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.TrafficPrivateVehiclesCount,                Translation.Key.PrivateVehicles,        Translation.Key.None,           Translation.Key.Count,                      colorTrafficPrivateCar2     ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.TrafficPublicTransportCargoCount,           Translation.Key.PublicTransportAndCargo,Translation.Key.None,           Translation.Key.Count,                      colorTrafficPublicTransport2));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.TrafficTrucksCount,                         Translation.Key.Trucks,                 Translation.Key.None,           Translation.Key.Count,                      colorTrafficCargoTruck2     ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.TrafficCityServiceVehiclesCount,            Translation.Key.CityServiceVehicles,    Translation.Key.None,           Translation.Key.Count,                      colorTrafficServiceVehicle2 ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.TrafficDummyTrafficCount,                   Translation.Key.DummyTraffic,           Translation.Key.None,           Translation.Key.Count,                      colorTrafficDummy2          ));
 
             _instance.Add(category = new Category(Category.CategoryType.Pollution, Translation.Key.Pollution));
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.PollutionAverageGround,                     Translation.Key.Average,                Translation.Key.Ground,         Translation.Key.Percent,                    colorInfoPollution          ));
