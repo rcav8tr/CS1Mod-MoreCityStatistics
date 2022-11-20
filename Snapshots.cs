@@ -54,6 +54,9 @@ namespace MoreCityStatistics
 
             // determine if RealTime mod is enabled
             _realTimeModEnabled = ModUtil.IsWorkshopModEnabled(ModUtil.ModIDRealTime);
+
+            // debug logging
+            LogUtil.LogInfo($"Snapshots.Initialize _realTimeModEnabled={_realTimeModEnabled}");
         }
 
         /// <summary>
@@ -64,6 +67,9 @@ namespace MoreCityStatistics
             // clear the snapshots to (hopefully) reclaim memory
             _instance.Clear();
             Loaded = false;
+
+            // debug logging
+            LogUtil.LogInfo($"Snapshots.Deinitialize _realTimeModEnabled={_realTimeModEnabled}");
         }
 
         /// <summary>
@@ -89,8 +95,12 @@ namespace MoreCityStatistics
         public void SimulationTick()
         {
             // if snapshots were not successfully loaded, then don't take any new snapshots
+            // this also prevents taking a snapshot after OnLevelUnloaded (ie. user ended game) but OnAfterSimulationTick still gets triggered several more times
             if (!Loaded)
             {
+                // debug logging
+                LogUtil.LogInfo($"Snapshots.SimulationTick Loaded={Loaded}");
+
                 return;
             }
 
@@ -114,6 +124,9 @@ namespace MoreCityStatistics
 
                     // initialization is complete
                     _initialized = true;
+
+                    // debug logging
+                    LogUtil.LogInfo($"Snapshots.SimulationTick initialization _snapshotTaken={_snapshotTaken} gameDateTime={gameDateTime:yyyy/MM/dd HH:mm:ss}");
                 }
 
                 // when Real Time mod is disabled (normal case), take a snapshot on first day of month
@@ -127,7 +140,7 @@ namespace MoreCityStatistics
                     {
                         // snapshot does not exist for current game date
                         // take a snapshot
-                        snapshot = Snapshot.TakeSnapshot();
+                        snapshot = Snapshot.TakeSnapshot(true);
 
                         // insert the snapshot into the list in the correct place to keep the list sorted
                         // this will usually be at the end of the list
@@ -145,7 +158,7 @@ namespace MoreCityStatistics
                         if (!_snapshotTaken)
                         {
                             // take a snapshot
-                            snapshot = Snapshot.TakeSnapshot();
+                            snapshot = Snapshot.TakeSnapshot(true);
 
                             // replace existing snapshot with the snapshot just taken
                             _instance[index] = snapshot;
@@ -158,6 +171,10 @@ namespace MoreCityStatistics
                 }
                 else
                 {
+                    // debug logging
+                    if (_snapshotTaken)
+                        LogUtil.LogInfo($"Snapshots.SimulationTick not time to take snapshot _snapshotTaken={_snapshotTaken}");
+
                     // it is not time to take a snapshot
                     // clear flag so next snapshot can be taken when it is time
                     _snapshotTaken = false;

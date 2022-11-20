@@ -54,7 +54,8 @@ namespace MoreCityStatistics
 
                     // save snapshots to the game file
                     Snapshots.instance.Serialize(serializableDataManager);
-                    LogUtil.LogInfo($"Saved [{Snapshots.instance.Count}] snapshots.");
+                    LogUtil.LogInfo($"Saved [{Snapshots.instance.Count}] snapshots" +
+                        (Snapshots.instance.Count >=1 ? $" from [{Snapshots.instance[0].SnapshotDate:yyyy/MM/dd}] to [{Snapshots.instance[Snapshots.instance.Count - 1].SnapshotDate:yyyy/MM/dd}]" : "") + ".");
                 }
                 catch (Exception ex)
                 {
@@ -85,6 +86,9 @@ namespace MoreCityStatistics
             // load only for game (i.e. ignore for editors)
             if (serializableDataManager.managers.loading.currentMode != AppMode.Game)
             {
+                // debug logging
+                LogUtil.LogInfo($"MCSSerializableData.OnLoadData currentMode={serializableDataManager.managers.loading.currentMode}");
+
                 return;
             }
 
@@ -126,7 +130,8 @@ namespace MoreCityStatistics
 
                 // read snapshots from the game file
                 Snapshots.instance.Deserialize(serializableDataManager, version);
-                LogUtil.LogInfo($"Loaded [{Snapshots.instance.Count}] snapshots.");
+                LogUtil.LogInfo($"Loaded [{Snapshots.instance.Count}] snapshots" +
+                    (Snapshots.instance.Count >=1 ? $" from [{Snapshots.instance[0].SnapshotDate:yyyy/MM/dd}] to [{Snapshots.instance[Snapshots.instance.Count - 1].SnapshotDate:yyyy/MM/dd}]" : "") + ".");
 
                 // success, even if no snapshots were loaded
                 Snapshots.instance.Loaded = true;

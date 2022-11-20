@@ -39,9 +39,9 @@ namespace MoreCityStatistics
             System.Diagnostics.StackFrame[] stackFrames = stacktrace.GetFrames();
             if (stackFrames.Length >= 2)
             {
-                // prefix message with calling method instead of the standard message prefix
+                // include the calling method
                 MethodBase method = stackFrames[1].GetMethod();
-                message = "[" + method.ReflectedType + "." + method.Name + "] Error:" + Environment.NewLine + message;
+                message = MessagePrefix + "Error in [" + method.ReflectedType + "." + method.Name + "]:" + Environment.NewLine + message;
             }
             else
             {

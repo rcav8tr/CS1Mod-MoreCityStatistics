@@ -945,7 +945,7 @@ namespace MoreCityStatistics
         /// <summary>
         /// return a snapshot of current statistics
         /// </summary>
-        public static Snapshot TakeSnapshot(bool logDate = true)
+        public static Snapshot TakeSnapshot(bool logDate)
         {
             // create a new snapshot to return
             // set the snapshot date to the current game date
