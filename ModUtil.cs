@@ -42,15 +42,11 @@ namespace MoreCityStatistics
             // do each plug in
             foreach (PluginManager.PluginInfo mod in PluginManager.instance.GetPluginsInfo())
             {
-                // ignore builtin mods and camera scripts
-                if (!mod.isBuiltin && !mod.isCameraScript)
+                // check against the workshop ID
+                if (mod.publishedFileID != null && mod.publishedFileID.AsUInt64 == workshopID)
                 {
-                    // check against the workshop ID
-                    if (mod.publishedFileID.AsUInt64 == workshopID)
-                    {
-                        // found the mod, return it
-                        return mod;
-                    }
+                    // found the mod, return it
+                    return mod;
                 }
             }
 

@@ -33,13 +33,12 @@ namespace MoreCityStatistics
             Selected
         }
 
-        // flags
-        private bool _initialized;
+        // miscellaneous private
         private bool _realTimeModEnabled;
-        private bool _snapshotTaken;
-
-        // for locking the thread
+        private DateTime _nextSnapshotDateTime;
+        private DateTime _previousGameDateTime;
         private static readonly object _lockObject = new object();
+        private static readonly DateTime MaxDate = DateTime.MaxValue.Date;
 
         /// <summary>
         /// initialize snapshots
@@ -50,13 +49,15 @@ namespace MoreCityStatistics
             // except _snapshotTaken gets initialized in SimulationTick when the game date is known
             _instance.Clear();
             Loaded = false;
-            _initialized = false;
-
-            // determine if RealTime mod is enabled
             _realTimeModEnabled = ModUtil.IsWorkshopModEnabled(ModUtil.ModIDRealTime);
+            _nextSnapshotDateTime = DateTime.MinValue;
+            _previousGameDateTime = DateTime.MaxValue;
 
             // debug logging
-            LogUtil.LogInfo($"Snapshots.Initialize _realTimeModEnabled={_realTimeModEnabled}");
+            if (ConfigurationUtil<Configuration>.Load().DebugLogging)
+            {
+                LogUtil.LogInfo($"Snapshots.Initialize _realTimeModEnabled={_realTimeModEnabled}");
+            }
         }
 
         /// <summary>
@@ -69,7 +70,10 @@ namespace MoreCityStatistics
             Loaded = false;
 
             // debug logging
-            LogUtil.LogInfo($"Snapshots.Deinitialize _realTimeModEnabled={_realTimeModEnabled}");
+            if (ConfigurationUtil<Configuration>.Load().DebugLogging)
+            {
+                LogUtil.LogInfo($"Snapshots.Deinitialize _realTimeModEnabled={_realTimeModEnabled}");
+            }
         }
 
         /// <summary>
@@ -99,7 +103,10 @@ namespace MoreCityStatistics
             if (!Loaded)
             {
                 // debug logging
-                LogUtil.LogInfo($"Snapshots.SimulationTick Loaded={Loaded}");
+                if (ConfigurationUtil<Configuration>.Load().DebugLogging)
+                {
+                    LogUtil.LogInfo($"Snapshots.SimulationTick Loaded={Loaded}");
+                }
 
                 return;
             }
@@ -109,75 +116,84 @@ namespace MoreCityStatistics
 
             try
             {
-                // get game date and time
-                DateTime gameDateTime = SimulationManager.instance.m_currentGameTime;
-                DateTime gameDate = gameDateTime.Date;
-                TimeSpan gameTime = gameDateTime - gameDate;
+                // get current game date/time
+                DateTime currentGameDateTime = SimulationManager.instance.m_currentGameTime;
 
-                // complete initialization, now that current game date is known
-                if (!_initialized)
+                // when current game date/time is less than previous game/time,
+                // it means either this is the initial call to this routine or user set the game time back using a mod
+                // in any case, set a new next snapshot date/time
+                // note that with the Real Time mod enabled, continually pausing and running the game (by holding down the space key)
+                // can cause the current game time to go back by up to a few seconds, but worst case is that the time goes back
+                // across the trigger interval which causes another snapshot to immediately be taken which replaces the snapshot just taken
+                if (currentGameDateTime < _previousGameDateTime)
                 {
-                    // if a snapshot exists for current game date, then prevent overwriting it
-                    Snapshot snapshot = new Snapshot(gameDate);
-                    int index = _instance.BinarySearch(snapshot);
-                    _snapshotTaken = (index >= 0);
-
-                    // initialization is complete
-                    _initialized = true;
+                    SetNextSnapshotDateTime(currentGameDateTime);
 
                     // debug logging
-                    LogUtil.LogInfo($"Snapshots.SimulationTick initialization _snapshotTaken={_snapshotTaken} gameDateTime={gameDateTime:yyyy/MM/dd HH:mm:ss}");
+                    if (ConfigurationUtil<Configuration>.Load().DebugLogging)
+                    {
+                        LogUtil.LogInfo($"Snapshots.SimulationTick curr<prev currentGameDateTime=[{currentGameDateTime:yyyy/MM/dd HH:mm:ss.ffffff}] _previousGameDateTime=[{_previousGameDateTime:yyyy/MM/dd HH:mm:ss.ffffff}]");
+                    }
                 }
 
-                // when Real Time mod is disabled (normal case), take a snapshot on first day of month
-                // when Real Time mod is enabled, take a snapshot at noon every day
-                if ((!_realTimeModEnabled && gameDate.Day == 1) || (_realTimeModEnabled && gameTime.Hours >= 12))
+                // when current game date/time is more than 3 days past previous game/time,
+                // it means a mod was probably used to set the game date into the future
+                // set a new next snapshot date/time
+                if ((currentGameDateTime - _previousGameDateTime).Days > 3)
                 {
-                    // check if a snapshot exists for the current game date
-                    Snapshot snapshot = new Snapshot(gameDate);
-                    int index = _instance.BinarySearch(snapshot);
-                    if (index < 0)
+                    SetNextSnapshotDateTime(currentGameDateTime);
+
+                    // debug logging
+                    if (ConfigurationUtil<Configuration>.Load().DebugLogging)
                     {
-                        // snapshot does not exist for current game date
-                        // take a snapshot
-                        snapshot = Snapshot.TakeSnapshot(true);
+                        LogUtil.LogInfo($"Snapshots.SimulationTick curr-prev>3 currentGameDateTime=[{currentGameDateTime:yyyy/MM/dd HH:mm:ss.ffffff}] _previousGameDateTime=[{_previousGameDateTime:yyyy/MM/dd HH:mm:ss.ffffff}]");
+                    }
+                }
 
-                        // insert the snapshot into the list in the correct place to keep the list sorted
-                        // this will usually be at the end of the list
-                        index = ~index;
-                        _instance.Insert(index, snapshot);
-                        _snapshotTaken = true;
+                // set previous game/time
+                _previousGameDateTime = currentGameDateTime;
 
-                        // update main panel
-                        UserInterface.instance.UpdateMainPanel();
+                // take a snapshot when game date/time is after next snapshot date/time
+                // a snapshot is NOT taken exactly at next snapshot date/time to avoid continuous snapshots if game is paused
+                // only take a snapshot before December 31, 9999 00:00:00
+                if (currentGameDateTime > _nextSnapshotDateTime && currentGameDateTime < MaxDate)
+                {
+                    // take a snapshot using next snapshot date/time, not current game date/time
+                    // this way snapshot date/times are on nice date/time boundaries which makes it possible to find an exact match below
+                    // with Real Time mod enabled  and top sim speed, current game date/time will usually be several seconds after the next snapshot date/time
+                    // with Real Time mod disabled and top sim speed, current game date/time will usually be several minutes after the next snapshot date/time
+                    Snapshot snapshot = Snapshot.TakeSnapshot(_nextSnapshotDateTime, true);
+
+                    // check if snapshot date/time is after last snapshot date/time
+                    if (_instance.Count == 0 || _nextSnapshotDateTime > _instance[_instance.Count - 1].SnapshotDateTime)
+                    {
+                        // add this snapshot to the end
+                        // this will be the usual case, so this performance enhancement avoids the BinarySearch below
+                        _instance.Add(snapshot);
                     }
                     else
                     {
-                        // snapshot exists for the current game date
-                        // if a snapshot is not yet taken, then overwrite existing snapshot
-                        if (!_snapshotTaken)
+                        // check if a snapshot exists for the next snapshot date/time
+                        int index = _instance.BinarySearch(snapshot);
+                        if (index < 0)
                         {
-                            // take a snapshot
-                            snapshot = Snapshot.TakeSnapshot(true);
-
+                            // snapshot does not exist for next snapshot date/time
+                            // insert the snapshot into the list in the correct place to keep the list sorted
+                            _instance.Insert(~index, snapshot);
+                        }
+                        else
+                        {
+                            // snapshot exists for the next snapshot date/time
                             // replace existing snapshot with the snapshot just taken
                             _instance[index] = snapshot;
-                            _snapshotTaken = true;
-
-                            // update main panel
-                            UserInterface.instance.UpdateMainPanel();
                         }
                     }
-                }
-                else
-                {
-                    // debug logging
-                    if (_snapshotTaken)
-                        LogUtil.LogInfo($"Snapshots.SimulationTick not time to take snapshot _snapshotTaken={_snapshotTaken}");
 
-                    // it is not time to take a snapshot
-                    // clear flag so next snapshot can be taken when it is time
-                    _snapshotTaken = false;
+                    // set next snapshot date/time
+                    SetNextSnapshotDateTime(currentGameDateTime);
+
+                    // update main panel
+                    UserInterface.instance.UpdateMainPanel();
                 }
             }
             catch (Exception ex)
@@ -188,6 +204,118 @@ namespace MoreCityStatistics
             {
                 // make sure thread is unlocked
                 UnlockThread();
+            }
+        }
+
+        /// <summary>
+        /// set the date/time next snapshot should be taken
+        /// next snapshot date/time is the next scheduled date/time after the current game date/time
+        /// </summary>
+        public void SetNextSnapshotDateTime(DateTime gameDateTime)
+        {
+            // get game date without time
+            DateTime gameDate = gameDateTime.Date;
+
+            // get selected snapshots per period and trigger interval
+            int snapshotsPerPeriod = SnapshotFrequency.instance.selectedSnapshotsPerPeriod;
+            int triggerInterval    = SnapshotFrequency.instance.selectedTriggerInterval;
+
+            // check for Real Time mod
+            if (_realTimeModEnabled)
+            {
+                // snapshots are per day and trigger interval is in minutes
+
+                // special case for 1 snapshot per day taken at noon
+                if (snapshotsPerPeriod == 1)
+                {
+                    // next snapshot date/time is either game date at noon or game date + 1 at noon
+                    // check if game date/time is past game date at noon
+                    DateTime gameDateNoon = gameDate + new TimeSpan(12, 0, 0);
+                    if (gameDateTime > gameDateNoon)
+                    {
+                        // use noon of the next day, but avoid invalid date
+                        if (gameDate == MaxDate)
+                        {
+                            _nextSnapshotDateTime = DateTime.MaxValue;
+                        }
+                        else
+                        {
+                            _nextSnapshotDateTime = gameDateNoon.AddDays(1);
+                        }
+                    }
+                    else
+                    {
+                        // use noon of game date
+                        _nextSnapshotDateTime = gameDateNoon;
+                    }
+                }
+                else
+                {
+                    // check if game date/time is after last snapshot time of the game date
+                    int lastSnapshotTimeOfDayInMinutes = (snapshotsPerPeriod - 1) * triggerInterval;
+                    if (gameDateTime > gameDate.AddMinutes(lastSnapshotTimeOfDayInMinutes))
+                    {
+                        // use 00:00 of next day, but avoid invalid date
+                        if (gameDate == MaxDate)
+                        {
+                            _nextSnapshotDateTime = DateTime.MaxValue;
+                        }
+                        else
+                        {
+                            _nextSnapshotDateTime = gameDate.AddDays(1);
+                        }
+                    }
+                    else
+                    {
+                        // game date/time is on or before last snapshot time of the game date
+                        // next snapshot date/time is the first trigger interval time of the game date that is on or after the game date/time
+                        double gameTimeOfDayInMinutes = (double)(gameDateTime.Ticks - gameDate.Ticks) / TimeSpan.TicksPerMinute;    // game time of day, in minutes, including any fractional minutes
+                        int triggerIntervalCount = (int)Math.Ceiling(gameTimeOfDayInMinutes / triggerInterval);                     // number of trigger intervals needed to equal or exceed game time of day, rounding up any minute fractions
+                        int nextSnapshotMinutes = triggerInterval * triggerIntervalCount;                                           // integral number of minutes to take the next snapshot
+                        _nextSnapshotDateTime = gameDate.AddMinutes(nextSnapshotMinutes);                                           // add the number of minutes to the game date
+                    }
+                }
+            }
+            else
+            {
+                // snapshots are per month and trigger interval is in days
+
+                // get game month and days in game month
+                DateTime gameMonth = new DateTime(gameDate.Year, gameDate.Month, 1);
+                int daysInGameMonth = DateTime.DaysInMonth(gameMonth.Year, gameMonth.Month);
+
+                // check if game date/time is after last snapshot day of the game month
+                int lastSnapshotDayOfMonth = (snapshotsPerPeriod - 1) * triggerInterval + 1;                        // 1-based last snapshot day of game month
+                while (lastSnapshotDayOfMonth > daysInGameMonth) { lastSnapshotDayOfMonth -= triggerInterval; }     // make sure last snapshot day of game month is a day in the month
+                DateTime lastSnapshotDateOfMonth = gameMonth.AddDays(lastSnapshotDayOfMonth - 1);                   // compute last snapshot date of game month
+                if (gameDateTime > lastSnapshotDateOfMonth)
+                {
+                    // use day 1 of the next month, but avoid invalid date
+                    if (gameMonth.Year == 9999 && gameMonth.Month == 12)
+                    {
+                        _nextSnapshotDateTime = DateTime.MaxValue;
+                    }
+                    else
+                    {
+                        _nextSnapshotDateTime = gameMonth.AddMonths(1);
+                    }
+                }
+                else
+                {
+                    // game date/time is on or before last snapshot day of the game month
+                    // next snapshot date is the first trigger interval day of the game month that is on or after the game date/time
+                    double gameDayOfMonth = (double)(gameDateTime.Ticks - gameMonth.Ticks) / TimeSpan.TicksPerDay;  // game 0-based day of month, in days, including any fractional days
+                    int triggerIntervalCount = (int)Math.Ceiling(gameDayOfMonth / triggerInterval);                 // number of trigger intervals needed to equal or exceed game day of month, rounding up any day fractions
+                    int nextSnapshotDayOfMonth = triggerIntervalCount * triggerInterval + 1;                        // 1-based day of the month to take the next snapshot
+                    while (nextSnapshotDayOfMonth > daysInGameMonth) { nextSnapshotDayOfMonth -= triggerInterval; } // make sure snapshot day of month is a day in the month
+                    _nextSnapshotDateTime = gameMonth.AddDays(nextSnapshotDayOfMonth - 1);                          // add 0-based day of month to game month
+                }
+            }
+
+            // debug logging
+            if (ConfigurationUtil<Configuration>.Load().DebugLogging)
+            {
+                LogUtil.LogInfo($"Snapshots.SetNextSnapshotDateTime _nextSnapshotDateTime=[{_nextSnapshotDateTime:yyyy/MM/dd HH:mm:ss}] gameDateTime=[{gameDateTime:yyyy/MM/dd HH:mm:ss}].");
             }
         }
 
@@ -225,7 +353,7 @@ namespace MoreCityStatistics
                 {
                     // write heading row
                     const string Separator = "\t";
-                    StringBuilder heading = new StringBuilder("\"" + Translation.instance.Get(Translation.Key.SnapshotDate) + "\"");
+                    StringBuilder heading = new StringBuilder("\"" + Translation.instance.Get(Translation.Key.SnapshotDateTime) + "\"");
                     foreach (Statistic statistic in statistics)
                     {
                         heading.Append(Separator + "\"" + statistic.CategoryDescriptionUnits.Replace("\"", "\"\"") + "\"");
@@ -236,7 +364,7 @@ namespace MoreCityStatistics
                     foreach (Snapshot snapshot in _instance)
                     {
                         // construct snapshot row starting with snapshot date
-                        StringBuilder row = new StringBuilder(snapshot.SnapshotDate.ToShortDateString(), 1024);
+                        StringBuilder row = new StringBuilder(snapshot.SnapshotDateTime.ToShortDateString() + " " + snapshot.SnapshotDateTime.ToShortTimeString(), statistics.Count * 4);
 
                         // append each statistic value to the row
                         for (int i = 0; i < statistics.Count; i++)
@@ -252,7 +380,7 @@ namespace MoreCityStatistics
                                 snapshotValue = snapshotProperties[i].GetValue(snapshot, null);
                             }
 
-                            // add the snapshot value to the total and count it
+                            // add the snapshot value to the total
                             if (snapshotValue == null)
                             {
                                 // append only the separator
@@ -354,6 +482,33 @@ namespace MoreCityStatistics
                 // get next snapshot block from the game file
                 snapshotBlock++;
                 data = serializableDataManager.LoadData(MCSSerializableData.SnapshotSerializationID(snapshotBlock));
+            }
+
+            // special snapshot date/time processing for snapshots before version 6
+            if (version < 6)
+            {
+                // check if other than day 1 is found on any snapshot
+                // other than day 1 indicates that the Real Time mod was enabled when the snapshots where taken
+                // this logic will not detect the case where Real Time was enabled and there is only 1 snapshot and that snapshot was on day 1,
+                // but this case should be extremely rare and in this case it is okay to leave the snapshot time at 00:00
+                bool realTimeWasEnabled = false;
+                foreach (Snapshot snapshot in _instance)
+                {
+                    if (snapshot.SnapshotDateTime.Day != 1)
+                    {
+                        realTimeWasEnabled = true;
+                        break;
+                    }
+                }
+
+                // if Real Time mod was enabled, then add 12 hours to each snapshot to make it noon
+                if (realTimeWasEnabled)
+                {
+                    foreach (Snapshot snapshot in _instance)
+                    {
+                        snapshot.SnapshotDateTime = snapshot.SnapshotDateTime.AddHours(12);
+                    }
+                }
             }
         }
 

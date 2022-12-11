@@ -32,6 +32,9 @@ namespace MoreCityStatistics
         public const int DefaultUpdateInterval = 10;
         private UILabel _intervalValue;
 
+        // debug logging
+        public bool DebugLogging;
+
         // status of settings check box
         public bool SaveSettingsAndSnapshots { get; private set; }
 
@@ -73,11 +76,9 @@ namespace MoreCityStatistics
             // allow user to change language
             groupGeneral.AddDropdown(translation.Get(Translation.Key.ChooseYourLanguage), languageNames, defaultIndex, OnLanguageChanged);
 
-
             // allow user to choose category/statistic text size
             string[] textSizes = new string[] { translation.Get(Translation.Key.Normal), translation.Get(Translation.Key.Large), translation.Get(Translation.Key.ExtraLarge) };
             groupGeneral.AddDropdown(translation.Get(Translation.Key.CategoryStatisticTextSize), textSizes, config.CategoryStatisticTextSize, OnCategoryStatisticTextSizeChanged);
-
 
             // allow user to set the interval that current values are updated
             UISlider currentValueUpdateInterval = groupGeneral.AddSlider(translation.Get(Translation.Key.CurrentValueUpdateInterval), 1f, 30f, 1f, config.CurrentValueUpdateInterval, OnUpdateIntervalChanged) as UISlider;
@@ -105,9 +106,12 @@ namespace MoreCityStatistics
             _intervalValue.relativePosition = new Vector3(currentValueUpdateIntervalSlider.size.x + 10f, 0f);
             _intervalValue.text = config.CurrentValueUpdateInterval.ToString();
 
+            // allow user to set debug logging
+            groupGeneral.AddCheckbox(translation.Get(Translation.Key.DebugLogging), config.DebugLogging, OnDebugLoggingChanged);
+
 
             // create in-game options only when a game is loaded
-            if (MCSLoading.IsGameLoaded)
+            if (MCSLoading.GameIsLoaded)
             {
                 // in-game options group
                 UIHelperBase groupInGame = helper.AddGroup(translation.Get(Translation.Key.InGame));
@@ -207,6 +211,15 @@ namespace MoreCityStatistics
             {
                 _intervalValue.text = updateInterval.ToString();
             }
+        }
+
+        /// <summary>
+        /// handle change in debug logging
+        /// </summary>
+        private void OnDebugLoggingChanged(bool isChecked)
+        {
+            // save the new value
+            Configuration.SaveDebugLogging(isChecked);
         }
 
         /// <summary>

@@ -13,7 +13,7 @@ namespace MoreCityStatistics
     public class MCSLoading : LoadingExtensionBase
     {
         // whether or not the game is loaded
-        public static bool IsGameLoaded { get; private set; }
+        public static bool GameIsLoaded { get; private set; }
 
         public override void OnLevelLoaded(LoadMode mode)
         {
@@ -23,7 +23,7 @@ namespace MoreCityStatistics
             try
             {
                 // game is not loaded
-                IsGameLoaded = false;
+                GameIsLoaded = false;
 
                 // dump game translations to file
                 // Translation.instance.DumpGameTranslations();
@@ -42,7 +42,7 @@ namespace MoreCityStatistics
                     }
 
                     // game is loaded
-                    IsGameLoaded = true;
+                    GameIsLoaded = true;
                 }
             }
             catch (Exception ex)
@@ -64,6 +64,7 @@ namespace MoreCityStatistics
             try
             {
                 // deinitialize
+                SnapshotFrequency.instance.Deinitialize();
                 ShowRange.instance.Deinitialize();
                 Categories.instance.Deinitialize();
                 Snapshots.instance.Deinitialize();
@@ -76,7 +77,7 @@ namespace MoreCityStatistics
             finally
             {
                 // game is not loaded
-                IsGameLoaded = false;
+                GameIsLoaded = false;
 
                 // refresh options
                 RefreshOptions();
@@ -98,7 +99,8 @@ namespace MoreCityStatistics
         /// </summary>
         private void RefreshOptions()
         {
-            // this will trigger MoreCityStatistics.OnSettingsUI which calls Options.CreateUI to recreate this mod's Options UI with or without the in-game options
+            // call OptionsMainPanel.RefreshPlugins which will trigger OnSettingsUI for ALL mods including this mod;
+            // MoreCityStatistics.OnSettingsUI calls Options.CreateUI to recreate this mod's Options UI with or without the in-game options
             MethodInfo refreshPlugins = typeof(OptionsMainPanel).GetMethod("RefreshPlugins", BindingFlags.Instance | BindingFlags.NonPublic);
             if (refreshPlugins != null)
             {

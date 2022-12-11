@@ -32,6 +32,9 @@ namespace MoreCityStatistics
         private long _previousTicks;
         private bool _initialized;
 
+        // other values
+        private bool _realTimeModEnabled;
+
         /// <summary>
         /// Start is called after the panel is created
         /// set up the panel
@@ -43,6 +46,9 @@ namespace MoreCityStatistics
 
             try
             {
+                // get status of Real Time mod
+                _realTimeModEnabled = ModUtil.IsWorkshopModEnabled(ModUtil.ModIDRealTime);
+
                 // set properties
                 name = "MoreCityStatisticsPanel";
                 backgroundSprite = "MenuPanel2";
@@ -73,7 +79,7 @@ namespace MoreCityStatistics
                 UIPanel graphPanel = AddUIComponent<UIPanel>();
                 if (graphPanel == null)
                 {
-                    LogUtil.LogError($"Unable to create graph panel.");
+                    LogUtil.LogError("Unable to create graph panel.");
                     return;
                 }
                 graphPanel.name = "GraphPanel";
@@ -87,7 +93,7 @@ namespace MoreCityStatistics
                 _graph = graphPanel.AddUIComponent<UIImprovedGraph>();
                 if (_graph == null)
                 {
-                    LogUtil.LogError($"Unable to create graph.");
+                    LogUtil.LogError("Unable to create graph.");
                     return;
                 }
                 _graph.name = "StatisticsGraph";
@@ -103,12 +109,12 @@ namespace MoreCityStatistics
                 UIPanel optionsPanel = AddUIComponent<UIPanel>();
                 if (optionsPanel == null)
                 {
-                    LogUtil.LogError($"Unable to create options panel.");
+                    LogUtil.LogError("Unable to create options panel.");
                     return;
                 }
                 optionsPanel.name = "OptionsPanel";
                 optionsPanel.autoSize = false;
-                optionsPanel.size = new Vector3(size.x - graphPanel.size.x - 30f, 100f);
+                optionsPanel.size = new Vector3(size.x - graphPanel.size.x - 30f, 130f);
                 optionsPanel.relativePosition = new Vector3(graphPanel.relativePosition.x + graphPanel.size.x + 10f, graphPanel.relativePosition.y);
                 optionsPanel.backgroundSprite = "GenericPanel";
                 optionsPanel.color = panelColor;
@@ -120,7 +126,7 @@ namespace MoreCityStatistics
                 UIPanel categoriesBackgroundPanel = AddUIComponent<UIPanel>();
                 if (categoriesBackgroundPanel == null)
                 {
-                    LogUtil.LogError($"Unable to create categories background panel.");
+                    LogUtil.LogError("Unable to create categories background panel.");
                     return;
                 }
                 categoriesBackgroundPanel.name = "CategoriesBackgroundPanel";
@@ -160,7 +166,7 @@ namespace MoreCityStatistics
             UISprite panelIcon = AddUIComponent<UISprite>();
             if (panelIcon == null)
             {
-                LogUtil.LogError($"Unable to create statistics icon.");
+                LogUtil.LogError("Unable to create statistics icon.");
                 return false;
             }
             panelIcon.name = "Icon";
@@ -173,7 +179,7 @@ namespace MoreCityStatistics
             _title = AddUIComponent<UILabel>();
             if (_title == null)
             {
-                LogUtil.LogError($"Unable to create title label.");
+                LogUtil.LogError("Unable to create title label.");
                 return false;
             }
             _title.name = "Title";
@@ -190,7 +196,7 @@ namespace MoreCityStatistics
             UIButton closeButton = AddUIComponent<UIButton>();
             if (closeButton == null)
             {
-                LogUtil.LogError($"Unable to create close button.");
+                LogUtil.LogError("Unable to create close button.");
                 return false;
             }
             closeButton.name = "Close";
@@ -206,7 +212,7 @@ namespace MoreCityStatistics
             UIDragHandle dragHandle = AddUIComponent<UIDragHandle>();
             if (dragHandle == null)
             {
-                LogUtil.LogError($"Unable to create drag handle.");
+                LogUtil.LogError("Unable to create drag handle.");
                 return false;
             }
             dragHandle.name = "DragHandle";
@@ -237,13 +243,13 @@ namespace MoreCityStatistics
             _expandAll = optionsPanel.AddUIComponent<UIButton>();
             if (_expandAll == null)
             {
-                LogUtil.LogError($"Unable to create Expand All button.");
+                LogUtil.LogError("Unable to create Expand All button.");
                 return false;
             }
             _expandAll.name = "ExpandAll";
             _expandAll.autoSize = false;
             _expandAll.size = new Vector2(ButtonWidth, ButtonHeight);
-            _expandAll.relativePosition = new Vector3(5f, (optionsPanel.size.y - 4f * ButtonHeight) / 5f);
+            _expandAll.relativePosition = new Vector3(5f, (optionsPanel.size.y - 5f * ButtonHeight) / 6f);
             _expandAll.textScale = 0.75f;
             _expandAll.horizontalAlignment = UIHorizontalAlignment.Center;
             _expandAll.verticalAlignment = UIVerticalAlignment.Middle;
@@ -256,7 +262,7 @@ namespace MoreCityStatistics
             _collapseAll = optionsPanel.AddUIComponent<UIButton>();
             if (_collapseAll == null)
             {
-                LogUtil.LogError($"Unable to create Collapse All button.");
+                LogUtil.LogError("Unable to create Collapse All button.");
                 return false;
             }
             _collapseAll.name = "CollapseAll";
@@ -275,7 +281,7 @@ namespace MoreCityStatistics
             _selected = optionsPanel.AddUIComponent<UILabel>();
             if (_selected == null)
             {
-                LogUtil.LogError($"Unable to create Number Selected label.");
+                LogUtil.LogError("Unable to create Number Selected label.");
                 return false;
             }
             _selected.name = "NumberSelected";
@@ -306,25 +312,38 @@ namespace MoreCityStatistics
             _deselectAll.pressedBgSprite = "ButtonMenuPressed";
             _deselectAll.eventClicked += DeselectAll_eventClicked;
 
-            // create Show Range UI on the options panel
-            float showRangeLeft = _expandAll.relativePosition.x + ButtonWidth + 5f;
-            if (!ShowRange.instance.CreateUI(optionsPanel, showRangeLeft, _expandAll.textColor)) return false;
-
-            // create snapshot count label
+            // create snapshot count label below Deselect All
             _snapshotCount = optionsPanel.AddUIComponent<UILabel>();
             if (_snapshotCount == null)
             {
-                LogUtil.LogError($"Unable to create Deselect All button.");
+                LogUtil.LogError("Unable to create snapshot count label.");
                 return false;
             }
             _snapshotCount.name = "SnapshotCount";
             _snapshotCount.autoSize = false;
-            _snapshotCount.size = new Vector2(optionsPanel.size.x - showRangeLeft, ButtonHeight);
-            _snapshotCount.relativePosition = new Vector3(optionsPanel.size.x - 5f - _snapshotCount.size.x, optionsPanel.size.y - ButtonHeight);
+            _snapshotCount.size = new Vector2(ButtonWidth, ButtonHeight);
+            _snapshotCount.relativePosition = new Vector3(_expandAll.relativePosition.x, 5f * _expandAll.relativePosition.y + 4f * ButtonHeight);
             _snapshotCount.textScale = 0.625f;
-            _snapshotCount.textAlignment = UIHorizontalAlignment.Right;
+            _snapshotCount.textAlignment = UIHorizontalAlignment.Center;
             _snapshotCount.verticalAlignment = UIVerticalAlignment.Bottom;
             _snapshotCount.textColor = _expandAll.textColor;
+
+            // create Snapshot Frequency UI on the options panel
+            const float ItemHeight = 15f;
+            if (!SnapshotFrequency.instance.CreateUI(optionsPanel)) return false;
+            SnapshotFrequency.instance.relativePosition = new Vector3(_expandAll.relativePosition.x + ButtonWidth + 5f, 3f);
+            SnapshotFrequency.instance.size = new Vector2(optionsPanel.size.x - SnapshotFrequency.instance.relativePosition.x, 40f);
+            SnapshotFrequency.instance.dropdownHeight = ItemHeight + 7f;
+            SnapshotFrequency.instance.textScale = 0.75f;
+            SnapshotFrequency.instance.textColor = _expandAll.textColor;
+            SnapshotFrequency.instance.listHeight = 10 * (int)ItemHeight + 8;
+            SnapshotFrequency.instance.itemHeight = (int)ItemHeight;
+            SnapshotFrequency.instance.eventSnapshotFrequencyChanged += SnapshotFrequency_eventSnapshotFrequencyChanged;
+
+            // create Show Range UI on the options panel below the Snapshot Frequency
+            Vector3 showRangeRelativePosition = new Vector3(SnapshotFrequency.instance.relativePosition.x, SnapshotFrequency.instance.relativePosition.y + SnapshotFrequency.instance.size.y);
+            Vector2 showRangeSize = new Vector2(optionsPanel.size.x - showRangeRelativePosition.x, optionsPanel.size.y - SnapshotFrequency.instance.relativePosition.y - SnapshotFrequency.instance.size.y);
+            if (!ShowRange.instance.CreateUI(optionsPanel, showRangeSize, showRangeRelativePosition, _expandAll.textColor)) return false;
 
             // success
             return true;
@@ -339,7 +358,7 @@ namespace MoreCityStatistics
             categoriesScrollablePanel = categoriesBackgroundPanel.AddUIComponent<UIScrollablePanel>();
             if (categoriesScrollablePanel == null)
             {
-                LogUtil.LogError($"Unable to create categories scrollable panel.");
+                LogUtil.LogError("Unable to create categories scrollable panel.");
                 return false;
             }
             categoriesScrollablePanel.name = "CategoriesScrollablePanel";
@@ -357,7 +376,7 @@ namespace MoreCityStatistics
             UIScrollbar statisticsScrollbar = categoriesBackgroundPanel.AddUIComponent<UIScrollbar>();
             if (statisticsScrollbar == null)
             {
-                LogUtil.LogError($"Unable to create statistics scrollbar.");
+                LogUtil.LogError("Unable to create statistics scrollbar.");
                 return false;
             }
             statisticsScrollbar.name = "StatisticsScrollbar";
@@ -373,7 +392,7 @@ namespace MoreCityStatistics
             UISlicedSprite statisticsScrollbarTrack = statisticsScrollbar.AddUIComponent<UISlicedSprite>();
             if (statisticsScrollbarTrack == null)
             {
-                LogUtil.LogError($"Unable to create statistics scrollbar track.");
+                LogUtil.LogError("Unable to create statistics scrollbar track.");
                 return false;
             }
             statisticsScrollbarTrack.name = "StatisticsScrollbarTrack";
@@ -386,7 +405,7 @@ namespace MoreCityStatistics
             UISlicedSprite statisticsScrollbarThumb = statisticsScrollbarTrack.AddUIComponent<UISlicedSprite>();
             if (statisticsScrollbarThumb == null)
             {
-                LogUtil.LogError($"Unable to create statistics scrollbar thumb.");
+                LogUtil.LogError("Unable to create statistics scrollbar thumb.");
                 return false;
             }
             statisticsScrollbarThumb.name = "StatisticsScrollbarThumb";
@@ -452,6 +471,30 @@ namespace MoreCityStatistics
         }
 
         /// <summary>
+        /// handle change in Snapshot Frequency
+        /// </summary>
+        private void SnapshotFrequency_eventSnapshotFrequencyChanged(object sender, EventArgs e)
+        {
+            // lock thread while changing snapshot frequency
+            Snapshots.instance.LockThread();
+
+            try
+            {
+                // set new next snapshot date/time based on current game date/time
+                Snapshots.instance.SetNextSnapshotDateTime(SimulationManager.instance.m_currentGameTime);
+            }
+            catch (Exception ex)
+            {
+                LogUtil.LogException(ex);
+            }
+            finally
+            {
+                // make sure thread is unlocked
+                Snapshots.instance.UnlockThread();
+            }
+        }
+
+        /// <summary>
         /// handle click on panel
         /// </summary>
         private void MainPanel_eventClicked(UIComponent component, UIMouseEventParameter eventParam)
@@ -492,6 +535,9 @@ namespace MoreCityStatistics
             _collapseAll.text = translation.Get(Translation.Key.CollapseAll);
             _deselectAll.text = translation.Get(Translation.Key.DeselectAll);
 
+            // update snapshot frequency
+            SnapshotFrequency.instance.UpdateUIText();
+
             // update shows years
             ShowRange.instance.UpdateUIText();
 
@@ -507,7 +553,7 @@ namespace MoreCityStatistics
         /// </summary>
         public void UpdateStatisticAmounts()
         {
-            Snapshot snapshot = Snapshot.TakeSnapshot(false);
+            Snapshot snapshot = Snapshot.TakeSnapshot(SimulationManager.instance.m_currentGameTime, false);
             Categories.instance.UpdateStatisticAmounts(snapshot);
             _previousTicks = DateTime.Now.Ticks;
         }
@@ -550,15 +596,16 @@ namespace MoreCityStatistics
                 int snapshotsCount = snapshotsInstance.Count;
                 if (snapshotsCount == 0)
                 {
-                    // add one dummy point for the current game date so the graph axes are drawn
-                    _graph.SetDates(new DateTime[] { SimulationManager.instance.m_currentGameTime.Date });
+                    // add one dummy point for the current game date/time so the graph axes are drawn
+                    _graph.SetDateTimes(new DateTime[] { SimulationManager.instance.m_currentGameTime });
                     _graph.AddCurve("No Description", "No Units", "N0", new double?[] { null }, 0.01f, new Color32(0, 0, 0, 0));
                 }
                 else
                 {
                     // compute the first and last snapshot indexes
-                    int firstIndexToInclude;
-                    int lastIndexToInclude;
+                    const int InvalidIndex = -1;
+                    int firstIndexToInclude = InvalidIndex;
+                    int lastIndexToInclude  = InvalidIndex;
                     if (showRangeInstance.ShowAll)
                     {
                         // use first and last snapshots
@@ -567,135 +614,120 @@ namespace MoreCityStatistics
                     }
                     else
                     {
-                        // use selected FromTo dates or years
-
-                        // initialize with invalid index values to indicate no index yet found
-                        const int InvalidIndex = -1;
-                        firstIndexToInclude = InvalidIndex;
-                        lastIndexToInclude = InvalidIndex;
-
-                        // check for Real Time mod
-                        if (ModUtil.IsWorkshopModEnabled(ModUtil.ModIDRealTime))
+                        // get selected From and To dates without time component
+                        DateTime selectedFromDate;
+                        DateTime selectedToDate;
+                        if (_realTimeModEnabled)
                         {
-                            // get the selected From and To dates, could be the same date
-                            DateTime selectedFromDate = showRangeInstance.FromDate;
-                            DateTime selectedToDate   = showRangeInstance.ToDate;
-
-                            // if From date is more than To date, then swap the two dates
-                            // i.e. the user can use either slider to specify From and To dates
-                            if (selectedFromDate > selectedToDate)
-                            {
-                                DateTime tempDate = selectedFromDate;
-                                selectedFromDate = selectedToDate;
-                                selectedToDate = tempDate;
-                            }
-
-                            // compute the first and last snapshot index to include based on the selected From and To dates
-                            // first and last indexes can be the same because From and To dates can be the same date
-                            for (int i = 0; i < snapshotsCount; i++)
-                            {
-                                // first index is the last snapshot before or on the selected From date
-                                DateTime snapshotDate = snapshotsInstance[i].SnapshotDate;
-                                if (snapshotDate <= selectedFromDate)
-                                {
-                                    firstIndexToInclude = i;
-                                }
-
-                                // last index is the first snapshot that is on or after the selected To date
-                                if (snapshotDate >= selectedToDate)
-                                {
-                                    lastIndexToInclude = i;
-
-                                    // once last index is found, stop checking
-                                    break;
-                                }
-                            }
+                            // use the selected From and To dates
+                            selectedFromDate = showRangeInstance.FromDate;
+                            selectedToDate   = showRangeInstance.ToDate;
                         }
                         else
                         {
-                            // get the selected From and To years, could be the same year
-                            int selectedFromYear = showRangeInstance.FromYear;
-                            int selectedToYear   = showRangeInstance.ToYear;
+                            // use Jan 1 of the selected From and To years
+                            selectedFromDate = new DateTime(showRangeInstance.FromYear, 1, 1);
+                            selectedToDate   = new DateTime(showRangeInstance.ToYear,   1, 1);
+                        }
 
-                            // if From year is more than To year, then swap the two years
-                            // i.e. the user can use either slider to specify From and To years
-                            if (selectedFromYear > selectedToYear)
-                            {
-                                int tempYear = selectedFromYear;
-                                selectedFromYear = selectedToYear;
-                                selectedToYear = tempYear;
-                            }
+                        // if From date is more than To date, then swap the two dates
+                        // i.e. the user can use either slider to specify From and To
+                        if (selectedFromDate > selectedToDate)
+                        {
+                            DateTime tempDate = selectedFromDate;
+                            selectedFromDate = selectedToDate;
+                            selectedToDate = tempDate;
+                        }
 
-                            // if To year is same as From year, make To year 1 more than From year so there is always at least one year between From and To
-                            if (selectedToYear == selectedFromYear)
+                        // user can select same date or year for From and To
+                        // make sure there is at least 1 day or 1 year between From and To
+                        if (selectedFromDate == selectedToDate)
+                        {
+                            if (_realTimeModEnabled)
                             {
-                                selectedToYear = selectedFromYear + 1;
-                            }
-
-                            // compute the first and last snapshot index to include based on the selected From and To years
-                            for (int i = 0; i < snapshotsCount; i++)
-                            {
-                                // first index is the last snapshot before the selected From year OR the first snapshot in the selected From year
-                                int snapshotYear = snapshotsInstance[i].SnapshotDate.Year;
-                                if (snapshotYear < selectedFromYear)
+                                if (selectedFromDate == DateTime.MaxValue.Date)
                                 {
-                                    // the snapshot is before the selected From year, use this snapshot
-                                    firstIndexToInclude = i;
+                                    // cannot add 1 day to From date, so instead set To date to To date minus 1 day
+                                    selectedToDate = selectedToDate.AddDays(-1);
                                 }
-                                else if (snapshotYear == selectedFromYear)
+                                else
                                 {
-                                    // the snapshot is in the selected From year
-                                    // check if already have a first index
-                                    if (firstIndexToInclude == InvalidIndex)
-                                    {
-                                        // don't yet have a first index, so use this snapshot
-                                        firstIndexToInclude = i;
-                                    }
-                                    else
-                                    {
-                                        // already have a first index
-                                        // if this snapshot year is later than the year of the already found first index, then use this snapshot
-                                        if (snapshotYear > snapshotsInstance[firstIndexToInclude].SnapshotDate.Year)
-                                        {
-                                            firstIndexToInclude = i;
-                                        }
-                                    }
-                                }
-
-                                // last index is the first snapshot in or after the selected To year
-                                // this will usually be the snapshot for January 1 of the To year
-                                if (snapshotYear >= selectedToYear)
-                                {
-                                    lastIndexToInclude = i;
-
-                                    // once last index is found, stop checking
-                                    break;
+                                    // set To date to From date plus 1 day
+                                    selectedToDate = selectedFromDate.AddDays(1);
                                 }
                             }
-
-                            // if first index was not found (because the From year is before all snapshots), then use the first snapshot
-                            // this should never happen because the slider min value is the year of the first snapshot
-                            if (firstIndexToInclude == InvalidIndex)
+                            else
                             {
-                                LogUtil.LogError($"Index not found for first snapshot to include.  Reverting to index for first snapshot.");
-                                firstIndexToInclude = 0;
-                            }
-
-                            // if last index was not found (because the To year is after all snapshots), then use last snapshot
-                            // this can happen because, except when last snapshot is January 1, the slider max value is the year after the year of the last snapshot
-                            if (lastIndexToInclude == InvalidIndex)
-                            {
-                                lastIndexToInclude = snapshotsCount - 1;
+                                if (selectedFromDate.Year == DateTime.MaxValue.Year)
+                                {
+                                    // cannot add 1 year to From date, so instead set To date to To date minus 1 year
+                                    selectedToDate = selectedToDate.AddYears(-1);
+                                }
+                                else
+                                {
+                                    // set To date to From date plus 1 year
+                                    selectedToDate = selectedFromDate.AddYears(1);
+                                }
                             }
                         }
 
-                        // if first and last indexes don't make sense, then revert to using entire snapshot range
-                        // this should never happen
-                        if (firstIndexToInclude == InvalidIndex || lastIndexToInclude == InvalidIndex || firstIndexToInclude > lastIndexToInclude)
+                        // compute the first and last snapshot indexes based on the selected From and To dates
+                        // first and last indexes can be the same because there might be only one snapshot in the selected date range
+                        for (int i = 0; i < snapshotsCount; i++)
                         {
-                            LogUtil.LogError($"Invalid snapshot indexes:  firstIndexToInclude={firstIndexToInclude} lastIndexToInclude={lastIndexToInclude}.  Reverting to entire range.");
+                            // first index is the first snapshot that is on or after the selected From date
+                            DateTime snapshotDateTime = snapshotsInstance[i].SnapshotDateTime;
+                            if (firstIndexToInclude == InvalidIndex && snapshotDateTime >= selectedFromDate)
+                            {
+                                firstIndexToInclude = i;
+                            }
+
+                            // last index is the last snapshot that is on or before the selected To date
+                            if (snapshotDateTime >= selectedToDate)
+                            {
+                                if (snapshotDateTime == selectedToDate)
+                                {
+                                    // snapshot date/time is same as selected To date, use current index
+                                    lastIndexToInclude = i;
+                                }
+                                else
+                                {
+                                    // snapshot date/time is after selected To date
+                                    if (i == 0)
+                                    {
+                                        // there is no previous snapshot, use first snapshot
+                                        lastIndexToInclude = 0;
+                                    }
+                                    else
+                                    {
+                                        // use previous snapshot, which has a date/time before the selected To date
+                                        lastIndexToInclude = i - 1;
+                                    }
+                                }
+
+                                // last index is found, exit loop
+                                break;
+                            }
+                        }
+
+                        // if first index is invalid (don't know if this can happen, but check anyway), use first snapshot
+                        if (firstIndexToInclude == InvalidIndex)
+                        {
                             firstIndexToInclude = 0;
+                        }
+
+                        // if last index is invalid (this can happen when selected To date is after last snapshot date, a normal occurrence), use last snapshot
+                        if (lastIndexToInclude == InvalidIndex)
+                        {
                             lastIndexToInclude = snapshotsCount - 1;
+                        }
+
+                        // if last index is before first index (don't know if this can happen, but check anyway), swap the two indexes
+                        if (lastIndexToInclude < firstIndexToInclude)
+                        {
+                            int tempIndex = firstIndexToInclude;
+                            firstIndexToInclude = lastIndexToInclude;
+                            lastIndexToInclude = tempIndex;
                         }
                     }
 
@@ -719,12 +751,12 @@ namespace MoreCityStatistics
 
                     // define totals and counts that will be used to compute averages
                     long totalSeconds = 0;
-                    int countDates = 0;
+                    int countDateTimes = 0;
                     double[] totals = new double[MaximumSelectedStatistics];
                     int[] counts = new int[MaximumSelectedStatistics];
 
                     // define arrays needed by the graph
-                    DateTime[] dates = new DateTime[arraySize];
+                    DateTime[] dateTimes = new DateTime[arraySize];
                     double?[][] values = new double?[MaximumSelectedStatistics][];
                     for (int i = 0; i < MaximumSelectedStatistics; i++)
                     {
@@ -738,11 +770,10 @@ namespace MoreCityStatistics
                         // get the snapshot
                         Snapshot snapshot = snapshotsInstance[snapshotIndex];
 
-                        // accumulate total seconds and count for the date
+                        // accumulate total seconds and count for the date/time
                         // seconds are accumulated instead of ticks to avoid the possibility of overflowing the total
-                        // because all the snapshot dates have no time, this should always divide evenly
-                        totalSeconds += snapshot.SnapshotDate.Ticks / TimeSpan.TicksPerSecond;
-                        countDates++;
+                        totalSeconds += snapshot.SnapshotDateTime.Ticks / TimeSpan.TicksPerSecond;
+                        countDateTimes++;
 
                         // accumulate total and count for each selected statistic
                         for (int i = 0; i < selectedStatistics.Count; i++)
@@ -768,14 +799,15 @@ namespace MoreCityStatistics
 
                         // check if the number of points to combine have been accumulated
                         // also handle the last array entry, which may not count up to pointsToCombine
-                        if (countDates == pointsToCombine || snapshotIndex == lastIndexToInclude)
+                        if (countDateTimes == pointsToCombine || snapshotIndex == lastIndexToInclude)
                         {
-                            // compute average date
-                            // any time remains so the dot is drawn in the correct position on the graph
-                            long averageSeconds = totalSeconds / countDates;
-                            dates[arrayIndex] = new DateTime(averageSeconds * TimeSpan.TicksPerSecond);
+                            // compute average date/time
+                            long averageSeconds = totalSeconds / countDateTimes;
+                            dateTimes[arrayIndex] = new DateTime(averageSeconds * TimeSpan.TicksPerSecond);
+
+                            // reset total and count
                             totalSeconds = 0;
-                            countDates = 0;
+                            countDateTimes = 0;
 
                             // do each selected statistic
                             for (int i = 0; i < selectedStatistics.Count; i++)
@@ -800,14 +832,14 @@ namespace MoreCityStatistics
                         }
                     }
 
-                    // set the graph dates
-                    _graph.SetDates(dates);
+                    // set the graph date/times
+                    _graph.SetDateTimes(dateTimes);
 
                     // add graph curves
                     if (selectedStatistics.Count == 0)
                     {
-                        // add one dummy curve so the graph axes are drawn with the correct dates
-                        _graph.AddCurve("No Description", "No Units", "N0", new double?[dates.Length], 0.01f, new Color32(0, 0, 0, 0));
+                        // add one dummy curve so the graph axes are drawn with the correct date/times
+                        _graph.AddCurve("No Description", "No Units", "N0", new double?[dateTimes.Length], 0.01f, new Color32(0, 0, 0, 0));
                     }
                     else
                     {

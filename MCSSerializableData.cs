@@ -12,7 +12,7 @@ namespace MoreCityStatistics
         // serialization constants
         private const string SettingsID = "MoreCityStatisticsSettings";
         private const string SnapshotsIDPrefix = "MoreCityStatisticsSnapshots";
-        private const int CurrentVersion = 5;
+        private const int CurrentVersion = 6;
 
         /// <summary>
         /// called when a game or editor is saved (including AutoSave)
@@ -42,7 +42,8 @@ namespace MoreCityStatistics
                             LogUtil.LogInfo($"Saving data version [{CurrentVersion}].");
                             writer.Write(CurrentVersion);
 
-                            // save show range selections and category/statistic selections to the game file
+                            // save selections for snapshot frequency, show range, and category/statistic to the game file
+                            SnapshotFrequency.instance.Serialize(writer);
                             ShowRange.instance.Serialize(writer);
                             Categories.instance.Serialize(writer);
 
@@ -54,8 +55,7 @@ namespace MoreCityStatistics
 
                     // save snapshots to the game file
                     Snapshots.instance.Serialize(serializableDataManager);
-                    LogUtil.LogInfo($"Saved [{Snapshots.instance.Count}] snapshots" +
-                        (Snapshots.instance.Count >=1 ? $" from [{Snapshots.instance[0].SnapshotDate:yyyy/MM/dd}] to [{Snapshots.instance[Snapshots.instance.Count - 1].SnapshotDate:yyyy/MM/dd}]" : "") + ".");
+                    LogUtil.LogInfo(SnapshotsLogText("Saved"));
                 }
                 catch (Exception ex)
                 {
@@ -87,7 +87,10 @@ namespace MoreCityStatistics
             if (serializableDataManager.managers.loading.currentMode != AppMode.Game)
             {
                 // debug logging
-                LogUtil.LogInfo($"MCSSerializableData.OnLoadData currentMode={serializableDataManager.managers.loading.currentMode}");
+                if (ConfigurationUtil<Configuration>.Load().DebugLogging)
+                {
+                    LogUtil.LogInfo($"MCSSerializableData.OnLoadData currentMode={serializableDataManager.managers.loading.currentMode}");
+                }
 
                 return;
             }
@@ -97,7 +100,8 @@ namespace MoreCityStatistics
 
             try
             {
-                // initialize
+                // initialize before loading
+                SnapshotFrequency.instance.Initialize();
                 ShowRange.instance.Initialize();
                 Categories.instance.Initialize();
                 Snapshots.instance.Initialize();
@@ -122,7 +126,8 @@ namespace MoreCityStatistics
                         version = reader.ReadInt32();
                         LogUtil.LogInfo($"Loading data version [{version}].");
 
-                        // read show range selections and category/statistic selections from the game file
+                        // read selections for snapshot frequency, show range, and category/statistic from the game file
+                        SnapshotFrequency.instance.Deserialize(reader, version);
                         ShowRange.instance.Deserialize(reader, version);
                         Categories.instance.Deserialize(reader, version);
                     }
@@ -130,8 +135,7 @@ namespace MoreCityStatistics
 
                 // read snapshots from the game file
                 Snapshots.instance.Deserialize(serializableDataManager, version);
-                LogUtil.LogInfo($"Loaded [{Snapshots.instance.Count}] snapshots" +
-                    (Snapshots.instance.Count >=1 ? $" from [{Snapshots.instance[0].SnapshotDate:yyyy/MM/dd}] to [{Snapshots.instance[Snapshots.instance.Count - 1].SnapshotDate:yyyy/MM/dd}]" : "") + ".");
+                LogUtil.LogInfo(SnapshotsLogText("Loaded"));
 
                 // success, even if no snapshots were loaded
                 Snapshots.instance.Loaded = true;
@@ -153,6 +157,40 @@ namespace MoreCityStatistics
         public static string SnapshotSerializationID(int snapshotBlock)
         {
             return SnapshotsIDPrefix + snapshotBlock.ToString();
+        }
+
+        /// <summary>
+        /// return log text for loaded or saved snapshots
+        /// </summary>
+        private static string SnapshotsLogText(string prefix)
+        {
+            // start with basic text using prefix and snapshot count
+            int snapshotCount = Snapshots.instance.Count;
+            string logText = $"{prefix} [{snapshotCount}] snapshot";
+
+            // check for no snapshots
+            if (snapshotCount == 0)
+            {
+                logText += "s.";
+            }
+            else
+            {
+                // include date/time range of snapshots
+                const string DateTimeFormat = "yyyy/MM/dd HH:mm:ss";
+                DateTime firstSnapshotDateTime = Snapshots.instance[0].SnapshotDateTime;
+                DateTime lastSnapshotDateTime = Snapshots.instance[snapshotCount - 1].SnapshotDateTime;
+                if (snapshotCount == 1)
+                {
+                    logText += $" for [{firstSnapshotDateTime.ToString(DateTimeFormat)}].";
+                }
+                else
+                {
+                    logText += $"s from [{firstSnapshotDateTime.ToString(DateTimeFormat)}] to [{lastSnapshotDateTime.ToString(DateTimeFormat)}].";
+                }
+            }
+
+            // return text
+            return logText;
         }
     }
 }

@@ -993,7 +993,7 @@ namespace MoreCityStatistics
                 }
             }
 
-            // verify every field and property in the snapshot (except SnapshotDate) has a statistic type
+            // verify every field and property in the snapshot (except SnapshotDateTime) has a statistic type
             List<string> fieldPropertyNames = new List<string>();
             foreach (FieldInfo field in typeof(Snapshot).GetFields(BindingFlags.Public | BindingFlags.Instance))
             {
@@ -1005,7 +1005,7 @@ namespace MoreCityStatistics
             }
             foreach (string fieldPropertyName in fieldPropertyNames)
             {
-                if (fieldPropertyName != "SnapshotDate")
+                if (fieldPropertyName != "SnapshotDateTime")
                 {
                     bool found = false;
                     foreach (Statistic.StatisticType statisticType in statisticTypes)

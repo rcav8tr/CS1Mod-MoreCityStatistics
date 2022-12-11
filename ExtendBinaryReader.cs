@@ -22,6 +22,20 @@ namespace MoreCityStatistics
         }
 
         /// <summary>
+        /// Reads a date/time from the current stream and advances the current position of the stream by 24 bytes.
+        /// </summary>
+        public static DateTime ReadDateTime(this BinaryReader reader)
+        {
+            int year   = reader.ReadInt32();
+            int month  = reader.ReadInt32();
+            int day    = reader.ReadInt32();
+            int hour   = reader.ReadInt32();
+            int minute = reader.ReadInt32();
+            int second = reader.ReadInt32();
+            return new DateTime(year, month, day, hour, minute, second);
+        }
+
+        /// <summary>
         /// Reads a nullable 4-byte signed integer from the current stream and advances the current position of the stream by five bytes.
         /// </summary>
         public static int? ReadNullableInt32(this BinaryReader reader)

@@ -99,12 +99,12 @@ If there is a gap in the snapshot dates due to disabling and later re-enabling t
 Many of the statistics are computed from other statistics.  For example, Profit is computed as Income minus Expenses.  To save space in the game save file, the computed statistics are not saved.  Only the base statistics are saved.
 
 [h3]Game Save File Space[/h3]
-A single snapshot uses 1,705 bytes in the game save file.  The snapshot space in the game save file is listed below for various date ranges and the two snapshot frequencies.  For comparison, a new blank game is about 5-6MB.
+A single snapshot uses 1717 bytes in the game save file.  The snapshot space in the game save file is listed below for various date ranges and the two default snapshot frequencies.  For comparison, a new blank game is about 5-6MB.
 [table]
 [tr][td][b]Date range[/b][/td][td][b]1/mo[/b][/td][td][b]1/day[/b][/td][/tr]
-[tr][td]1 month    [/td][td] 1,705[/td][td]51.9KB[/td][/tr]
-[tr][td]1 year     [/td][td]20.5KB[/td][td] 623KB[/td][/tr]
-[tr][td]10 years   [/td][td] 205KB[/td][td]6.23MB[/td][/tr]
-[tr][td]100 years  [/td][td]2.05MB[/td][td]62.3MB[/td][/tr]
-[tr][td]1,000 years[/td][td]20.5MB[/td][td] 623MB[/td][/tr]
+[tr][td]1 month   [/td][td] 1,717[/td][td]52.3KB[/td][/tr]
+[tr][td]1 year    [/td][td]20.6KB[/td][td] 627KB[/td][/tr]
+[tr][td]10 years  [/td][td] 206KB[/td][td]6.27MB[/td][/tr]
+[tr][td]100 years [/td][td]2.06MB[/td][td]62.7MB[/td][/tr]
+[tr][td]1000 years[/td][td]20.6MB[/td][td] 627MB[/td][/tr]
 [/table]

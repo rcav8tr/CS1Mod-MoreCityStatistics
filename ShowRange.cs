@@ -85,25 +85,25 @@ namespace MoreCityStatistics
         /// <summary>
         /// create the Show Range UI on the options panel
         /// </summary>
-        public bool CreateUI(UIPanel optionsPanel, float left, Color32 textColor)
+        public bool CreateUI(UIPanel optionsPanel, Vector2 size, Vector3 relativePosition, Color32 textColor)
         {
             // create Show Range panel
             UIPanel showRangePanel = optionsPanel.AddUIComponent<UIPanel>();
             if (showRangePanel == null)
             {
-                LogUtil.LogError($"Unable to create Show Range panel.");
+                LogUtil.LogError("Unable to create Show Range panel.");
                 return false;
             }
             showRangePanel.name = "ShowRangePanel";
             showRangePanel.autoSize = false;
-            showRangePanel.size = new Vector2(optionsPanel.size.x - left, optionsPanel.size.y);
-            showRangePanel.relativePosition = new Vector3(left, 0f);
+            showRangePanel.size = size;
+            showRangePanel.relativePosition = relativePosition;
 
             // create Show Range label
             _showRangeLabel = showRangePanel.AddUIComponent<UILabel>();
             if (_showRangeLabel == null)
             {
-                LogUtil.LogError($"Unable to create Show Range label.");
+                LogUtil.LogError("Unable to create Show Range label.");
                 return false;
             }
             _showRangeLabel.name = "ShowRangeLabel";
@@ -117,7 +117,7 @@ namespace MoreCityStatistics
             UIPanel showAllPanel = showRangePanel.AddUIComponent<UIPanel>();
             if (showAllPanel == null)
             {
-                LogUtil.LogError($"Unable to create Show All panel.");
+                LogUtil.LogError("Unable to create Show All panel.");
                 return false;
             }
             showAllPanel.name = "ShowAllPanel";
@@ -130,7 +130,7 @@ namespace MoreCityStatistics
             _showAllRadio = showAllPanel.AddUIComponent<UISprite>();
             if (_showAllRadio == null)
             {
-                Debug.LogError($"Unable to create Show All radio button.");
+                Debug.LogError("Unable to create Show All radio button.");
                 return false;
             }
             _showAllRadio.name = "ShowAllRadio";
@@ -142,7 +142,7 @@ namespace MoreCityStatistics
             _showAllLabel = showAllPanel.AddUIComponent<UILabel>();
             if (_showAllLabel == null)
             {
-                LogUtil.LogError($"Unable to create Show All label.");
+                LogUtil.LogError("Unable to create Show All label.");
                 return false;
             }
             _showAllLabel.name = "ShowAllLabel";
@@ -156,7 +156,7 @@ namespace MoreCityStatistics
             UIPanel showFromToPanel = showRangePanel.AddUIComponent<UIPanel>();
             if (showFromToPanel == null)
             {
-                LogUtil.LogError($"Unable to create Show FromTo panel.");
+                LogUtil.LogError("Unable to create Show FromTo panel.");
                 return false;
             }
             showFromToPanel.name = "ShowFromToPanel";
@@ -169,7 +169,7 @@ namespace MoreCityStatistics
             _showFromToRadio = showFromToPanel.AddUIComponent<UISprite>();
             if (_showFromToRadio == null)
             {
-                Debug.LogError($"Unable to create Show FromTo radio button.");
+                Debug.LogError("Unable to create Show FromTo radio button.");
                 return false;
             }
             _showFromToRadio.name = "ShowFromToRadio";
@@ -181,7 +181,7 @@ namespace MoreCityStatistics
             _showFromToLabel = showFromToPanel.AddUIComponent<UILabel>();
             if (_showFromToLabel == null)
             {
-                LogUtil.LogError($"Unable to create Show FromTo label.");
+                LogUtil.LogError("Unable to create Show FromTo label.");
                 return false;
             }
             _showFromToLabel.name = "ShowFromToLabel";
@@ -195,7 +195,7 @@ namespace MoreCityStatistics
             UIPanel fromSliderPanel = showRangePanel.AttachUIComponent(UITemplateManager.GetAsGameObject("OptionsSliderTemplate")) as UIPanel;
             if (fromSliderPanel == null)
             {
-                LogUtil.LogError($"Unable to attach From slider panel.");
+                LogUtil.LogError("Unable to attach From slider panel.");
                 return false;
             }
             fromSliderPanel.autoSize = false;
@@ -207,7 +207,7 @@ namespace MoreCityStatistics
             UILabel fromSliderLabel = fromSliderPanel.Find<UILabel>("Label");
             if (fromSliderLabel == null)
             {
-                LogUtil.LogError($"Unable to find From label.");
+                LogUtil.LogError("Unable to find From label.");
                 return false;
             }
             fromSliderLabel.isVisible = false;
@@ -216,7 +216,7 @@ namespace MoreCityStatistics
             _fromSlider = fromSliderPanel.Find<UISlider>("Slider");
             if (_fromSlider == null)
             {
-                LogUtil.LogError($"Unable to find From slider.");
+                LogUtil.LogError("Unable to find From slider.");
                 return false;
             }
             _fromSlider.autoSize = false;
@@ -233,7 +233,7 @@ namespace MoreCityStatistics
             _fromLabel = showRangePanel.AddUIComponent<UILabel>();
             if (_fromLabel == null)
             {
-                LogUtil.LogError($"Unable to create From label.");
+                LogUtil.LogError("Unable to create From label.");
                 return false;
             }
             _fromLabel.name = "FromLabel";
@@ -249,7 +249,7 @@ namespace MoreCityStatistics
             UIPanel toSliderPanel = showRangePanel.AttachUIComponent(UITemplateManager.GetAsGameObject("OptionsSliderTemplate")) as UIPanel;
             if (toSliderPanel == null)
             {
-                LogUtil.LogError($"Unable to attach To slider.");
+                LogUtil.LogError("Unable to attach To slider.");
                 return false;
             }
             toSliderPanel.autoSize = false;
@@ -260,7 +260,7 @@ namespace MoreCityStatistics
             UILabel toSliderLabel = toSliderPanel.Find<UILabel>("Label");
             if (toSliderLabel == null)
             {
-                LogUtil.LogError($"Unable to find To label.");
+                LogUtil.LogError("Unable to find To label.");
                 return false;
             }
             toSliderLabel.isVisible = false;
@@ -269,7 +269,7 @@ namespace MoreCityStatistics
             _toSlider = toSliderPanel.Find<UISlider>("Slider");
             if (_toSlider == null)
             {
-                LogUtil.LogError($"Unable to find To slider.");
+                LogUtil.LogError("Unable to find To slider.");
                 return false;
             }
             _toSlider.autoSize = false;
@@ -286,7 +286,7 @@ namespace MoreCityStatistics
             _toLabel = showRangePanel.AddUIComponent<UILabel>();
             if (_toLabel == null)
             {
-                LogUtil.LogError($"Unable to create To label.");
+                LogUtil.LogError("Unable to create To label.");
                 return false;
             }
             _toLabel.name = "ToLabel";
@@ -428,8 +428,21 @@ namespace MoreCityStatistics
             else
             {
                 // use first and last snapshot dates
-                firstDate = snapshotsInstance[0].SnapshotDate;
-                lastDate = snapshotsInstance[snapshotsCount - 1].SnapshotDate;
+                firstDate = snapshotsInstance[0].SnapshotDateTime.Date;
+                lastDate = snapshotsInstance[snapshotsCount - 1].SnapshotDateTime;
+
+                // if last date/time has a time component, use the next day
+                if (lastDate != lastDate.Date)
+                {
+                    if (lastDate.Date == DateTime.MaxValue.Date)
+                    {
+                        lastDate = DateTime.MaxValue.Date;
+                    }
+                    else
+                    {
+                        lastDate = lastDate.Date.AddDays(1);
+                    }
+                }
             }
 
             // copmpute new min and max values for the sliders

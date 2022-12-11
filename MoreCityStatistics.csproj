@@ -68,6 +68,7 @@
     <Compile Include="Category.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="ShowRange.cs" />
+    <Compile Include="SnapshotFrequency.cs" />
     <Compile Include="Statistic.cs" />
     <Compile Include="MCSSerializableData.cs" />
     <Compile Include="Snapshots.cs" />
@@ -100,6 +101,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Steam Deployment\Screenshot Options.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Steam Deployment\Screenshot Snapshot Frequency Count.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

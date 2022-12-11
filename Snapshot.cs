@@ -17,8 +17,8 @@ namespace MoreCityStatistics
         private const float SquareSize = 8f;
 
 
-        // date of the snapshot
-        public DateTime SnapshotDate;
+        // date/time of the snapshot
+        public DateTime SnapshotDateTime;
 
         // the following field/property names must exactly match the StatisticType enum member names
 
@@ -777,19 +777,19 @@ namespace MoreCityStatistics
         #endregion
 
         /// <summary>
-        /// constructor to initialize with snapshot date
+        /// constructor to initialize with snapshot date/time
         /// </summary>
-        public Snapshot(DateTime snapshotDate)
+        public Snapshot(DateTime snapshotDateTime)
         {
-            SnapshotDate = snapshotDate;
+            SnapshotDateTime = snapshotDateTime;
         }
 
         /// <summary>
-        /// compare snapshots by comparing their dates
+        /// compare snapshots by comparing their date/times
         /// </summary>
         public int CompareTo(Snapshot snapshot)
         {
-            return SnapshotDate.CompareTo(snapshot.SnapshotDate);
+            return SnapshotDateTime.CompareTo(snapshot.SnapshotDateTime);
         }
 
         /// <summary>
@@ -945,16 +945,13 @@ namespace MoreCityStatistics
         /// <summary>
         /// return a snapshot of current statistics
         /// </summary>
-        public static Snapshot TakeSnapshot(bool logDate)
+        public static Snapshot TakeSnapshot(DateTime snapshotDateTime, bool logDateTime)
         {
             // create a new snapshot to return
-            // set the snapshot date to the current game date
-            // the game date without time is used even if the Real Time mod is enabled and the snapshot is taken at noon
-            // a snapshot is for the date, regardless of the time on that date when the snapshot is actually taken
-            Snapshot snapshot = new Snapshot(SimulationManager.instance.m_currentGameTime.Date);
-            if (logDate)
+            Snapshot snapshot = new Snapshot(snapshotDateTime);
+            if (logDateTime && ConfigurationUtil<Configuration>.Load().DebugLogging)
             {
-                LogUtil.LogInfo($"Taking snapshot for [{snapshot.SnapshotDate.ToString("yyyy/MM/dd")}].");
+                LogUtil.LogInfo($"Taking snapshot for [{snapshot.SnapshotDateTime.ToString("yyyy/MM/dd HH:mm:ss")}] at game date/time [{SimulationManager.instance.m_currentGameTime.ToString("yyyy/MM/dd HH:mm:ss")}].");
             }
 
             // proceed only if all the required managers exist
@@ -2283,8 +2280,8 @@ namespace MoreCityStatistics
         /// </summary>
         public void Serialize(BinaryWriter writer)
         {
-            // save snapshot date
-            writer.Write(SnapshotDate);
+            // save snapshot date/time
+            writer.Write(SnapshotDateTime);
 
             // write only the base values (i.e.fields), not the computed values (i.e.properties)
             // write all base values even if a required DLC is not currently enabled
@@ -2648,8 +2645,8 @@ namespace MoreCityStatistics
         /// </summary>
         public static Snapshot Deserialize(BinaryReader reader, int version)
         {
-            // create the snapshot with the snapshot date
-            Snapshot snapshot = new Snapshot(reader.ReadDate());
+            // create the snapshot with the snapshot date/time
+            Snapshot snapshot = new Snapshot(version < 6 ? reader.ReadDate() : reader.ReadDateTime());
 
             // values must be read in exactly the same order they were written
             // read one value at a time to ensure they are read in the correct order

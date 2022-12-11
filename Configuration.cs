@@ -28,6 +28,9 @@ namespace MoreCityStatistics
         // current value update interval
         public int CurrentValueUpdateInterval = Options.DefaultUpdateInterval;
 
+        // debug logging
+        public bool DebugLogging = false;
+
         /// <summary>
         /// save the button position to the global config file
         /// </summary>
@@ -77,6 +80,16 @@ namespace MoreCityStatistics
         {
             Configuration config = ConfigurationUtil<Configuration>.Load();
             config.CurrentValueUpdateInterval = interval;
+            ConfigurationUtil<Configuration>.Save();
+        }
+
+        /// <summary>
+        /// save the debug logging selection to the global config file
+        /// </summary>
+        public static void SaveDebugLogging(bool debugLogging)
+        {
+            Configuration config = ConfigurationUtil<Configuration>.Load();
+            config.DebugLogging = debugLogging;
             ConfigurationUtil<Configuration>.Save();
         }
     }

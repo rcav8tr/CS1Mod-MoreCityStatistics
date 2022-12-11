@@ -4,20 +4,23 @@ using System.IO;
 namespace MoreCityStatistics
 {
     /// <summary>
-    /// extend BinaryWriter to write date and nullable values
-    /// for date, write the year, month, day (i.e. the time is not included)
+    /// extend BinaryWriter to write date/time and nullable values
+    /// for date/time, write the year, month, day, hour, minute, and second
     /// for nullables, always write both the flag and the value, write zero if the value is null
     /// </summary>
     public static class ExtendBinaryWriter
     {
         /// <summary>
-        /// Writes a date to the current stream and advances the stream position by 12 bytes.
+        /// Writes a date/time to the current stream and advances the stream position by 24 bytes.
         /// </summary>
         public static void Write(this BinaryWriter writer, DateTime value)
         {
             writer.Write(value.Year);
             writer.Write(value.Month);
             writer.Write(value.Day);
+            writer.Write(value.Hour);
+            writer.Write(value.Minute);
+            writer.Write(value.Second);
         }
 
         /// <summary>

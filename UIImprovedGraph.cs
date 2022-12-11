@@ -104,21 +104,25 @@ namespace MoreCityStatistics
         public Rect GraphRect        { get { return _graphRect;     } set { _graphRect     = value; Invalidate(); } }
         public UIFont Font           { get { return _font;          } set { _font          = value; Invalidate(); } }
 
-        // the dates for the horizontal axis
-        private DateTime[] _dates;
+        // the date/times for the horizontal axis
+        private DateTime[] _dateTimes;
 
-        // values computed from the dates that define how to display the horizontal axis
+        // start, end, and increment years when displaying the horizontal axis in years
         private int _startYear;
         private int _endYear;
         private int _incrementYear;
+
+        // start and end dates when displaying the horizontal axis in months, days, or hours
         private DateTime _startDate;
         private DateTime _endDate;
+
+        // ticks for the start, end, and range of date/times on the horizontal axis
         private long _startTicks;
         private long _endTicks;
         private long _graphTickRange;
 
-        // how to increment the date on the horizontal axis
-        private enum DateIncrement
+        // how to increment the date/time on the horizontal axis
+        private enum DateTimeIncrement
         {
             Years,
             Months6,
@@ -127,9 +131,13 @@ namespace MoreCityStatistics
             Months1,
             Days10,
             Days5,
-            Days2
+            Days2,
+            Days1,
+            Hours12,
+            Hours6,
+            Hours2
         }
-        DateIncrement _dateIncrement;
+        DateTimeIncrement _dateTimeIncrement;
 
         // date constants (without time component)
         private static readonly DateTime MaxDate = DateTime.MaxValue.Date;
@@ -155,8 +163,7 @@ namespace MoreCityStatistics
             base.Start();
 
             // initialize font
-            bool flag = _font != null && _font.isValid;
-            if (Application.isPlaying && !flag)
+            if (Application.isPlaying && (_font == null || !_font.isValid))
             {
                 _font = GetUIView().defaultFont;
             }
@@ -182,117 +189,111 @@ namespace MoreCityStatistics
         }
 
         /// <summary>
-        /// set the dates for the horizontal axis
+        /// set the date/times for the horizontal axis
         /// </summary>
-        public void SetDates(DateTime[] dates)
+        public void SetDateTimes(DateTime[] dateTimes)
         {
-            // save the dates
-            _dates = dates;
-
-            // get first and last dates from the data
-            DateTime firstDataDate;
-            DateTime lastDataDate;
-            if (_dates == null || _dates.Length == 0)
+            // validate parameter
+            if (dateTimes == null || dateTimes.Length == 0)
             {
-                // use current game date
-                firstDataDate = lastDataDate = SimulationManager.instance.m_currentGameTime.Date;
+                throw new ArgumentNullException("At least one date/time must be specified.");
             }
-            else
+
+            // verify date/times are in ascending order with no duplicates
+            DateTime dateTime = dateTimes[0];
+            for (int i = 1; i < dateTimes.Length; i++)
             {
-                // verify dates are in ascending order with no duplicates
-                DateTime date = _dates[0];
-                for (int i = 1; i < _dates.Length; i++)
+                if (dateTimes[i] <= dateTime)
                 {
-                    if (_dates[i] <= date)
-                    {
-                        throw new InvalidOperationException("Dates must be in ascending order with no duplicates.");
-                    }
-                    date = _dates[i];
+                    throw new InvalidOperationException("Date/times must be in ascending order with no duplicates.");
                 }
-
-                // get first and last dates
-                firstDataDate = _dates[0];
-                lastDataDate = _dates[_dates.Length - 1];
+                dateTime = dateTimes[i];
             }
 
-            // set first graph date to the first of the first data month with no time component
-            // the date axis always starts on the first of a month
-            DateTime firstGraphDate = new DateTime(firstDataDate.Year, firstDataDate.Month, 1);
+            // save the date/times
+            _dateTimes = dateTimes;
 
-            // set last graph date to last data date
-            DateTime lastGraphDate = lastDataDate;
+            // get first and last data date/times, will be the same when there is only 1 entry
+            DateTime firstDataDateTime = _dateTimes[0];
+            DateTime lastDataDateTime = _dateTimes[_dateTimes.Length - 1];
 
-            // if last graph date has a time component (this can happen if dates are averaged together), then set it to the next day with no time component
-            if (lastGraphDate != lastGraphDate.Date)
+            // compute first and last data dates with no time component
+            // if the last data date/time has a time component, use the next day, but don't exceed max date
+            DateTime firstDataDate = firstDataDateTime.Date;
+            DateTime lastDataDate = lastDataDateTime.Date.AddDays(lastDataDateTime != lastDataDateTime.Date && lastDataDateTime.Date != MaxDate ? 1 : 0);
+            int dataDays = (lastDataDate - firstDataDate).Days;
+
+            // compute first and last graph dates with no time component
+            DateTime firstGraphDate;
+            DateTime lastGraphDate;
+            const int ThresholdDays = 16;
+            if (dataDays >= ThresholdDays)
             {
-                if (lastGraphDate.Date != MaxDate)
-                {
-                    lastGraphDate = lastGraphDate.Date.AddDays(1);
-                }
-            }
+                // for ThresholdDays or more, use the first of the month for both first and last graph dates
 
-            // if last grph date is not the first of the month or last graph date is same as first graph date, then set last graph date to the first of the following month
-            // this ensures there will always be at least one month between first graph date and last graph date
-            if (lastGraphDate.Day > 1 || lastGraphDate == firstGraphDate)
-            {
-                if (lastGraphDate.Month == 12)
+                // first graph date is first day of the first data month
+                firstGraphDate = new DateTime(firstDataDate.Year, firstDataDate.Month, 1);
+
+                // check last data day
+                if (lastDataDate.Day == 1)
                 {
-                    if (lastGraphDate.Year == 9999)
-                    {
-                        lastGraphDate = MaxDate;
-                    }
-                    else
-                    {
-                        lastGraphDate = new DateTime(lastGraphDate.Year + 1, 1, 1);
-                    }
+                    // last graph date is last data date
+                    lastGraphDate = lastDataDate;
                 }
                 else
                 {
-                    lastGraphDate = new DateTime(lastGraphDate.Year, lastGraphDate.Month + 1, 1);
+                    // last graph date is the first day of the month following the last data month, but don't exceed max date
+                    // this ensures there will be at least one month between first graph date and last graph date
+                    lastGraphDate = ((lastDataDate.Year == 9999 && lastDataDate.Month == 12) ? MaxDate : new DateTime(lastDataDate.Year, lastDataDate.Month, 1).AddMonths(1));
                 }
-            }
-
-            // get first graph year
-            int firstGraphYear = firstGraphDate.Year;
-
-            // get last graph year
-            // for January 1, use the year
-            // for other than January 1, use the next year
-            int lastGraphYear;
-            if (lastGraphDate.Month == 1 && lastGraphDate.Day == 1)
-            {
-                lastGraphYear = lastGraphDate.Year;
             }
             else
             {
-                lastGraphYear = lastGraphDate.Year + 1;
+                // for less than ThresholdDays, use the first and last data dates directly
+                firstGraphDate = firstDataDate;
+                lastGraphDate = lastDataDate;
+
+                // if last graph date is same as first graph date, then set last graph date to the next day
+                // this ensures there will be at least one day between first graph date and last graph date
+                if (lastGraphDate == firstGraphDate)
+                {
+                    if (lastGraphDate == MaxDate)
+                    {
+                        // last graph date is already at max date, cannot add one day
+                        // instead, set first graph date to 1 day before max date
+                        firstGraphDate = MaxDate.AddDays(-1);
+                    }
+                    else
+                    {
+                        lastGraphDate = lastGraphDate.AddDays(1);
+                    }
+                }
             }
 
-            // compute number of years on the graph
+            // compute graph years
+            int firstGraphYear = firstGraphDate.Year;
+            int lastGraphYear = lastGraphDate.Year + (lastGraphDate.Month == 1 && lastGraphDate.Day == 1 ? 0 : 1);  // for Jan 1, use the year; for other, use next year
             int graphYears = lastGraphYear - firstGraphYear;
 
-            // compute number of months on the graph
-            int firstGraphMonth = 12 * firstGraphDate.Year + firstGraphDate.Month;
-            int lastGraphMonth = 12 * lastGraphDate.Year + lastGraphDate.Month;
-            int graphMonths = lastGraphMonth - firstGraphMonth;
-
-            // compute date increment unit/amount, start/end year, and start/end date
-            if (graphYears > 4)
+            // check graph years
+            if (graphYears >= 5)
             {
-                // for more than 4 years, increment by years and compute increment year amount
-                _dateIncrement = DateIncrement.Years;
+                // 5 or more graph years
+
+                // increment by years and compute year increment amount
+                _dateTimeIncrement = DateTimeIncrement.Years;
                 _incrementYear = Mathf.CeilToInt(Mathf.Pow(10f, Mathf.FloorToInt(Mathf.Log10(0.5f * graphYears))));
 
                 // compute start/end year
                 _startYear = _incrementYear * Mathf.FloorToInt((float)firstGraphYear / _incrementYear);
-                _endYear   = _incrementYear * Mathf.CeilToInt((float)lastGraphYear   / _incrementYear);
+                _endYear   = _incrementYear * Mathf.CeilToInt ((float)lastGraphYear  / _incrementYear);
 
                 // if more than 15 divisions, double the increment and recompute
                 if ((float)(_endYear - _startYear) / _incrementYear > 15f)
                 {
                     _incrementYear *= 2;
                     _startYear = _incrementYear * Mathf.FloorToInt((float)firstGraphYear / _incrementYear);
-                    _endYear   = _incrementYear * Mathf.CeilToInt((float)lastGraphYear   / _incrementYear);
+                    _endYear   = _incrementYear * Mathf.CeilToInt ((float)lastGraphYear  / _incrementYear);
                 }
 
                 // if less than 5 divisions and increment divides evenly by 2, halve the increment and recompute
@@ -300,78 +301,118 @@ namespace MoreCityStatistics
                 {
                     _incrementYear /= 2;
                     _startYear = _incrementYear * Mathf.FloorToInt((float)firstGraphYear / _incrementYear);
-                    _endYear   = _incrementYear * Mathf.CeilToInt((float)lastGraphYear   / _incrementYear);
+                    _endYear   = _incrementYear * Mathf.CeilToInt ((float)lastGraphYear  / _incrementYear);
                 }
 
                 // set start/end date to January 1 of the start/end year just computed
                 _startDate = (_startYear == 0   ? MinDate : new DateTime(_startYear, 1, 1));
                 _endDate   = (_endYear >= 10000 ? MaxDate : new DateTime(_endYear,   1, 1));
             }
-            else if (graphMonths > 12)
-            {
-                // 13 months to 4 years
-                if (graphYears == 4)
-                {
-                    // for 4 years, increment by 6 months:  year, Jul, year+1, Jul, year+2, Jul, year+3, Jul, year+4
-                    _dateIncrement = DateIncrement.Months6;
-                }
-                else if (graphYears == 3)
-                {
-                    // for 3 years, increment by 3 months:  year, Apr, Jul, Oct, year+1, Apr, Jul, Oct, year+2, Apr, Jul, Oct, year+3
-                    _dateIncrement = DateIncrement.Months3;
-                }
-                else
-                {
-                    // for 12 months to 2 years, increment by 2 months:  year, Mar, May, Jul, Sep, Nov, year+1, Mar, May, Jul, Sep, Nov, year+2
-                    _dateIncrement = DateIncrement.Months2;
-                }
-
-                // set start/end date to January 1 of the first/last graph year
-                _startDate = (firstGraphYear == 0    ? MinDate : new DateTime(firstGraphYear, 1, 1));
-                _endDate   = (lastGraphYear >= 10000 ? MaxDate : new DateTime(lastGraphYear,  1, 1));
-            }
             else
             {
-                // 12 months or less
-                if (graphMonths >= 6)
+                // 4 or less graph years
+
+                // compute graph months
+                int firstGraphMonth = 12 * firstGraphDate.Year + firstGraphDate.Month;
+                int lastGraphMonth  = 12 * lastGraphDate.Year  + lastGraphDate.Month;
+                int graphMonths = lastGraphMonth - firstGraphMonth;
+
+                // check for 13 graph months thru 4 year graph years
+                if (graphMonths >= 13)
                 {
-                    // for 6 to 12 months, increment by 1 month
-                    _dateIncrement = DateIncrement.Months1;
-                }
-                else if (graphMonths >= 3)
-                {
-                    // 3 to 5 months, increment by 10 days
-                    // for 5 months:  Mon, 11, 21, Mon+1, 11, 21, Mon+2, 11, 21, Mon+3, 11, 21, Mon+4, 11, 21, Mon+5
-                    // for 4 months:  Mon, 11, 21, Mon+1, 11, 21, Mon+2, 11, 21, Mon+3, 11, 21, Mon+4
-                    // for 3 months:  Mon, 11, 21, Mon+1, 11, 21, Mon+2, 11, 21, Mon+3
-                    _dateIncrement = DateIncrement.Days10;
-                }
-                else if (graphMonths == 2)
-                {
-                    // for 2 months, increment by 5 days:  Mon, 6, 11, 16, 21, 26, Mon+1, 6, 11, 16, 21, 26, Mon+2
-                    _dateIncrement = DateIncrement.Days5;
+                    if (graphYears == 4)
+                    {
+                        // for 4 years, increment by 6 months:  year, Jul, year+1, Jul, year+2, Jul, year+3, Jul, year+4
+                        _dateTimeIncrement = DateTimeIncrement.Months6;
+                    }
+                    else if (graphYears == 3)
+                    {
+                        // for 3 years, increment by 3 months:  year, Apr, Jul, Oct, year+1, Apr, Jul, Oct, year+2, Apr, Jul, Oct, year+3
+                        _dateTimeIncrement = DateTimeIncrement.Months3;
+                    }
+                    else
+                    {
+                        // for 2 years, increment by 2 months:  year, Mar, May, Jul, Sep, Nov, year+1, Mar, May, Jul, Sep, Nov, year+2
+                        _dateTimeIncrement = DateTimeIncrement.Months2;
+                    }
+
+                    // set start/end date to January 1 of the first/last graph year
+                    _startDate = (firstGraphYear == 0    ? MinDate : new DateTime(firstGraphYear, 1, 1));
+                    _endDate   = (lastGraphYear >= 10000 ? MaxDate : new DateTime(lastGraphYear,  1, 1));
                 }
                 else
                 {
-                    // for 1 month, increment by 2 days
-                    // for a month with 31 days:  Mon, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, Mon+1
-                    // for a month with 30 days:  Mon, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, Mon+1
-                    // for a month with 29 days:  Mon, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, Mon+1
-                    // for a month with 28 days:  Mon, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, Mon+1
-                    _dateIncrement = DateIncrement.Days2;
-                }
+                    // 12 or less graph months
 
-                // set start/end date to first/last graph date
-                _startDate = firstGraphDate;
-                _endDate = lastGraphDate;
+                    // compute graph days
+                    int graphDays = (lastGraphDate - firstGraphDate).Days;
+
+                    // check for ThresholdDays thru 12 graph months
+                    if (graphDays >= ThresholdDays)
+                    {
+                        if (graphMonths >= 6)
+                        {
+                            // for 6 to 12 months, increment by 1 month:  Mon, Mon+1, Mon+2, Mon+3, Mon+4, Mon+5, Mon+6, Mon+7, Mon+8, Mon+9, Mon+10, Mon+11, Mon+12
+                            _dateTimeIncrement = DateTimeIncrement.Months1;
+                        }
+                        else if (graphMonths >= 3)
+                        {
+                            // for 3 to 5 months, increment by 10 days:  Mon 1, 11, 21, Mon+1 1, 11, 21, Mon+2 1, 11, 21, Mon+3 1, 11, 21, Mon+4 1, 1, 21, Mon+5 1
+                            _dateTimeIncrement = DateTimeIncrement.Days10;
+                        }
+                        else if (graphMonths == 2)
+                        {
+                            // for 2 months, increment by 5 days:  Mon 1, 6, 11, 16, 21, 26, Mon+1 1, 6, 11, 16, 21, 26, Mon+2 1
+                            // this also includes ThresholdDays to 1 month where first and last graph dates are in different months
+                            _dateTimeIncrement = DateTimeIncrement.Days5;
+                        }
+                        else
+                        {
+                            // for ThresholdDays days to 1 month where first and last graph dates are in the same month, increment by 2 days
+                            // for a month with 31 or 30 days:  Mon 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, Mon+1 1
+                            // for a month with 29 or 28 days:  Mon 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, Mon+1 1
+                            _dateTimeIncrement = DateTimeIncrement.Days2;
+                        }
+                    }
+                    else
+                    {
+                        // less than ThresholdDays
+
+                        // check graph days
+                        if (graphDays >= 8)
+                        {
+                            // for 8 to ThresholdDays-1 days, increment by 1 day:  Mon day, day+1, day+2, day+3, day+4, day+5, day+6, day+7, day+8, day+9, day+10, day+11, day+12, day+13, day+14, day+15
+                            _dateTimeIncrement = DateTimeIncrement.Days1;
+                        }
+                        else if (graphDays >= 4)
+                        {
+                            // for 4 to 7 days, increment by 12 hours:  Mon day, 12:00, Mon day+1, 12:00, Mon day+2, 12:00, Mon day+3, 12:00, Mon day+4, 12:00, Mon day+5, 12:00, Mon day+6, 12:00, Mon day+7
+                            _dateTimeIncrement = DateTimeIncrement.Hours12;
+                        }
+                        else if (graphDays >= 2)
+                        {
+                            // for 2 to 3 days, increment by 6 hours:  Mon day, 06:00, 12:00, 18:00, Mon day+1, 06:00, 12:00, 18:00, Mon day+2, 06:00, 12:00, 18:00, Mon day+3
+                            _dateTimeIncrement = DateTimeIncrement.Hours6;
+                        }
+                        else
+                        {
+                            // for 1 day, increment by 2 hours:  Mon day, 02:00, 04:00, 06:00, 08:00, 10:00, 12:00, 14:00, 16:00, 18:00, 20:00, 22:00, Mon day+1
+                            _dateTimeIncrement = DateTimeIncrement.Hours2;
+                        }
+                    }
+
+                    // set start/end date to first/last graph date
+                    _startDate = firstGraphDate;
+                    _endDate = lastGraphDate;
+                }
             }
 
-            // compute start, end, and graph range
+            // compute start, end, and graph range in ticks
             _startTicks = _startDate.Ticks;
             _endTicks = _endDate.Ticks;
             _graphTickRange = _endTicks - _startTicks;
 
-            // reset curve min and max values
+            // reset curve min and max values before curves are added
             _minCurveValue = double.MaxValue;
             _maxCurveValue = double.MinValue;
         }
@@ -381,14 +422,14 @@ namespace MoreCityStatistics
         /// </summary>
         public void AddCurve(string description, string units, string numberFormat, double?[] data, float width, Color32 color)
         {
-            // date must be set first
-            if (_dates == null)
+            // date/times must be set first
+            if (_dateTimes == null)
             {
-                throw new InvalidOperationException("Dates must be set before adding a curve.");
+                throw new InvalidOperationException("Date/times must be set before adding a curve.");
             }
-            if (data.Length != _dates.Length)
+            if (data.Length != _dateTimes.Length)
             {
-                throw new InvalidOperationException("Curve data must have the same number of entries as the dates.");
+                throw new InvalidOperationException("Curve data must have the same number of entries as the date/times.");
             }
 
             // create a new curve
@@ -399,15 +440,23 @@ namespace MoreCityStatistics
             _minCurveValue = Math.Min(_minCurveValue, curve.MinValue);
             _maxCurveValue = Math.Max(_maxCurveValue, curve.MaxValue);
 
-            // compute min value; if min value is less than 30% of max value, then use zero for min value
+            // get min and max values
             double minValue = _minCurveValue;
-            if (minValue > 0 && minValue < 0.3d * _maxCurveValue)
+            double maxValue = _maxCurveValue;
+
+            // if min value is positive and less than 30% of max curve value, then use zero for min value
+            if (minValue > 0d && minValue < 0.3d * _maxCurveValue)
             {
-                minValue = 0f;
+                minValue = 0d;
             }
 
-            // compute max value; if min and max values are same, set max value to min + 1
-            double maxValue = _maxCurveValue;
+            // if max value is negative and more than 30% of min curve value, then use zero for max value
+            if (maxValue < 0d && maxValue > 0.3d * _minCurveValue)
+            {
+                maxValue = 0d;
+            }
+
+            // if min and max values are same, set max value to min value + 1
             if (maxValue == minValue)
             {
                 maxValue = Math.Floor(minValue) + 1d;
@@ -447,7 +496,7 @@ namespace MoreCityStatistics
                 ComputeStartEnd(minValue, maxValue, _incrementValue, out _startValue, out _endValue);
             }
 
-            // compute graph range, if range is 1,2,3, then use an increment smaller than 1, but keep the same start and end values
+            // compute graph value range, if range is 1,2,3, then use an increment smaller than 1, but keep the same start and end values
             _graphValueRange = _endValue - _startValue;
             if (_graphValueRange == 1d)
             {
@@ -469,7 +518,7 @@ namespace MoreCityStatistics
         private void ComputeIncrementStartEnd(double minValue, double maxValue, out double incrementValue, out double startValue, out double endValue)
         {
             // compute whole number increment
-            incrementValue = (long)Math.Ceiling(Math.Pow(10d, (long)Math.Floor(Math.Log10(0.5 * (maxValue - minValue)))));
+            incrementValue = (long)Math.Ceiling(Math.Pow(10d, (long)Math.Floor(Math.Log10(0.5d * (maxValue - minValue)))));
 
             // increment cannot be zero
             if (incrementValue == 0d)
@@ -487,8 +536,8 @@ namespace MoreCityStatistics
         private void ComputeStartEnd(double minValue, double maxValue, double incrementValue, out double startValue, out double endValue)
         {
             // compute whole number start and end values
-            startValue = incrementValue * Math.Floor(minValue / incrementValue);
-            endValue = incrementValue * Math.Ceiling(maxValue / incrementValue);
+            startValue = incrementValue * Math.Floor  (minValue / incrementValue);
+            endValue   = incrementValue * Math.Ceiling(maxValue / incrementValue);
         }
 
         /// <summary>
@@ -496,7 +545,7 @@ namespace MoreCityStatistics
         /// </summary>
         public void Clear()
         {
-            _dates = null;
+            _dateTimes = null;
             _curves.Clear();
             Invalidate();
         }
@@ -524,52 +573,54 @@ namespace MoreCityStatistics
                 // cursor must be in the graph rect
                 if (hitPosition.x >= 0f && hitPosition.x <= 1f && hitPosition.y >= 0f && hitPosition.y <= 1f)
                 {
-                    // compute date index according to X hit position
+                    // compute date/time index according to X hit position
                     const double MinTooltipDistance = 0.01d;
-                    int dateIndex = -1;
+                    int dateTimeIndex = -1;
                     double minDistanceX = MinTooltipDistance;
-                    for (int i = 0; i < _dates.Length; i++)
+                    for (int i = 0; i < _dateTimes.Length; i++)
                     {
-                        double posX = (double)(_dates[i].Ticks - _startTicks) / _graphTickRange;
+                        double posX = (double)(_dateTimes[i].Ticks - _startTicks) / _graphTickRange;
                         double distanceX = Math.Abs(posX - hitPosition.x);
                         if (distanceX < minDistanceX)
                         {
-                            dateIndex = i;
+                            dateTimeIndex = i;
                             minDistanceX = distanceX;
                         }
                     }
 
-                    // date must be found
-                    if (dateIndex >= 0)
+                    // date/time must be found
+                    if (dateTimeIndex >= 0)
                     {
-                        // compute curve index by finding the curve with a data point closest to the Y hit position
-                        int curveIndex = -1;
+                        // find the curve with a data point closest to the Y hit position
+                        CurveSettings curve = null;
                         double minDistanceY = MinTooltipDistance;
                         for (int i = 0; i < _curves.Count; i++)
                         {
-                            double? dataValue = _curves[i].Data[dateIndex];
+                            double? dataValue = _curves[i].Data[dateTimeIndex];
                             if (dataValue.HasValue)
                             {
                                 double posY = (dataValue.Value - _startValue) / _graphValueRange;
                                 double distanceY = Math.Abs(posY - hitPosition.y);
                                 if (distanceY < minDistanceY)
                                 {
-                                    curveIndex = i;
+                                    curve = _curves[i];
                                     minDistanceY = distanceY;
                                 }
                             }
                         }
 
                         // curve must be found
-                        if (curveIndex >= 0)
+                        if (curve != null)
                         {
                             // found a data point
                             foundDataPoint = true;
 
-                            // set the tool tip text
-                            CurveSettings curve = _curves[curveIndex];
+                            // set the tool tip text, format date separately from time
+                            // so that the Date Format mod can find and replace the date formatting string without affecting the time formatting
+                            DateTime pointDateTime = _dateTimes[dateTimeIndex];
                             m_Tooltip = curve.Description + Environment.NewLine +
-                                        $"{_dates[dateIndex].ToString("dd/MM/yyyy")}:  {curve.Data[dateIndex].Value.ToString(curve.NumberFormat, LocaleManager.cultureInfo)} {curve.Units}";
+                                        pointDateTime.ToString("dd/MM/yyyy") + " " + pointDateTime.ToString("HH:mm") + Environment.NewLine +
+                                        curve.Data[dateTimeIndex].Value.ToString(curve.NumberFormat, LocaleManager.cultureInfo) + " " + curve.Units;
 
                             // compute the tool tip box position to follow the cursor
                             UIView uIView = GetUIView();
@@ -659,11 +710,11 @@ namespace MoreCityStatistics
         }
 
         /// <summary>
-        /// compute the X position of the date on the graph
+        /// compute the X position of the date/time on the graph
         /// </summary>
-        private float NormalizeDate(DateTime date)
+        private float NormalizeDateTime(DateTime dateTime)
         {
-            return -0.5f + _graphRect.xMin + _graphRect.width * (date.Ticks - _startTicks) / _graphTickRange;
+            return -0.5f + _graphRect.xMin + _graphRect.width * (dateTime.Ticks - _startTicks) / _graphTickRange;
         }
 
         /// <summary>
@@ -765,12 +816,12 @@ namespace MoreCityStatistics
             lineWidth = AxesWidth;
             lineColor = AxesColor;
             float yPos = height * pixelRatio * (-1f + _graphRect.yMin / 2f) + pixelRatio * 4f;
-            if (_dateIncrement == DateIncrement.Years)
+            if (_dateTimeIncrement == DateTimeIncrement.Years)
             {
                 // do each year
                 for (int year = _startYear; year <= _endYear; year += _incrementYear)
                 {
-                    // compute normalized X value
+                    // compute date for the year, normally Jan 1 of the year
                     DateTime date;
                     if (year < 1)
                     {
@@ -784,7 +835,9 @@ namespace MoreCityStatistics
                     {
                         date = new DateTime(year, 1, 1);
                     }
-                    normalizedX = NormalizeDate(date);
+
+                    // compute normalized X value
+                    normalizedX = NormalizeDateTime(date);
 
                     // render date label
                     RenderDateLabel(normalizedX, yPos, maxTextSize, year.ToString());
@@ -806,21 +859,25 @@ namespace MoreCityStatistics
                 while (date <= _endDate)
                 {
                     // compute normalized X value
-                    normalizedX = NormalizeDate(date);
+                    normalizedX = NormalizeDateTime(date);
 
-                    // render date label
+                    // default to NOT adjust label higher
+                    bool adjustLabelHigher = false;
+
+                    // compute date text
                     string dateLabel;
-                    if (_dateIncrement == DateIncrement.Months6 || _dateIncrement == DateIncrement.Months3 || _dateIncrement == DateIncrement.Months2 || _dateIncrement == DateIncrement.Months1)
+                    if (_dateTimeIncrement == DateTimeIncrement.Months6 || _dateTimeIncrement == DateTimeIncrement.Months3 || _dateTimeIncrement == DateTimeIncrement.Months2)
                     {
                         // for Dec 31, 9999, show year 10000
                         if (date == MaxDate)
                         {
                             dateLabel = "10000";
                         }
-                        // for January 1, show year
+                        // for January 1, include year
                         else if (date.Month == 1 && date.Day == 1)
                         {
-                            dateLabel = date.Year.ToString();
+                            dateLabel = GetMonthLabel(date) + Environment.NewLine + date.Year.ToString();
+                            adjustLabelHigher = true;
                         }
                         // for other dates, show month name
                         else
@@ -828,12 +885,26 @@ namespace MoreCityStatistics
                             dateLabel = GetMonthLabel(date);
                         }
                     }
-                    else
+                    else if (_dateTimeIncrement == DateTimeIncrement.Months1)
                     {
-                        // for first of the month, show month name
-                        if (date.Day == 1)
+                        // for first date or January, show month name and year
+                        if (date == _startDate || date.Month == 1)
+                        {
+                            dateLabel = GetMonthLabel(date) + Environment.NewLine + date.Year.ToString();
+                            adjustLabelHigher = true;
+                        }
+                        // for other months, show month name
+                        else
                         {
                             dateLabel = GetMonthLabel(date);
+                        }
+                    }
+                    else if (_dateTimeIncrement == DateTimeIncrement.Days10 || _dateTimeIncrement == DateTimeIncrement.Days5 || _dateTimeIncrement == DateTimeIncrement.Days2)
+                    {
+                        // for day 1, show month name and day number
+                        if (date.Day == 1)
+                        {
+                            dateLabel = GetMonthLabel(date) + " 1";
                         }
                         // for other days, show day number
                         else
@@ -841,7 +912,35 @@ namespace MoreCityStatistics
                             dateLabel = date.Day.ToString();
                         }
                     }
-                    RenderDateLabel(normalizedX, yPos, maxTextSize, dateLabel);
+                    else if (_dateTimeIncrement == DateTimeIncrement.Days1)
+                    {
+                        // for first date or day 1, show month name and day number
+                        if (date == _startDate || date.Day == 1)
+                        {
+                            dateLabel = GetMonthLabel(date) + " " + date.Day.ToString();
+                        }
+                        // for other days, show day number
+                        else
+                        {
+                            dateLabel = date.Day.ToString();
+                        }
+                    }
+                    else
+                    {
+                        // for midnight, show month name and day number
+                        if (date.Hour == 0 && date.Minute == 0)
+                        {
+                            dateLabel = GetMonthLabel(date) + " " + date.Day.ToString();
+                        }
+                        // for other times, show hours and minutes
+                        else
+                        {
+                            dateLabel = date.ToString("HH:mm");
+                        }
+                    }
+
+                    // render date label, adjusting higher if needed
+                    RenderDateLabel(normalizedX, yPos + (adjustLabelHigher ? 0.018f : 0f), maxTextSize, dateLabel);
 
                     // draw axis line
                     corner1 = new Vector2(normalizedX - pixelRatio * lineWidth / ratioXY, -0.5f + _graphRect.yMin);
@@ -855,66 +954,38 @@ namespace MoreCityStatistics
                     // compute next date according to date increment
                     try
                     {
-                        if (_dateIncrement == DateIncrement.Months6)
+                        switch (_dateTimeIncrement)
                         {
-                            // increment by 6 months
-                            date = date.AddMonths(6);
-                        }
-                        else if (_dateIncrement == DateIncrement.Months3)
-                        {
-                            // increment by 3 months
-                            date = date.AddMonths(3);
-                        }
-                        else if (_dateIncrement == DateIncrement.Months2)
-                        {
-                            // increment by 2 months
-                            date = date.AddMonths(2);
-                        }
-                        else if (_dateIncrement == DateIncrement.Months1)
-                        {
-                            // increment by 1 month
-                            date = date.AddMonths(1);
-                        }
-                        else  if (_dateIncrement == DateIncrement.Days10)
-                        {
-                            // if at last day of month, use first day of next month, otherwise increment by 10 days
-                            if (date.Day == 21)
-                            {
-                                date = new DateTime(date.Year, date.Month, 1).AddMonths(1);
-                            }
-                            else
-                            {
-                                date = date.AddDays(10);
-                            }
-                        }
-                        else  if (_dateIncrement == DateIncrement.Days5)
-                        {
-                            // if at last day of month, use first day of next month, otherwise increment by 5 days
-                            if (date.Day == 26)
-                            {
-                                date = new DateTime(date.Year, date.Month, 1).AddMonths(1);
-                            }
-                            else
-                            {
-                                date = date.AddDays(5);
-                            }
-                        }
-                        else
-                        {
-                            // if at last day of month, use first day of next month, otherwise increment by 2 days
-                            int daysInMonth = DateTime.DaysInMonth(date.Year, date.Month);
-                            int dateDay = date.Day;
-                            if ((daysInMonth == 31 && dateDay == 29) ||
-                                (daysInMonth == 30 && dateDay == 29) ||
-                                (daysInMonth == 29 && dateDay == 27) ||
-                                (daysInMonth == 28 && dateDay == 27))
-                            {
-                                date = new DateTime(date.Year, date.Month, 1).AddMonths(1);
-                            }
-                            else
-                            {
-                                date = date.AddDays(2);
-                            }
+                            case DateTimeIncrement.Months6: date = date.AddMonths(6); break;
+                            case DateTimeIncrement.Months3: date = date.AddMonths(3); break;
+                            case DateTimeIncrement.Months2: date = date.AddMonths(2); break;
+                            case DateTimeIncrement.Months1: date = date.AddMonths(1); break;
+                            case DateTimeIncrement.Days10:  date = (date.Day == 21 ? new DateTime(date.Year, date.Month, 1).AddMonths(1) : date.AddDays(10)); break;
+                            case DateTimeIncrement.Days5:   date = (date.Day == 26 ? new DateTime(date.Year, date.Month, 1).AddMonths(1) : date.AddDays( 5)); break;
+                            case DateTimeIncrement.Days2:
+                                // if at last day of month, use first day of next month, otherwise increment by 2 days
+                                int daysInMonth = DateTime.DaysInMonth(date.Year, date.Month);
+                                int dateDay = date.Day;
+                                if ((daysInMonth == 31 && dateDay == 29) ||
+                                    (daysInMonth == 30 && dateDay == 29) ||
+                                    (daysInMonth == 29 && dateDay == 27) ||
+                                    (daysInMonth == 28 && dateDay == 27))
+                                {
+                                    date = new DateTime(date.Year, date.Month, 1).AddMonths(1);
+                                }
+                                else
+                                {
+                                    date = date.AddDays(2);
+                                }
+                                break;
+                            case DateTimeIncrement.Days1:   date = date.AddDays(1); break;
+                            case DateTimeIncrement.Hours12: date = date.AddHours(12); break;
+                            case DateTimeIncrement.Hours6:  date = date.AddHours( 6); break;
+                            case DateTimeIncrement.Hours2:  date = date.AddHours( 2); break;
+                            default:
+                                LogUtil.LogError($"Unhandled date time increment [{_dateTimeIncrement}].");
+                                date = MaxDate;
+                                break;
                         }
                     }
                     catch (ArgumentOutOfRangeException)
@@ -980,7 +1051,7 @@ namespace MoreCityStatistics
             }
 
             // ignore if no data
-            if (_dates.Length == 0)
+            if (_dateTimes.Length == 0)
             {
                 return;
             }
@@ -1030,7 +1101,7 @@ namespace MoreCityStatistics
                             // compute the X and Y locations of the first data point
                             double? previousData = curve.Data[0];
                             Vector3 previousPoint = default;
-                            previousPoint.x = NormalizeDate(_dates[0]);
+                            previousPoint.x = NormalizeDateTime(_dateTimes[0]);
                             previousPoint.y = NormalizeValue(previousData ?? 0f);
 
                             // do each data point starting with 1
@@ -1039,7 +1110,7 @@ namespace MoreCityStatistics
                                 // compute the X and Y locations of the current point
                                 double? currentData = curve.Data[i];
                                 Vector3 currentPoint = default;
-                                currentPoint.x = NormalizeDate(_dates[i]);
+                                currentPoint.x = NormalizeDateTime(_dateTimes[i]);
                                 currentPoint.y = NormalizeValue(currentData ?? 0f);
 
                                 // if previous and current data points have values, draw a line between the points
