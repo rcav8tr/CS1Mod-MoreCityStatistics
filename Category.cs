@@ -36,6 +36,7 @@ namespace MoreCityStatistics
             Pollution,
             FireSafety,
             Crime,
+            CommercialCash,
             PublicTransportation,
             Population,
             Households,
@@ -47,6 +48,7 @@ namespace MoreCityStatistics
             Tourism,
             Tours,
             TaxRate,
+            Investments,
             CityEconomy,
             ResidentialIncome,
             CommercialIncome,
@@ -288,6 +290,10 @@ namespace MoreCityStatistics
         {
             // read category expansion status
             if (version < 2 && _type == CategoryType.FishingIndustry)
+            {
+                Expanded = false;
+            }
+            else if (version < 7 && (_type == CategoryType.CommercialCash || _type == CategoryType.Investments))
             {
                 Expanded = false;
             }

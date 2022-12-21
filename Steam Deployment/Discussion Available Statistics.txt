@@ -169,6 +169,12 @@ Crime
 • Detained Criminals (citizens)
 • Jails Capacity (citizens)
 
+Commercial Cash
+• Accumulated (% or Capacity)
+• Accumulated (₡)
+• Capacity (₡)
+• Collected (₡/week)
+
 Public Transportation
 • Total (total/week)
 • Total (residents/week)
@@ -302,6 +308,23 @@ Tax Rate
 • Industrial (%)
 • Office (%)
 
+Investments
+• ChirpAir (₡/Share)
+• ChirperCrypto (₡/Coin)
+• Deathcare Service Fund (₡/Share)
+• Farming Industry (₡/Share)
+• Forestry Industry (₡/Share)
+• Greasy Gasoline Inc. (₡/Share)
+• Generic Industry (₡/Share)
+• Healthcare Service Fund (₡/Share)
+• Oil Industry (₡/Share)
+• Ore Industry (₡/Share)
+• Chirpy Cruises (₡/Share)
+• Traffic Jelly Logistics (₡/Share)
+• The Very Legit Company (₡/Share)
+• Gains last month (₡)
+• Total gains (₡)
+
 City Economy
 • Total-Income (₡/week)
 • Total-Expenses (₡/week)
@@ -380,6 +403,7 @@ Office Income
 • Specialized Total (₡/week)
 • IT Cluster (₡/week)
 • Wall-to-Wall (₡/week)
+• Financial (₡/week)
 
 Tourism Income
 • Total (% of City Income)
@@ -399,6 +423,7 @@ Service Expenses
 • Fire (₡/week)
 • Emergency (₡/week)
 • Police (₡/week)
+• Banks (₡/week)
 • Education (₡/week)
 • Parks, Plazas, and Landscaping (₡/week)
 • Service Points (₡/week)

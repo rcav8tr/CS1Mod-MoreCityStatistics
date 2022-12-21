@@ -209,6 +209,12 @@ namespace MoreCityStatistics
         public int CrimeDetainedCriminals;
         public int CrimeJailsCapacity;
 
+        // Commercial Cash
+        public float? CommercialCashAccumulatedPercent      { get { return ComputePercent(CommercialCashAccumulated, CommercialCashCapacity); } }
+        public int? CommercialCashAccumulated;
+        public int? CommercialCashCapacity;
+        public int? CommercialCashCollected;
+
         // Public Transportation
         public uint PublicTransportationTotalTotal          { get { return PublicTransportationTotalResidents + PublicTransportationTotalTourists; } }
         public uint PublicTransportationTotalResidents      { get { return PublicTransportationBusResidents +
@@ -371,6 +377,23 @@ namespace MoreCityStatistics
         public int TaxRateIndustrial;
         public int TaxRateOffice;
 
+        // Investments
+        public int? InvestmentsChirpAir;
+        public int? InvestmentsChirperCrypto;
+        public int? InvestmentsDeathcareServiceFund;
+        public int? InvestmentsFarmingIndustry;
+        public int? InvestmentsForestryIndustry;
+        public int? InvestmentsGreasyGasoline;
+        public int? InvestmentsGenericIndustry;
+        public int? InvestmentsHealthcareServiceFund;
+        public int? InvestmentsOilIndustry;
+        public int? InvestmentsOreIndustry;
+        public int? InvestmentsChirpyCruises;
+        public int? InvestmentsTrafficJellyLogistics;
+        public int? InvestmentsVeryLegitCompany;
+        public int? InvestmentsGainsLastMonth;
+        public int? InvestmentsTotalGains;
+
         // City Economy
         public long CityEconomyTotalIncome;
         public long CityEconomyTotalExpenses;
@@ -516,15 +539,16 @@ namespace MoreCityStatistics
         {
             get
             {
-                if (OfficeIncomeITCluster.HasValue || OfficeIncomeWallToWall.HasValue)
+                if (OfficeIncomeITCluster.HasValue || OfficeIncomeWallToWall.HasValue || OfficeIncomeFinancial.HasValue)
                 {
-                    return (OfficeIncomeITCluster ?? 0) + (OfficeIncomeWallToWall ?? 0);
+                    return (OfficeIncomeITCluster ?? 0) + (OfficeIncomeWallToWall ?? 0) + (OfficeIncomeFinancial ?? 0);
                 }
                 return null;
             }
         }
         public long? OfficeIncomeITCluster;
         public long? OfficeIncomeWallToWall;
+        public long? OfficeIncomeFinancial;
 
         // Tourism Income
         public float TourismIncomeTotalPercent              { get { return ComputePercent(TourismIncomeTotal, CityEconomyTotalIncome); } }
@@ -543,6 +567,7 @@ namespace MoreCityStatistics
                                                                            ServiceExpensesFire +
                                                                            (ServiceExpensesEmergency ?? 0) +
                                                                            ServiceExpensesPolice +
+                                                                           (ServiceExpensesBanks ?? 0) +
                                                                            ServiceExpensesEducation +
                                                                            ServiceExpensesParksPlazas +
                                                                            (ServiceExpensesServicePoints ?? 0) +
@@ -558,6 +583,7 @@ namespace MoreCityStatistics
         public long ServiceExpensesFire;
         public long? ServiceExpensesEmergency;
         public long ServiceExpensesPolice;
+        public long? ServiceExpensesBanks;
         public long ServiceExpensesEducation;
         public long ServiceExpensesParksPlazas;
         public long? ServiceExpensesServicePoints;
@@ -997,17 +1023,18 @@ namespace MoreCityStatistics
 
             // get DLC flags
             // there are no dependencies on Match Day (aka Football) and Concerts (aka MusicFestival) DLCs
-            bool dlcAfterDark        = SteamHelper.IsDLCOwned(SteamHelper.DLC.AfterDarkDLC);            // 09/24/15
-            bool dlcSnowfall         = SteamHelper.IsDLCOwned(SteamHelper.DLC.SnowFallDLC);             // 02/18/16
-            bool dlcNaturalDisasters = SteamHelper.IsDLCOwned(SteamHelper.DLC.NaturalDisastersDLC);     // 11/29/16
-            bool dlcMassTransit      = SteamHelper.IsDLCOwned(SteamHelper.DLC.InMotionDLC);             // 05/18/17
-            bool dlcGreenCities      = SteamHelper.IsDLCOwned(SteamHelper.DLC.GreenCitiesDLC);          // 10/19/17
-            bool dlcParkLife         = SteamHelper.IsDLCOwned(SteamHelper.DLC.ParksDLC);                // 05/24/18
-            bool dlcIndustries       = SteamHelper.IsDLCOwned(SteamHelper.DLC.IndustryDLC);             // 10/23/18
-            bool dlcCampus           = SteamHelper.IsDLCOwned(SteamHelper.DLC.CampusDLC);               // 05/21/19
-            bool dlcSunsetHarbor     = SteamHelper.IsDLCOwned(SteamHelper.DLC.UrbanDLC);                // 03/26/20
-            bool dlcAirports         = SteamHelper.IsDLCOwned(SteamHelper.DLC.AirportDLC);              // 01/25/22
-            bool dlcPlazasPromenades = SteamHelper.IsDLCOwned(SteamHelper.DLC.PlazasAndPromenadesDLC);  // 09/14/22
+            bool dlcAfterDark           = SteamHelper.IsDLCOwned(SteamHelper.DLC.AfterDarkDLC);             // 09/24/15
+            bool dlcSnowfall            = SteamHelper.IsDLCOwned(SteamHelper.DLC.SnowFallDLC);              // 02/18/16
+            bool dlcNaturalDisasters    = SteamHelper.IsDLCOwned(SteamHelper.DLC.NaturalDisastersDLC);      // 11/29/16
+            bool dlcMassTransit         = SteamHelper.IsDLCOwned(SteamHelper.DLC.InMotionDLC);              // 05/18/17
+            bool dlcGreenCities         = SteamHelper.IsDLCOwned(SteamHelper.DLC.GreenCitiesDLC);           // 10/19/17
+            bool dlcParkLife            = SteamHelper.IsDLCOwned(SteamHelper.DLC.ParksDLC);                 // 05/24/18
+            bool dlcIndustries          = SteamHelper.IsDLCOwned(SteamHelper.DLC.IndustryDLC);              // 10/23/18
+            bool dlcCampus              = SteamHelper.IsDLCOwned(SteamHelper.DLC.CampusDLC);                // 05/21/19
+            bool dlcSunsetHarbor        = SteamHelper.IsDLCOwned(SteamHelper.DLC.UrbanDLC);                 // 03/26/20
+            bool dlcAirports            = SteamHelper.IsDLCOwned(SteamHelper.DLC.AirportDLC);               // 01/25/22
+            bool dlcPlazasPromenades    = SteamHelper.IsDLCOwned(SteamHelper.DLC.PlazasAndPromenadesDLC);   // 09/14/22
+            bool dlcFinancialDistricts  = SteamHelper.IsDLCOwned(SteamHelper.DLC.FinancialDistrictsDLC);    // 12/13/22
 
             // get the city-wide district where much of the data is obtained
             District cityDistrict = districtManagerInstance.m_districts.m_buffer[0];
@@ -1137,6 +1164,16 @@ namespace MoreCityStatistics
             snapshot.CrimeDetainedCriminals = cityDistrict.GetCriminalAmount();
             snapshot.CrimeJailsCapacity     = cityDistrict.GetCriminalCapacity();
 
+            // Commercial Cash
+            if (dlcFinancialDistricts)
+            {
+                // get the commercial cash accumulated and capacity
+                GetCommercialCash(out snapshot.CommercialCashAccumulated, out snapshot.CommercialCashCapacity);
+
+                // logic copied from BankOfficeAI.GetLocalizedStats
+                snapshot.CommercialCashCollected = economyManagerInstance.m_finalCashCollecting;
+            }
+
             // Public Transportation - logic copied from TransportInfoViewPanel.UpdatePanel
             TransportPassengerData[] passengers = transportManagerInstance.m_passengers;
                                  snapshot.PublicTransportationBusResidents        = passengers[(int)TransportInfo.TransportType.Bus       ].m_residentPassengers.m_averageCount;
@@ -1253,6 +1290,30 @@ namespace MoreCityStatistics
             snapshot.TaxRateIndustrial      = economyManagerInstance.GetTaxRate(ItemClass.Service.Industrial,  ItemClass.SubService.None,            ItemClass.Level.None);
             snapshot.TaxRateOffice          = economyManagerInstance.GetTaxRate(ItemClass.Service.Office,      ItemClass.SubService.None,            ItemClass.Level.None);
 
+            // Investments
+            if (dlcFinancialDistricts)
+            {
+                // get share values
+                GetInvestmentShareValues(
+                    out snapshot.InvestmentsChirpAir,
+                    out snapshot.InvestmentsChirperCrypto,
+                    out snapshot.InvestmentsDeathcareServiceFund,
+                    out snapshot.InvestmentsFarmingIndustry,
+                    out snapshot.InvestmentsForestryIndustry,
+                    out snapshot.InvestmentsGreasyGasoline,
+                    out snapshot.InvestmentsGenericIndustry,
+                    out snapshot.InvestmentsHealthcareServiceFund,
+                    out snapshot.InvestmentsOilIndustry,
+                    out snapshot.InvestmentsOreIndustry,
+                    out snapshot.InvestmentsChirpyCruises,
+                    out snapshot.InvestmentsTrafficJellyLogistics,
+                    out snapshot.InvestmentsVeryLegitCompany);
+
+                    // get gains - logic copied from StockExchangeWorldInfoPanel.UpdateBindings
+                    snapshot.InvestmentsGainsLastMonth = economyManagerInstance.m_finalMonthlyEarned;
+                    snapshot.InvestmentsTotalGains = economyManagerInstance.moneyEarnedFromInvestments;
+            }
+
             // City Economy - logic for income and expenses copied from EconomyPanel.IncomeExpensesPoll.Poll;
             // total income and total expenses are read directly from the game versus summing the component incomes and expenses; the result should be the same
             // bank balance uses internal cash (not logic from global::Bindings.cash) to avoid a huge number when the Unlmited Money mod is enabled
@@ -1299,11 +1360,12 @@ namespace MoreCityStatistics
             snapshot.IndustrialIncomeOil      = GetEconomyIncome(ItemClass.Service.Industrial, ItemClass.SubService.IndustrialOil,      ItemClass.Level.None);
 
             // Office Income - logic copied from EconomyPanel.InitializePolls
-                                     snapshot.OfficeIncomeGeneric1   = GetEconomyIncome(ItemClass.Service.Office, ItemClass.SubService.OfficeGeneric,    ItemClass.Level.Level1);
-                                     snapshot.OfficeIncomeGeneric2   = GetEconomyIncome(ItemClass.Service.Office, ItemClass.SubService.OfficeGeneric,    ItemClass.Level.Level2);
-                                     snapshot.OfficeIncomeGeneric3   = GetEconomyIncome(ItemClass.Service.Office, ItemClass.SubService.OfficeGeneric,    ItemClass.Level.Level3);
-            if (dlcGreenCities     ) snapshot.OfficeIncomeITCluster  = GetEconomyIncome(ItemClass.Service.Office, ItemClass.SubService.OfficeHightech,   ItemClass.Level.None);
-            if (dlcPlazasPromenades) snapshot.OfficeIncomeWallToWall = GetEconomyIncome(ItemClass.Service.Office, ItemClass.SubService.OfficeWallToWall, ItemClass.Level.None);
+                                       snapshot.OfficeIncomeGeneric1   = GetEconomyIncome(ItemClass.Service.Office, ItemClass.SubService.OfficeGeneric,    ItemClass.Level.Level1);
+                                       snapshot.OfficeIncomeGeneric2   = GetEconomyIncome(ItemClass.Service.Office, ItemClass.SubService.OfficeGeneric,    ItemClass.Level.Level2);
+                                       snapshot.OfficeIncomeGeneric3   = GetEconomyIncome(ItemClass.Service.Office, ItemClass.SubService.OfficeGeneric,    ItemClass.Level.Level3);
+            if (dlcGreenCities       ) snapshot.OfficeIncomeITCluster  = GetEconomyIncome(ItemClass.Service.Office, ItemClass.SubService.OfficeHightech,   ItemClass.Level.None);
+            if (dlcPlazasPromenades  ) snapshot.OfficeIncomeWallToWall = GetEconomyIncome(ItemClass.Service.Office, ItemClass.SubService.OfficeWallToWall, ItemClass.Level.None);
+            if (dlcFinancialDistricts) snapshot.OfficeIncomeFinancial  = GetEconomyIncome(ItemClass.Service.Office, ItemClass.SubService.OfficeFinancial,  ItemClass.Level.None);
 
             // Tourism Income - logic copied from EconomyPanel.InitializePolls
                              snapshot.TourismIncomeCommercialZones = GetEconomyIncome(ItemClass.Service.Tourism, ItemClass.SubService.None, ItemClass.Level.None);
@@ -1312,21 +1374,22 @@ namespace MoreCityStatistics
 
             // Service Expenses - logic copied from EconomyPanel.InitializePolls and EconomyPanel.IncomeExpensesPoll.Poll
             List<ushort>[] arenas = GetArenasData();
-                                     snapshot.ServiceExpensesRoads               = GetEconomyExpense(ItemClass.Service.Road,             ItemClass.SubService.None, ItemClass.Level.None);    // value includes Toll Booth expenses, which get subtracted later
-                                     snapshot.ServiceExpensesElectricity         = GetEconomyExpense(ItemClass.Service.Electricity,      ItemClass.SubService.None, ItemClass.Level.None);
-                                     snapshot.ServiceExpensesWaterSewageHeating  = GetEconomyExpense(ItemClass.Service.Water,            ItemClass.SubService.None, ItemClass.Level.None);
-                                     snapshot.ServiceExpensesGarbage             = GetEconomyExpense(ItemClass.Service.Garbage,          ItemClass.SubService.None, ItemClass.Level.None);
-                                     snapshot.ServiceExpensesHealthcare          = GetEconomyExpense(ItemClass.Service.HealthCare,       ItemClass.SubService.None, ItemClass.Level.None);
-                                     snapshot.ServiceExpensesFire                = GetEconomyExpense(ItemClass.Service.FireDepartment,   ItemClass.SubService.None, ItemClass.Level.None);
-            if (dlcNaturalDisasters) snapshot.ServiceExpensesEmergency           = GetEconomyExpense(ItemClass.Service.Disaster,         ItemClass.SubService.None, ItemClass.Level.None);
-                                     snapshot.ServiceExpensesPolice              = GetEconomyExpense(ItemClass.Service.PoliceDepartment, ItemClass.SubService.None, ItemClass.Level.None);
-                                     snapshot.ServiceExpensesEducation           = GetEconomyExpense(ItemClass.Service.Education,        ItemClass.SubService.None, ItemClass.Level.None);    // does not include Campus Areas
-                                     snapshot.ServiceExpensesParksPlazas         = GetEconomyExpense(ItemClass.Service.Beautification,   ItemClass.SubService.None, ItemClass.Level.None);    // value includes Park Area expenses and Service Point expenses, which get subtracted later
-            if (dlcPlazasPromenades) snapshot.ServiceExpensesServicePoints       = GetEconomyExpense(ItemClass.Service.ServicePoint,     ItemClass.SubService.None, ItemClass.Level.None);
-                                     snapshot.ServiceExpensesUniqueBuildings     = GetEconomyExpense(ItemClass.Service.Monument,         ItemClass.SubService.None, ItemClass.Level.None);
-            if (dlcCampus          ) snapshot.ServiceExpensesGenericSportsArenas = CalculateArenasExpenses(arenas[(int)EconomyPanel.ArenaIndex.NonVarsity]);
-                                     snapshot.ServiceExpensesLoans               = ConvertMoney(economyManagerInstance.GetLoanExpenses());
-                                     snapshot.ServiceExpensesPolicies            = ConvertMoney(economyManagerInstance.GetPolicyExpenses());
+                                       snapshot.ServiceExpensesRoads               = GetEconomyExpense(ItemClass.Service.Road,             ItemClass.SubService.None,                 ItemClass.Level.None);    // value includes Toll Booth expenses, which get subtracted later
+                                       snapshot.ServiceExpensesElectricity         = GetEconomyExpense(ItemClass.Service.Electricity,      ItemClass.SubService.None,                 ItemClass.Level.None);
+                                       snapshot.ServiceExpensesWaterSewageHeating  = GetEconomyExpense(ItemClass.Service.Water,            ItemClass.SubService.None,                 ItemClass.Level.None);
+                                       snapshot.ServiceExpensesGarbage             = GetEconomyExpense(ItemClass.Service.Garbage,          ItemClass.SubService.None,                 ItemClass.Level.None);
+                                       snapshot.ServiceExpensesHealthcare          = GetEconomyExpense(ItemClass.Service.HealthCare,       ItemClass.SubService.None,                 ItemClass.Level.None);
+                                       snapshot.ServiceExpensesFire                = GetEconomyExpense(ItemClass.Service.FireDepartment,   ItemClass.SubService.None,                 ItemClass.Level.None);
+            if (dlcNaturalDisasters)   snapshot.ServiceExpensesEmergency           = GetEconomyExpense(ItemClass.Service.Disaster,         ItemClass.SubService.None,                 ItemClass.Level.None);
+                                       snapshot.ServiceExpensesPolice              = GetEconomyExpense(ItemClass.Service.PoliceDepartment, ItemClass.SubService.None,                 ItemClass.Level.None);    // value includes Banks expenses, which get subtracted later
+            if (dlcFinancialDistricts) snapshot.ServiceExpensesBanks               = GetEconomyExpense(ItemClass.Service.PoliceDepartment, ItemClass.SubService.PoliceDepartmentBank, ItemClass.Level.None);    // Bank expenses alone
+                                       snapshot.ServiceExpensesEducation           = GetEconomyExpense(ItemClass.Service.Education,        ItemClass.SubService.None,                 ItemClass.Level.None);    // does not include Campus Areas
+                                       snapshot.ServiceExpensesParksPlazas         = GetEconomyExpense(ItemClass.Service.Beautification,   ItemClass.SubService.None,                 ItemClass.Level.None);    // value includes Park Area expenses and Service Point expenses, which get subtracted later
+            if (dlcPlazasPromenades)   snapshot.ServiceExpensesServicePoints       = GetEconomyExpense(ItemClass.Service.ServicePoint,     ItemClass.SubService.None,                 ItemClass.Level.None);
+                                       snapshot.ServiceExpensesUniqueBuildings     = GetEconomyExpense(ItemClass.Service.Monument,         ItemClass.SubService.None,                 ItemClass.Level.None);
+            if (dlcCampus          )   snapshot.ServiceExpensesGenericSportsArenas = CalculateArenasExpenses(arenas[(int)EconomyPanel.ArenaIndex.NonVarsity]);
+                                       snapshot.ServiceExpensesLoans               = ConvertMoney(economyManagerInstance.GetLoanExpenses());
+                                       snapshot.ServiceExpensesPolicies            = ConvertMoney(economyManagerInstance.GetPolicyExpenses());
 
             // Park Areas - logic adapted from ParkWorldInfoPanel.UpdateBindings
             if (dlcParkLife)
@@ -1496,6 +1559,7 @@ namespace MoreCityStatistics
 
             // now that some other values have been obtained, adjust some Expenses Services
             snapshot.ServiceExpensesRoads       -= snapshot.TransportEconomyTollBoothExpenses;
+            snapshot.ServiceExpensesPolice      -= (snapshot.ServiceExpensesBanks ?? 0);
             snapshot.ServiceExpensesParksPlazas -= (snapshot.ParkAreasTotalExpenses ?? 0) + (snapshot.ServiceExpensesServicePoints ?? 0);
 
             // return the snapshot
@@ -2003,7 +2067,7 @@ namespace MoreCityStatistics
                 Building building = buildings[buildingID];
                 if ((building.m_flags & Building.Flags.Created) != 0)
                 {
-                    // AI must be PlayerBuildingAI or derived from it
+                    // AI must be derived from PlayerBuildingAI
                     if (building.Info != null && building.Info.m_buildingAI != null && building.Info.m_buildingAI.GetType().IsSubclassOf(typeof(PlayerBuildingAI)))
                     {
                         // add the building construction cost
@@ -2025,7 +2089,7 @@ namespace MoreCityStatistics
                     // segment must be not original
                     if ((segment.m_flags & NetSegment.Flags.Original) == 0)
                     {
-                        // AI must be PlayerNetAI or derived from it
+                        // AI must be derived from PlayerNetAI
                         if (segment.Info != null && segment.Info.m_netAI != null && segment.Info.m_netAI.GetType().IsSubclassOf(typeof(PlayerNetAI)))
                         {
                             // get start and end node positions
@@ -2273,6 +2337,132 @@ namespace MoreCityStatistics
             }
         }
 
+        /// <summary>
+        /// get commercial cash accumulated and capacity
+        /// </summary>
+        private static void GetCommercialCash(out int? cashAccumulated, out int? cashCapacity)
+        {
+            // initialize
+            cashAccumulated = 0;
+            cashCapacity = 0;
+
+            try
+            {
+                // get the method info for the cash capacity function
+                MethodInfo getCashCapacity = typeof(CommercialBuildingAI).GetMethod("GetCashCapacity", BindingFlags.Instance | BindingFlags.NonPublic);
+                if (getCashCapacity == null)
+                {
+                    LogUtil.LogError("Unable to get method [CommercialBuildingAI.GetCashCapacity]");
+                    return;
+                }
+
+                // loop over all buildings
+                Building[] buildings = BuildingManager.instance.m_buildings.m_buffer;
+                for (ushort buildingID = 1; buildingID < buildings.Length; buildingID++)
+                {
+                    // building must be created
+                    Building building = buildings[buildingID];
+                    if ((building.m_flags & Building.Flags.Created) != 0)
+                    {
+                        // building AI must be defined
+                        if (building.Info != null && building.Info.m_buildingAI != null)
+                        {
+                            // building AI must be CommercialBuildingAI or derived from it
+                            // this will include PloppableRICO.PloppableCommercialAI and PloppableRICO.GrowableCommercialAI which derive from CommercialBuildingAI
+                            BuildingAI buildingAI = building.Info.m_buildingAI;
+                            Type buildingAIType = buildingAI.GetType();
+                            if (buildingAIType == typeof(CommercialBuildingAI) || buildingAIType.IsSubclassOf(typeof(CommercialBuildingAI)))
+                            {
+                                // add the building cash amount and capacity
+                                // logic adapted from CommercialBuildingAI.GetDebugString
+                                cashAccumulated += building.m_cashBuffer / 10;
+                                cashCapacity += (int)getCashCapacity.Invoke((CommercialBuildingAI)buildingAI, new object[] { buildingID, building }) / 10;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogUtil.LogException(ex);
+            }
+        }
+
+        /// <summary>
+        /// get investment share values
+        /// </summary>
+        private static void GetInvestmentShareValues
+            (
+            out int? investmentsChirpAir,
+            out int? investmentsChirperCrypto,
+            out int? investmentsDeathcareServiceFund,
+            out int? investmentsFarmingIndustry,
+            out int? investmentsForestryIndustry,
+            out int? investmentsGreasyGasoline,
+            out int? investmentsGenericIndustry,
+            out int? investmentsHealthcareServiceFund,
+            out int? investmentsOilIndustry,
+            out int? investmentsOreIndustry,
+            out int? investmentsChirpyCruises,
+            out int? investmentsTrafficJellyLogistics,
+            out int? investmentsVeryLegitCompany
+            )
+        {
+            // initialize
+            investmentsChirpAir              = 0;
+            investmentsChirperCrypto         = 0;
+            investmentsDeathcareServiceFund  = 0;
+            investmentsFarmingIndustry       = 0;
+            investmentsForestryIndustry      = 0;
+            investmentsGreasyGasoline        = 0;
+            investmentsGenericIndustry       = 0;
+            investmentsHealthcareServiceFund = 0;
+            investmentsOilIndustry           = 0;
+            investmentsOreIndustry           = 0;
+            investmentsChirpyCruises         = 0;
+            investmentsTrafficJellyLogistics = 0;
+            investmentsVeryLegitCompany      = 0;
+
+            // do each investment
+            Investment[] investments = EconomyManager.instance.m_investments.m_buffer;
+            for (byte investmentID = 1; investmentID < investments.Length; investmentID++)
+            {
+                // investment must be created, but investment does not need to be available for purchase
+                Investment investment = investments[investmentID];
+                if ((investment.m_flags & Investment.Flags.Created) != 0)
+                {
+                    // assign the share value to the correct investment statistic based on the investment AI type
+                    int shareValue = (int)investment.value;
+                    InvestmentAI investmentAI = investment.Info.m_investmentAI;
+                    Type investmentAIType = investmentAI.GetType();
+                    if      (investmentAIType == typeof(AirplaneInvestmentAI)) { investmentsChirpAir              = shareValue; }
+                    else if (investmentAIType == typeof(ChirpCoinAI         )) { investmentsChirperCrypto         = shareValue; }
+                    else if (investmentAIType == typeof(DeathCareSectorAI   )) { investmentsDeathcareServiceFund  = shareValue; }
+                    else if (investmentAIType == typeof(FuelCompanyAI       )) { investmentsGreasyGasoline        = shareValue; }
+                    else if (investmentAIType == typeof(HealthCareSectorAI  )) { investmentsHealthcareServiceFund = shareValue; }
+                    else if (investmentAIType == typeof(ShipInvestmentAI    )) { investmentsChirpyCruises         = shareValue; }
+                    else if (investmentAIType == typeof(TrafficJellyAI      )) { investmentsTrafficJellyLogistics = shareValue; }
+                    else if (investmentAIType == typeof(VeryLegitCompanyAI  )) { investmentsVeryLegitCompany      = shareValue; }
+                    else if (investmentAIType == typeof(IndustrySectorAI    ))
+                    {
+                        // use the industry type to assign the share value
+                        switch (((IndustrySectorAI)investmentAI).m_type)
+                        {
+                            case IndustrySectorAI.Type.Generic:     investmentsGenericIndustry  = shareValue; break;
+                            case IndustrySectorAI.Type.Farming:     investmentsFarmingIndustry  = shareValue; break;
+                            case IndustrySectorAI.Type.Forestry:    investmentsForestryIndustry = shareValue; break;
+                            case IndustrySectorAI.Type.Ore:         investmentsOreIndustry      = shareValue; break;
+                            case IndustrySectorAI.Type.Oil:         investmentsOilIndustry      = shareValue; break;
+                        }
+                    }
+                    else
+                    {
+                        LogUtil.LogError($"Unhandled investment AI type [{investmentAIType}].");
+                    }
+                }
+            }
+        }
+
         #endregion
 
         /// <summary>
@@ -2391,6 +2581,10 @@ namespace MoreCityStatistics
             writer.Write(CrimeDetainedCriminals);
             writer.Write(CrimeJailsCapacity);
 
+            writer.Write(CommercialCashAccumulated);
+            writer.Write(CommercialCashCapacity);
+            writer.Write(CommercialCashCollected);
+
             writer.Write(PublicTransportationBusResidents);
             writer.Write(PublicTransportationBusTourists);
             writer.Write(PublicTransportationTrolleybusResidents);
@@ -2474,6 +2668,22 @@ namespace MoreCityStatistics
             writer.Write(TaxRateIndustrial);
             writer.Write(TaxRateOffice);
 
+            writer.Write(InvestmentsChirpAir);
+            writer.Write(InvestmentsChirperCrypto);
+            writer.Write(InvestmentsDeathcareServiceFund);
+            writer.Write(InvestmentsFarmingIndustry);
+            writer.Write(InvestmentsForestryIndustry);
+            writer.Write(InvestmentsGreasyGasoline);
+            writer.Write(InvestmentsGenericIndustry);
+            writer.Write(InvestmentsHealthcareServiceFund);
+            writer.Write(InvestmentsOilIndustry);
+            writer.Write(InvestmentsOreIndustry);
+            writer.Write(InvestmentsChirpyCruises);
+            writer.Write(InvestmentsTrafficJellyLogistics);
+            writer.Write(InvestmentsVeryLegitCompany);
+            writer.Write(InvestmentsGainsLastMonth);
+            writer.Write(InvestmentsTotalGains);
+
             writer.Write(CityEconomyTotalIncome);
             writer.Write(CityEconomyTotalExpenses);
             writer.Write(CityEconomyBankBalance);
@@ -2518,6 +2728,7 @@ namespace MoreCityStatistics
             writer.Write(OfficeIncomeGeneric3);
             writer.Write(OfficeIncomeITCluster);
             writer.Write(OfficeIncomeWallToWall);
+            writer.Write(OfficeIncomeFinancial);
 
             writer.Write(TourismIncomeCommercialZones);
             writer.Write(TourismIncomeTransportation);
@@ -2531,6 +2742,7 @@ namespace MoreCityStatistics
             writer.Write(ServiceExpensesFire);
             writer.Write(ServiceExpensesEmergency);
             writer.Write(ServiceExpensesPolice);
+            writer.Write(ServiceExpensesBanks);
             writer.Write(ServiceExpensesEducation);
             writer.Write(ServiceExpensesParksPlazas);
             writer.Write(ServiceExpensesServicePoints);
@@ -2758,6 +2970,10 @@ namespace MoreCityStatistics
             snapshot.CrimeDetainedCriminals                     = reader.ReadInt32();
             snapshot.CrimeJailsCapacity                         = reader.ReadInt32();
 
+            snapshot.CommercialCashAccumulated                  = version < 7 ? null : reader.ReadNullableInt32();
+            snapshot.CommercialCashCapacity                     = version < 7 ? null : reader.ReadNullableInt32();
+            snapshot.CommercialCashCollected                    = version < 7 ? null : reader.ReadNullableInt32();
+
             snapshot.PublicTransportationBusResidents           = reader.ReadUInt32();
             snapshot.PublicTransportationBusTourists            = reader.ReadUInt32();
             snapshot.PublicTransportationTrolleybusResidents    = reader.ReadNullableUInt32();
@@ -2841,6 +3057,22 @@ namespace MoreCityStatistics
             snapshot.TaxRateIndustrial                          = reader.ReadInt32();
             snapshot.TaxRateOffice                              = reader.ReadInt32();
 
+            snapshot.InvestmentsChirpAir                        = version < 7 ? null : reader.ReadNullableInt32();
+            snapshot.InvestmentsChirperCrypto                   = version < 7 ? null : reader.ReadNullableInt32();
+            snapshot.InvestmentsDeathcareServiceFund            = version < 7 ? null : reader.ReadNullableInt32();
+            snapshot.InvestmentsFarmingIndustry                 = version < 7 ? null : reader.ReadNullableInt32();
+            snapshot.InvestmentsForestryIndustry                = version < 7 ? null : reader.ReadNullableInt32();
+            snapshot.InvestmentsGreasyGasoline                  = version < 7 ? null : reader.ReadNullableInt32();
+            snapshot.InvestmentsGenericIndustry                 = version < 7 ? null : reader.ReadNullableInt32();
+            snapshot.InvestmentsHealthcareServiceFund           = version < 7 ? null : reader.ReadNullableInt32();
+            snapshot.InvestmentsOilIndustry                     = version < 7 ? null : reader.ReadNullableInt32();
+            snapshot.InvestmentsOreIndustry                     = version < 7 ? null : reader.ReadNullableInt32();
+            snapshot.InvestmentsChirpyCruises                   = version < 7 ? null : reader.ReadNullableInt32();
+            snapshot.InvestmentsTrafficJellyLogistics           = version < 7 ? null : reader.ReadNullableInt32();
+            snapshot.InvestmentsVeryLegitCompany                = version < 7 ? null : reader.ReadNullableInt32();
+            snapshot.InvestmentsGainsLastMonth                  = version < 7 ? null : reader.ReadNullableInt32();
+            snapshot.InvestmentsTotalGains                      = version < 7 ? null : reader.ReadNullableInt32();
+
             snapshot.CityEconomyTotalIncome                     = reader.ReadInt64();
             snapshot.CityEconomyTotalExpenses                   = reader.ReadInt64();
             snapshot.CityEconomyBankBalance                     = version < 3 ? reader.ReadInt64() : reader.ReadNullableInt64();
@@ -2891,6 +3123,7 @@ namespace MoreCityStatistics
             snapshot.OfficeIncomeGeneric3                       = reader.ReadInt64();
             snapshot.OfficeIncomeITCluster                      = reader.ReadNullableInt64();
             snapshot.OfficeIncomeWallToWall                     = version < 4 ? null : reader.ReadNullableInt64();
+            snapshot.OfficeIncomeFinancial                      = version < 7 ? null : reader.ReadNullableInt64();
 
             snapshot.TourismIncomeCommercialZones               = reader.ReadInt64();
             snapshot.TourismIncomeTransportation                = reader.ReadInt64();
@@ -2904,6 +3137,7 @@ namespace MoreCityStatistics
             snapshot.ServiceExpensesFire                        = reader.ReadInt64();
             snapshot.ServiceExpensesEmergency                   = reader.ReadNullableInt64();
             snapshot.ServiceExpensesPolice                      = reader.ReadInt64();
+            snapshot.ServiceExpensesBanks                       = version < 7 ? null : reader.ReadNullableInt64();
             snapshot.ServiceExpensesEducation                   = reader.ReadInt64();
             snapshot.ServiceExpensesParksPlazas                 = reader.ReadInt64();
             snapshot.ServiceExpensesServicePoints               = version < 4 ? null : reader.ReadNullableInt64();

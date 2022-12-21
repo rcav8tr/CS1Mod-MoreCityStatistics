@@ -28,8 +28,32 @@ The Zone Buildings category mimics the calculation for Zoned Building Distributi
 [h3]Traffic[/h3]
 Dummy Traffic is a vehicle marked by the game as Dummy Traffic OR the first person riding in a vehicle is marked by the game as Dummy Traffic OR a vehicle is going from outside connection to outside connection.  People near the edge of the map waiting for a car/train/ship/plane are not counted.  All other vehicles and people are counted using the same logic as the Traffic Routes info view.
 
+[h3]Commercial Cash[/h3]
+Accumulated is the cash held by Commercial buildings.  Capacity is the maximum cash that can be held by Commercial buildings.  Collected is the cash collected from Commercial buildings by bank cash vans in the last week.
+
 [h3]Tax Rates[/h3]
 Tax rates are the base tax rates, excluding any taxation policies.
+
+[h3]Investments[/h3]
+Investment share values are computed and recorded even if the conditions are not satisfied to make the investment available to purchase.  Note that there is a bug in the game logic where the investment named Deathcare Service Fund uses health care to determine share value and the investment named Healthcare Service Fund uses death care to determine share value.  This mod gets share value correctly for the two investments.
+
+For your information, here is the basis for each investment share value.
+[table]
+[tr][td][b]Investment[/b]       [/td][td][b]Share Value Basis[/b]                                               [/td][/tr]
+[tr][td]ChirpAir                [/td][td]Number of resident and tourist airplane passengers                     [/td][/tr]
+[tr][td]ChirperCrypto           [/td][td]Randomized stable, rising, or falling value                            [/td][/tr]
+[tr][td]Deathcare Service Fund  [/td][td]Death care productivity, cemetery capacity, and crematorium capacity   [/td][/tr]
+[tr][td]Farming Industry        [/td][td]Farming specialized industry productivity and area                     [/td][/tr]
+[tr][td]Forestry Industry       [/td][td]Forestry specialized industry productivity and area                    [/td][/tr]
+[tr][td]Greasy Gasoline Inc.    [/td][td]Number of vehicles                                                     [/td][/tr]
+[tr][td]Generic Industry        [/td][td]Generic specialized industry productivity and area                     [/td][/tr]
+[tr][td]Healthcare Service Fund [/td][td]Citizen health, health care productivity, and healing capacity         [/td][/tr]
+[tr][td]Oil Industry            [/td][td]Oil specialized industry productivity and area                         [/td][/tr]
+[tr][td]Ore Industry            [/td][td]Ore specialized industry productivity and area                         [/td][/tr]
+[tr][td]Chirpy Cruises          [/td][td]Number of resident and tourist ship passengers                         [/td][/tr]
+[tr][td]Traffic Jelly Logistics [/td][td]Traffic flow                                                           [/td][/tr]
+[tr][td]The Very Legit Company  [/td][td]Crime rate                                                             [/td][/tr]
+[/table]
 
 [h3]Bank Balance[/h3]
 Starting with Version 1.7 of this mod, Bank Balance is the game's internal cash amount, which is not affected by the Unlimited Money mod.  Before Version 1.7 of this mod, Bank Balance had a huge value when the Unlimited Money mod was enabled.  In snapshots taken before Version 1.7, the huge values are removed.
@@ -61,6 +85,9 @@ The game's Economy panel combines Toll Booth expenses with Road expenses.  In th
 
 [h3]Emergency Expenses[/h3]
 The game's Economy panel combines Emergency (i.e. Disaster) expenses with Fire expenses.  In this mod, Emergency expenses are separate (see the Service Expenses-Emergency statistic).
+
+[h3]Bank Expenses[/h3]
+The game's Economy panel combines Bank expenses with Police expenses.  In this mod, Bank expenses are separate (see the Service Expenses-Banks statistic).
 
 [h3]Generic Sports Arena Expenses[/h3]
 A Generic Sports Arena is a varsity sports arena either inside a generic campus area (i.e. no administration building) or outside all campus areas.  The game's Economy panel combines Generic Sports Arena expenses with Unique Building expenses.  In this mod, Generic Sports Arena expenses are separate (see the Service Expenses-Generic Sports Arenas statistics).  The "Sports Arena", "Ice Hockey Arena", "Snowboard Arena", "Football Stadium", and "Stadium" are considered Unique Buildings, not Generic Sports Arenas.
@@ -99,12 +126,12 @@ If there is a gap in the snapshot dates due to disabling and later re-enabling t
 Many of the statistics are computed from other statistics.  For example, Profit is computed as Income minus Expenses.  To save space in the game save file, the computed statistics are not saved.  Only the base statistics are saved.
 
 [h3]Game Save File Space[/h3]
-A single snapshot uses 1717 bytes in the game save file.  The snapshot space in the game save file is listed below for various date ranges and the two default snapshot frequencies.  For comparison, a new blank game is about 5-6MB.
+A single snapshot uses 1825 bytes in the game save file.  The snapshot space in the game save file is listed below for various date ranges and the two default snapshot frequencies.  For comparison, a new blank game is about 5-6MB.
 [table]
 [tr][td][b]Date range[/b][/td][td][b]1/mo[/b][/td][td][b]1/day[/b][/td][/tr]
-[tr][td]1 month   [/td][td] 1,717[/td][td]52.3KB[/td][/tr]
-[tr][td]1 year    [/td][td]20.6KB[/td][td] 627KB[/td][/tr]
-[tr][td]10 years  [/td][td] 206KB[/td][td]6.27MB[/td][/tr]
-[tr][td]100 years [/td][td]2.06MB[/td][td]62.7MB[/td][/tr]
-[tr][td]1000 years[/td][td]20.6MB[/td][td] 627MB[/td][/tr]
+[tr][td]1 month   [/td][td] 1,825[/td][td]55.5KB[/td][/tr]
+[tr][td]1 year    [/td][td]21.9KB[/td][td] 667KB[/td][/tr]
+[tr][td]10 years  [/td][td] 219KB[/td][td]6.67MB[/td][/tr]
+[tr][td]100 years [/td][td]2.19MB[/td][td]66.7MB[/td][/tr]
+[tr][td]1000 years[/td][td]21.9MB[/td][td] 667MB[/td][/tr]
 [/table]
