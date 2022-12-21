@@ -46,7 +46,7 @@ For your information, here is the basis for each investment share value.
 [tr][td]Farming Industry        [/td][td]Farming specialized industry productivity and area                     [/td][/tr]
 [tr][td]Forestry Industry       [/td][td]Forestry specialized industry productivity and area                    [/td][/tr]
 [tr][td]Greasy Gasoline Inc.    [/td][td]Number of vehicles                                                     [/td][/tr]
-[tr][td]Generic Industry        [/td][td]Generic specialized industry productivity and area                     [/td][/tr]
+[tr][td]Generic Industry        [/td][td]Generic industry productivity and area                                 [/td][/tr]
 [tr][td]Healthcare Service Fund [/td][td]Citizen health, health care productivity, and healing capacity         [/td][/tr]
 [tr][td]Oil Industry            [/td][td]Oil specialized industry productivity and area                         [/td][/tr]
 [tr][td]Ore Industry            [/td][td]Ore specialized industry productivity and area                         [/td][/tr]
