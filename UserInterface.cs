@@ -18,6 +18,7 @@ namespace MoreCityStatistics
         // the UI elements that get added directly to the main view
         private ActivationButton _activationButton;
         private MainPanel _mainPanel;
+        public bool MainPanelUICreated => _mainPanel != null && _mainPanel.UICreated;
 
         // remember last position of button
         private Vector3 _lastButtonPosition = Vector3.zero;

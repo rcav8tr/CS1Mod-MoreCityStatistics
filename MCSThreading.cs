@@ -65,8 +65,8 @@ namespace MoreCityStatistics
             // Game Speed mod can only slow down the game and causes more ticks per game day, so there is no concern with that mod on missing a snapshot.
             // Real Time mod running at its fastest speed has about 228 ticks per 10 minutes, which is plenty of ticks to avoid missing a snapshot in a 10 minute interval.
 
-            // when game date is initialized, process snapshots
-            if (_gameDateInitialized)
+            // when game date is initialized and Main Panel UI is created, process snapshots
+            if (_gameDateInitialized && UserInterface.instance.MainPanelUICreated)
             {
                 Snapshots.instance.SimulationTick();
 

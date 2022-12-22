@@ -30,7 +30,11 @@ namespace MoreCityStatistics
 
         // values for updating statistic amounts
         private long _previousTicks;
-        private bool _initialized;
+        private bool _statisticAmountsInitialized;
+
+        // UI creation
+        private bool _uiCreated;
+        public bool UICreated => _uiCreated;
 
         // other values
         private bool _realTimeModEnabled;
@@ -150,6 +154,9 @@ namespace MoreCityStatistics
 
                 // add event
                 eventVisibilityChanged += MainPanel_eventVisibilityChanged;
+
+                // UI is created
+                _uiCreated = true;
             }
             catch (Exception ex)
             {
@@ -875,11 +882,11 @@ namespace MoreCityStatistics
             // do base processing
             base.Update();
 
-            // on first call, update statistic amounts
-            if (!_initialized)
+            // on first call, initialize statistic amounts
+            if (!_statisticAmountsInitialized)
             {
                 UpdateStatisticAmounts();
-                _initialized = true;
+                _statisticAmountsInitialized = true;
             }
 
             // if visible, update statistic amounts after configured interval has elapsed
