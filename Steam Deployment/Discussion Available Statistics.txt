@@ -210,6 +210,17 @@ Public Transportation
 • Taxi (residents/week)
 • Taxi (tourists/week)
 
+Intercity Travel
+• Arriving (total/week)
+• Arriving (residents/week)
+• Arriving (tourists/week)
+• Departing (total/week)
+• Departing (residents/week)
+• Departing (tourists/week)
+• Dummy Traffic (total/week)
+• Dummy Traffic (residents/week)
+• Dummy Traffic (tourists/week)
+
 Population
 • Total (citizens)
 • Children (% of Population)

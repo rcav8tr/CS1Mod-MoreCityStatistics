@@ -7,7 +7,7 @@ using UnityEngine;
 namespace MoreCityStatistics
 {
     /// <summary>
-    /// UI to allow the user to select a range of years or dates to show
+    /// UI to allow the user to select which years or dates to show
     /// </summary>
     public class ShowRange
     {
@@ -16,21 +16,40 @@ namespace MoreCityStatistics
         public static ShowRange instance { get { return _instance; } }
         private ShowRange() { }
 
+        // the ranges that can be shown
+        public enum ShowRangeOption
+        {
+            All,
+            Since,
+            Range
+        }
+        private ShowRangeOption _showRangeOption;
+
         // initial values obtained from game save file
-        private bool _initialValueShowAll;
+        private ShowRangeOption _initialValueShowRangeOption;
         private float _initialValueFromSlider;
         private float _initialValueToSlider;
 
         // UI components that are referenced after they are created
-        private UILabel _showRangeLabel;
+        private UILabel _rangeToShowLabel;
+
+        private UIPanel  _showAllPanel;
         private UISprite _showAllRadio;
-        private UILabel _showAllLabel;
-        private UISprite _showFromToRadio;
-        private UILabel _showFromToLabel;
+        private UILabel  _showAllLabel;
+
+        private UIPanel  _showSincePanel;
+        private UISprite _showSinceRadio;
+        private UILabel  _showSinceLabel;
+
+        private UIPanel  _showRangePanel;
+        private UISprite _showRangeRadio;
+        private UILabel  _showRangeLabel;
+
         private UISlider _fromSlider;
+        private UILabel  _fromLabel;
+
         private UISlider _toSlider;
-        private UILabel _fromLabel;
-        private UILabel _toLabel;
+        private UILabel  _toLabel;
 
         // values for handling Real Time mod
         private bool _realTimeModEnabled;
@@ -43,8 +62,11 @@ namespace MoreCityStatistics
         {
             // with singleton pattern, all fields must be initialized or they will contain data from the previous game
 
+            // initialize show range option
+            _showRangeOption = ShowRangeOption.All;
+
             // initialize initial values
-            _initialValueShowAll = true;
+            _initialValueShowRangeOption = ShowRangeOption.All;
             _initialValueFromSlider = 0f;
             _initialValueToSlider = 0f;
 
@@ -57,7 +79,7 @@ namespace MoreCityStatistics
         }
 
         /// <summary>
-        /// deinitialize show Range
+        /// deinitialize show range
         /// </summary>
         public void Deinitialize()
         {
@@ -71,15 +93,25 @@ namespace MoreCityStatistics
         private void ClearUIComponents()
         {
             // clear all UI references
-            _showRangeLabel = null;
+            _rangeToShowLabel = null;
+
+            _showAllPanel = null;
             _showAllRadio = null;
             _showAllLabel = null;
-            _showFromToRadio = null;
-            _showFromToLabel = null;
+
+            _showSincePanel = null;
+            _showSinceRadio = null;
+            _showSinceLabel = null;
+
+            _showRangePanel = null;
+            _showRangeRadio = null;
+            _showRangeLabel = null;
+
             _fromSlider = null;
+            _fromLabel  = null;
+
             _toSlider = null;
-            _fromLabel = null;
-            _toLabel = null;
+            _toLabel  = null;
         }
 
         /// <summary>
@@ -99,211 +131,98 @@ namespace MoreCityStatistics
             showRangePanel.size = size;
             showRangePanel.relativePosition = relativePosition;
 
-            // create Show Range label
-            _showRangeLabel = showRangePanel.AddUIComponent<UILabel>();
-            if (_showRangeLabel == null)
+            // create range to show label
+            _rangeToShowLabel = showRangePanel.AddUIComponent<UILabel>();
+            if (_rangeToShowLabel == null)
             {
-                LogUtil.LogError("Unable to create Show Range label.");
+                LogUtil.LogError("Unable to create Range To Show label.");
                 return false;
             }
-            _showRangeLabel.name = "ShowRangeLabel";
-            _showRangeLabel.autoSize = false;
-            _showRangeLabel.size = new Vector2(showRangePanel.size.x, 15f);
-            _showRangeLabel.relativePosition = new Vector3(5f, 10f);
-            _showRangeLabel.textScale = 0.75f;
-            _showRangeLabel.textColor = textColor;
+            _rangeToShowLabel.name = "RangeToShowLabel";
+            _rangeToShowLabel.autoSize = false;
+            _rangeToShowLabel.size = new Vector2(showRangePanel.size.x, 15f);
+            _rangeToShowLabel.relativePosition = new Vector3(5f, 7f);
+            _rangeToShowLabel.textScale = 0.75f;
+            _rangeToShowLabel.textColor = textColor;
 
-            // create Show All panel
-            UIPanel showAllPanel = showRangePanel.AddUIComponent<UIPanel>();
-            if (showAllPanel == null)
+            // create panel to hold show range options
+            UIPanel showRangeOptionPanel = showRangePanel.AddUIComponent<UIPanel>();
+            if (showRangeOptionPanel == null)
             {
-                LogUtil.LogError("Unable to create Show All panel.");
+                LogUtil.LogError("Unable to create Show Range option panel.");
                 return false;
             }
-            showAllPanel.name = "ShowAllPanel";
-            showAllPanel.autoSize = false;
-            showAllPanel.size = new Vector2(80f, 15f);
-            showAllPanel.relativePosition = new Vector3(5f, _showRangeLabel.relativePosition.y + _showRangeLabel.size.y + 2f);
-            showAllPanel.eventClicked += ShowRangeRadioButton_eventClicked;
+            showRangeOptionPanel.name = "ShowRangeOptionPanel";
+            showRangeOptionPanel.autoSize = false;
+            showRangeOptionPanel.size = new Vector2(size.x - 10f, 15f);
+            showRangeOptionPanel.relativePosition = new Vector3(5f, _rangeToShowLabel.relativePosition.y + _rangeToShowLabel.size.y);
 
-            // create Show All radio button
-            _showAllRadio = showAllPanel.AddUIComponent<UISprite>();
-            if (_showAllRadio == null)
+            // create the show range option for All
+            if (!CreateShowRangeOption(showRangeOptionPanel,
+                                       ShowRangeOption.All,
+                                       0f,
+                                       textColor,
+                                       out _showAllPanel,
+                                       out _showAllRadio,
+                                       out _showAllLabel))
             {
-                Debug.LogError("Unable to create Show All radio button.");
                 return false;
             }
-            _showAllRadio.name = "ShowAllRadio";
-            _showAllRadio.autoSize = false;
-            _showAllRadio.size = new Vector2(15f, 15f);
-            _showAllRadio.relativePosition = new Vector3(0f, 0f);
 
-            // create Show All label
-            _showAllLabel = showAllPanel.AddUIComponent<UILabel>();
-            if (_showAllLabel == null)
+            // create the show range option for From Only
+            if (!CreateShowRangeOption(showRangeOptionPanel,
+                                       ShowRangeOption.Since,
+                                       _showAllPanel.relativePosition.x + _showAllPanel.size.x,
+                                       textColor,
+                                       out _showSincePanel,
+                                       out _showSinceRadio,
+                                       out _showSinceLabel))
             {
-                LogUtil.LogError("Unable to create Show All label.");
                 return false;
             }
-            _showAllLabel.name = "ShowAllLabel";
-            _showAllLabel.autoSize = false;
-            _showAllLabel.size = new Vector2(showAllPanel.size.x - 17f, 15f);
-            _showAllLabel.relativePosition = new Vector3(17f, 2.5f);
-            _showAllLabel.textScale = 0.75f;
-            _showAllLabel.textColor = textColor;
 
-            // create Show FromTo panel
-            UIPanel showFromToPanel = showRangePanel.AddUIComponent<UIPanel>();
-            if (showFromToPanel == null)
+            // create the show range option for Range
+            if (!CreateShowRangeOption(showRangeOptionPanel,
+                                       ShowRangeOption.Range,
+                                       _showSincePanel.relativePosition.x + _showSincePanel.size.x,
+                                       textColor,
+                                       out _showRangePanel,
+                                       out _showRangeRadio,
+                                       out _showRangeLabel))
             {
-                LogUtil.LogError("Unable to create Show FromTo panel.");
                 return false;
             }
-            showFromToPanel.name = "ShowFromToPanel";
-            showFromToPanel.autoSize = false;
-            showFromToPanel.size = new Vector2(100f, 15f);
-            showFromToPanel.relativePosition = new Vector3(showAllPanel.relativePosition.x + showAllPanel.size.x + 10f, showAllPanel.relativePosition.y);
-            showFromToPanel.eventClicked += ShowRangeRadioButton_eventClicked;
 
-            // create Show FromTo radio button
-            _showFromToRadio = showFromToPanel.AddUIComponent<UISprite>();
-            if (_showFromToRadio == null)
+            // create the range slider for From
+            if (!CreateRangeSlider(showRangePanel,
+                                   "From",
+                                   showRangeOptionPanel.relativePosition.y + showRangeOptionPanel.size.y + 4f,
+                                   textColor,
+                                   out UIPanel fromSliderPanel,
+                                   out _fromSlider,
+                                   out _fromLabel))
             {
-                Debug.LogError("Unable to create Show FromTo radio button.");
                 return false;
             }
-            _showFromToRadio.name = "ShowFromToRadio";
-            _showFromToRadio.autoSize = false;
-            _showFromToRadio.size = new Vector2(15f, 15f);
-            _showFromToRadio.relativePosition = new Vector3(0f, 0f);
 
-            // create Show FromTo label
-            _showFromToLabel = showFromToPanel.AddUIComponent<UILabel>();
-            if (_showFromToLabel == null)
+            // create the range slider for To
+            if (!CreateRangeSlider(showRangePanel,
+                                   "To",
+                                   fromSliderPanel.relativePosition.y + fromSliderPanel.size.y + 4f,
+                                   textColor,
+                                   out UIPanel _,
+                                   out _toSlider,
+                                   out _toLabel))
             {
-                LogUtil.LogError("Unable to create Show FromTo label.");
                 return false;
             }
-            _showFromToLabel.name = "ShowFromToLabel";
-            _showFromToLabel.autoSize = false;
-            _showFromToLabel.size = new Vector2(showFromToPanel.size.x - 17f, 15f);
-            _showFromToLabel.relativePosition = new Vector3(17f, 2.5f);
-            _showFromToLabel.textScale = 0.75f;
-            _showFromToLabel.textColor = textColor;
-
-            // create From slider from template
-            UIPanel fromSliderPanel = showRangePanel.AttachUIComponent(UITemplateManager.GetAsGameObject("OptionsSliderTemplate")) as UIPanel;
-            if (fromSliderPanel == null)
-            {
-                LogUtil.LogError("Unable to attach From slider panel.");
-                return false;
-            }
-            fromSliderPanel.autoSize = false;
-            float fromToLabelWidth = (_realTimeModEnabled ? 70f : 40f);
-            fromSliderPanel.size = new Vector2(showRangePanel.size.x - 10f - fromToLabelWidth, 15f);
-            fromSliderPanel.relativePosition = new Vector3(10f, showAllPanel.relativePosition.y + showAllPanel.size.y);
-
-            // hide label from template
-            UILabel fromSliderLabel = fromSliderPanel.Find<UILabel>("Label");
-            if (fromSliderLabel == null)
-            {
-                LogUtil.LogError("Unable to find From label.");
-                return false;
-            }
-            fromSliderLabel.isVisible = false;
-
-            // get the From slider
-            _fromSlider = fromSliderPanel.Find<UISlider>("Slider");
-            if (_fromSlider == null)
-            {
-                LogUtil.LogError("Unable to find From slider.");
-                return false;
-            }
-            _fromSlider.autoSize = false;
-            _fromSlider.size = new Vector2(fromSliderPanel.size.x, fromSliderPanel.size.y);
-            _fromSlider.relativePosition = new Vector3(0f, 0f);
-            _fromSlider.orientation = UIOrientation.Horizontal;
-            _fromSlider.stepSize = 1f;      // 1 year or 1 day
-            _fromSlider.scrollWheelAmount = (_realTimeModEnabled ? 30f : 5f);
-            _fromSlider.minValue = -3f;
-            _fromSlider.maxValue = -1f;
-            _fromSlider.value = -2f;
-
-            // create From label
-            _fromLabel = showRangePanel.AddUIComponent<UILabel>();
-            if (_fromLabel == null)
-            {
-                LogUtil.LogError("Unable to create From label.");
-                return false;
-            }
-            _fromLabel.name = "FromLabel";
-            _fromLabel.autoSize = false;
-            _fromLabel.size = new Vector2(fromToLabelWidth, fromSliderPanel.size.y);
-            _fromLabel.relativePosition = new Vector3(fromSliderPanel.relativePosition.x + fromSliderPanel.size.x + 5f, fromSliderPanel.relativePosition.y + 9f);
-            _fromLabel.text = (_realTimeModEnabled ? "00/00/0000" : "0000");
-            _fromLabel.textScale = 0.625f;
-            _fromLabel.textColor = textColor;
-            _fromLabel.textAlignment = UIHorizontalAlignment.Left;
-
-            // create To slider from template
-            UIPanel toSliderPanel = showRangePanel.AttachUIComponent(UITemplateManager.GetAsGameObject("OptionsSliderTemplate")) as UIPanel;
-            if (toSliderPanel == null)
-            {
-                LogUtil.LogError("Unable to attach To slider.");
-                return false;
-            }
-            toSliderPanel.autoSize = false;
-            toSliderPanel.size = new Vector2(fromSliderPanel.size.x, fromSliderPanel.size.y);
-            toSliderPanel.relativePosition = new Vector3(fromSliderPanel.relativePosition.x, fromSliderPanel.relativePosition.y + fromSliderPanel.size.y + 3f);
-
-            // hide label from template
-            UILabel toSliderLabel = toSliderPanel.Find<UILabel>("Label");
-            if (toSliderLabel == null)
-            {
-                LogUtil.LogError("Unable to find To label.");
-                return false;
-            }
-            toSliderLabel.isVisible = false;
-
-            // get the To slider
-            _toSlider = toSliderPanel.Find<UISlider>("Slider");
-            if (_toSlider == null)
-            {
-                LogUtil.LogError("Unable to find To slider.");
-                return false;
-            }
-            _toSlider.autoSize = false;
-            _toSlider.size = new Vector2(toSliderPanel.size.x, toSliderPanel.size.y);
-            _toSlider.relativePosition = new Vector3(0f, 0f);
-            _toSlider.orientation = UIOrientation.Horizontal;
-            _toSlider.stepSize = 1f;    // 1 year or 1 day
-            _toSlider.scrollWheelAmount = (_realTimeModEnabled ? 30f : 5f);
-            _toSlider.minValue = -3f;
-            _toSlider.maxValue = -1f;
-            _toSlider.value = -2f;
-
-            // create To label
-            _toLabel = showRangePanel.AddUIComponent<UILabel>();
-            if (_toLabel == null)
-            {
-                LogUtil.LogError("Unable to create To label.");
-                return false;
-            }
-            _toLabel.name = "ToLabel";
-            _toLabel.autoSize = false;
-            _toLabel.size = new Vector2(_fromLabel.size.x, toSliderPanel.size.y);
-            _toLabel.relativePosition = new Vector3(toSliderPanel.relativePosition.x + toSliderPanel.size.x + 5f, toSliderPanel.relativePosition.y + 9f);
-            _toLabel.text = (_realTimeModEnabled ? "00/00/0000" : "0000");
-            _toLabel.textScale = 0.625f;
-            _toLabel.textColor = textColor;
-            _toLabel.textAlignment = UIHorizontalAlignment.Left;
 
             // initialize slider min and max values
             // the slider clamps the value to be in the min/max range, so min/max must be initalized before the slider values
             UpdatePanel();
 
             // set initial Show Range option values to the values previously read from the game save file
-            ShowAll = _initialValueShowAll;
+            SelectedOption = _initialValueShowRangeOption;
             _fromSlider.value = _initialValueFromSlider;
             _toSlider.value = _initialValueToSlider;
 
@@ -322,27 +241,172 @@ namespace MoreCityStatistics
         }
 
         /// <summary>
+        /// create the panel, radio button, and label for a show range option
+        /// </summary>
+        public bool CreateShowRangeOption(
+            UIPanel showRangeOptionPanel,
+            ShowRangeOption showRangeOption,
+            float left,
+            Color32 textColor,
+            out UIPanel panel,
+            out UISprite radio,
+            out UILabel label)
+        {
+            // construct prefix for UI component names
+            string namePrefix = "Show" + showRangeOption.ToString();
+
+            // width for one option is panel width divided by number of options
+            float optionWidth = showRangeOptionPanel.size.x / Enum.GetNames(typeof(ShowRangeOption)).Length;
+
+            // create panel
+            panel = showRangeOptionPanel.AddUIComponent<UIPanel>();
+            if (panel == null)
+            {
+                LogUtil.LogError($"Unable to create {namePrefix} panel.");
+                radio = null;
+                label = null;
+                return false;
+            }
+            panel.name = namePrefix + "Panel";
+            panel.autoSize = false;
+            panel.size = new Vector2(optionWidth, 15f);
+            panel.relativePosition = new Vector3(left, 0f);
+            panel.eventClicked += RadioButton_eventClicked;
+
+            // create radio button
+            radio = panel.AddUIComponent<UISprite>();
+            if (radio == null)
+            {
+                Debug.LogError($"Unable to create {namePrefix} radio button.");
+                label = null;
+                return false;
+            }
+            radio.name = namePrefix + "Radio";
+            radio.autoSize = false;
+            radio.size = new Vector2(15f, 15f);
+            radio.relativePosition = new Vector3(0f, 0f);
+
+            // create label
+            label = panel.AddUIComponent<UILabel>();
+            if (label == null)
+            {
+                LogUtil.LogError($"Unable to create {namePrefix} label.");
+                return false;
+            }
+            label.name = namePrefix + "Label";
+            label.autoSize = false;
+            label.size = new Vector2(optionWidth - 17f, 15f);
+            label.relativePosition = new Vector3(17f, 2.5f);
+            label.textScale = 0.75f;
+            label.textColor = textColor;
+
+            // success
+            return true;
+        }
+
+        /// <summary>
+        /// create a date or year slider
+        /// </summary>
+        public bool CreateRangeSlider(
+            UIPanel showRangePanel,
+            string namePrefix,
+            float top,
+            Color32 textColor,
+            out UIPanel sliderPanel,
+            out UISlider slider,
+            out UILabel label)
+        {
+            // create slider from template
+            sliderPanel = showRangePanel.AttachUIComponent(UITemplateManager.GetAsGameObject("OptionsSliderTemplate")) as UIPanel;
+            if (sliderPanel == null)
+            {
+                LogUtil.LogError($"Unable to attach {namePrefix} slider panel.");
+                slider = null;
+                label = null;
+                return false;
+            }
+            sliderPanel.autoSize = false;
+            float labelWidth = (_realTimeModEnabled ? 70f : 40f);
+            sliderPanel.size = new Vector2(showRangePanel.size.x - 10f - labelWidth, 15f);
+            sliderPanel.relativePosition = new Vector3(10f, top);
+            sliderPanel.autoLayout = false;
+
+            // get the From slider
+            slider = sliderPanel.Find<UISlider>("Slider");
+            if (slider == null)
+            {
+                LogUtil.LogError($"Unable to find {namePrefix} slider.");
+                label = null;
+                return false;
+            }
+            slider.autoSize = false;
+            slider.size = new Vector2(sliderPanel.size.x, sliderPanel.size.y);
+            slider.relativePosition = new Vector3(0f, 0f);
+            slider.orientation = UIOrientation.Horizontal;
+            slider.stepSize = 1f;      // 1 year or 1 day
+            slider.scrollWheelAmount = (_realTimeModEnabled ? 30f : 5f);    // 30 days or 5 years
+            slider.minValue = -3f;
+            slider.maxValue = -1f;
+            slider.value = -2f;
+
+            // hide label from template
+            UILabel sliderLabel = sliderPanel.Find<UILabel>("Label");
+            if (sliderLabel == null)
+            {
+                LogUtil.LogError($"Unable to find {namePrefix} label.");
+                label = null;
+                return false;
+            }
+            sliderLabel.isVisible = false;
+
+            // create label
+            label = showRangePanel.AddUIComponent<UILabel>();
+            if (label == null)
+            {
+                LogUtil.LogError($"Unable to create {namePrefix} label.");
+                return false;
+            }
+            label.name = namePrefix + "Label";
+            label.autoSize = false;
+            label.size = new Vector2(labelWidth, sliderPanel.size.y);
+            label.relativePosition = new Vector3(sliderPanel.relativePosition.x + sliderPanel.size.x + 5f, sliderPanel.relativePosition.y + 4.5f);
+            label.text = (_realTimeModEnabled ? "00/00/0000" : "0000");
+            label.textScale = 0.625f;
+            label.textColor = textColor;
+            label.textAlignment = UIHorizontalAlignment.Left;
+
+            // success
+            return true;
+        }
+
+        /// <summary>
         /// update UI text based on current language
         /// </summary>
         public void UpdateUIText()
         {
             // update labels
             Translation translation = Translation.instance;
-            _showRangeLabel.text = translation.Get(_realTimeModEnabled ? Translation.Key.DatesToShow : Translation.Key.YearsToShow);
-            _showAllLabel.text = translation.Get(Translation.Key.All);
-            _showFromToLabel.text = translation.Get(Translation.Key.FromTo);
+            _rangeToShowLabel.text = translation.Get(_realTimeModEnabled ? Translation.Key.DatesToShow : Translation.Key.YearsToShow);
+            _showAllLabel.text     = translation.Get(Translation.Key.All  );
+            _showSinceLabel.text   = translation.Get(Translation.Key.Since);
+            _showRangeLabel.text   = translation.Get(Translation.Key.Range);
         }
 
         /// <summary>
-        /// handle click on All or FromTo
+        /// handle click on one of the radio buttons
         /// </summary>
-        private void ShowRangeRadioButton_eventClicked(UIComponent component, UIMouseEventParameter eventParam)
+        private void RadioButton_eventClicked(UIComponent component, UIMouseEventParameter eventParam)
         {
-            // toggle radio buttons
-            ShowAll = !ShowAll;
+            // set option based on which panel was clicked
+            if      (component == _showAllPanel  ) { SelectedOption = ShowRangeOption.All;   }
+            else if (component == _showSincePanel) { SelectedOption = ShowRangeOption.Since; }
+            else if (component == _showRangePanel) { SelectedOption = ShowRangeOption.Range; }
 
             // update main panel
             UserInterface.instance.UpdateMainPanel();
+
+            // event is used
+            eventParam.Use();
         }
 
         /// <summary>
@@ -353,11 +417,8 @@ namespace MoreCityStatistics
             // update slider label
             UpdateSliderLabel(_fromLabel, _fromSlider);
 
-            // update main panel only if using the sliders
-            if (!ShowAll)
-            {
-                UserInterface.instance.UpdateMainPanel();
-            }
+            // update main panel
+            UserInterface.instance.UpdateMainPanel();
         }
 
         /// <summary>
@@ -368,11 +429,8 @@ namespace MoreCityStatistics
             // update slider label
             UpdateSliderLabel(_toLabel, _toSlider);
 
-            // update main panel only if using the sliders
-            if (!ShowAll)
-            {
-                UserInterface.instance.UpdateMainPanel();
-            }
+            // update main panel
+            UserInterface.instance.UpdateMainPanel();
         }
 
         /// <summary>
@@ -403,7 +461,7 @@ namespace MoreCityStatistics
         private void UpdateSliderLabels()
         {
             UpdateSliderLabel(_fromLabel, _fromSlider);
-            UpdateSliderLabel(_toLabel, _toSlider);
+            UpdateSliderLabel(_toLabel,   _toSlider);
         }
 
         /// <summary>
@@ -487,7 +545,7 @@ namespace MoreCityStatistics
                 // the UISlider does not automatically update the thumb when the min and max values are changed, so update the thumb explicitly
                 MethodInfo updateValueIndicators = typeof(UISlider).GetMethod("UpdateValueIndicators", BindingFlags.NonPublic | BindingFlags.Instance);
                 updateValueIndicators.Invoke(_fromSlider, new object[] { _fromSlider.value });
-                updateValueIndicators.Invoke(_toSlider, new object[] { _toSlider.value });
+                updateValueIndicators.Invoke(_toSlider,   new object[] { _toSlider.value   });
 
                 // update slider labels
                 UpdateSliderLabels();
@@ -495,19 +553,27 @@ namespace MoreCityStatistics
         }
 
         /// <summary>
-        /// the status of the Show All radio button
+        /// the currently selected show range option
         /// </summary>
-        public bool ShowAll
+        public ShowRangeOption SelectedOption
         {
             get
             {
-                return IsRadioButtonSelected(_showAllRadio);
+                return _showRangeOption;
             }
             private set
             {
-                // set both radio buttons
-                SetRadioButton(_showAllRadio, value);
-                SetRadioButton(_showFromToRadio, !value);
+                // save value
+                _showRangeOption = value;
+
+                // set all radio buttons
+                SetRadioButton(_showAllRadio,   _showRangeOption == ShowRangeOption.All  );
+                SetRadioButton(_showSinceRadio, _showRangeOption == ShowRangeOption.Since);
+                SetRadioButton(_showRangeRadio, _showRangeOption == ShowRangeOption.Range);
+
+                // show or hide sliders and slider labels
+                _fromSlider.isVisible = _fromLabel.isVisible = (_showRangeOption == ShowRangeOption.Since || _showRangeOption == ShowRangeOption.Range);
+                _toSlider.isVisible   = _toLabel.isVisible   = (                                             _showRangeOption == ShowRangeOption.Range);
             }
         }
 
@@ -531,24 +597,12 @@ namespace MoreCityStatistics
         }
 
         /// <summary>
-        /// return whether or not the radio button (i.e. sprite) is selected
-        /// </summary>
-        private bool IsRadioButtonSelected(UISprite radioButton)
-        {
-            if (radioButton != null)
-            {
-                return (radioButton.spriteName == "check-checked");
-            }
-            return false;
-        }
-
-        /// <summary>
         /// write the show range user selections to the game save file
         /// </summary>
         public void Serialize(BinaryWriter writer)
         {
             // write current values; these will be used as initial values when the game is loaded
-            writer.Write(ShowAll);
+            writer.Write((int)SelectedOption);      // convert enum to int
             writer.Write(_fromSlider != null ? _fromSlider.value : 0f);
             writer.Write(_toSlider   != null ? _toSlider.value   : 0f);
         }
@@ -559,7 +613,7 @@ namespace MoreCityStatistics
         public void Deserialize(BinaryReader reader, int version)
         {
             // read initial values
-            _initialValueShowAll    = reader.ReadBoolean();
+            _initialValueShowRangeOption = (version < 8 ? (reader.ReadBoolean() ? ShowRangeOption.All : ShowRangeOption.Range ) : (ShowRangeOption)reader.ReadInt32());
             _initialValueFromSlider = reader.ReadSingle();
             _initialValueToSlider   = reader.ReadSingle();
         }

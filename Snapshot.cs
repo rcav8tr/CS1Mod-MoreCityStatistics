@@ -268,6 +268,17 @@ namespace MoreCityStatistics
         public uint? PublicTransportationTaxiResidents;
         public uint? PublicTransportationTaxiTourists;
 
+        // Intercity Travel
+        public int? IntercityTravelArrivingTotal            { get { return IntercityTravelArrivingResidents + IntercityTravelArrivingTourists; } }
+        public int? IntercityTravelArrivingResidents;
+        public int? IntercityTravelArrivingTourists;
+        public int? IntercityTravelDepartingTotal           { get { return IntercityTravelDepartingResidents + IntercityTravelDepartingTourists; } }
+        public int? IntercityTravelDepartingResidents;
+        public int? IntercityTravelDepartingTourists;
+        public int? IntercityTravelDummyTrafficTotal        { get { return IntercityTravelDummyTrafficResidents + IntercityTravelDummyTrafficTourists; } }
+        public int? IntercityTravelDummyTrafficResidents;
+        public int? IntercityTravelDummyTrafficTourists;
+
         // Population
         public uint PopulationTotal                         { get { return PopulationChildren + PopulationTeens + PopulationYoungAdults + PopulationAdults + PopulationSeniors; } }
         public float PopulationChildrenPercent              { get { return ComputePercent(PopulationChildren, PopulationTotal); } }
@@ -1113,7 +1124,12 @@ namespace MoreCityStatistics
             snapshot.EldercareAverageLifeSpan = cityDistrict.GetAverageLifespan();
 
             // Zoning
-            GetZoning(out snapshot.ZoningResidential, out snapshot.ZoningCommercial, out snapshot.ZoningIndustrial, out snapshot.ZoningOffice, out snapshot.ZoningUnzoned);
+            GetZoningCounts(
+                out snapshot.ZoningResidential,
+                out snapshot.ZoningCommercial,
+                out snapshot.ZoningIndustrial,
+                out snapshot.ZoningOffice,
+                out snapshot.ZoningUnzoned);
 
             // Zone Level - logic copied from LevelsInfoViewPanel.UpdatePanel and DistrictPrivateData.GetLevelPercentages
             snapshot.ZoneLevelResidential1 = cityDistrict.m_residentialData.m_finalLevel1;
@@ -1146,8 +1162,15 @@ namespace MoreCityStatistics
             snapshot.TrafficAverageFlow = vehicleManagerInstance.m_lastTrafficFlow;
 
             // Traffic Counts
-            GetVehicleTrafficCounts(ref snapshot.TrafficPrivateVehiclesCount, ref snapshot.TrafficPublicTransportCargoCount, ref snapshot.TrafficTrucksCount, ref snapshot.TrafficCityServiceVehiclesCount, ref snapshot.TrafficDummyTrafficCount);
-            GetCitizenTrafficCounts(ref snapshot.TrafficPedestriansCount, ref snapshot.TrafficCyclistsCount);
+            GetVehicleTrafficCounts(
+                out snapshot.TrafficPrivateVehiclesCount,
+                out snapshot.TrafficPublicTransportCargoCount,
+                out snapshot.TrafficTrucksCount,
+                out snapshot.TrafficCityServiceVehiclesCount,
+                out snapshot.TrafficDummyTrafficCount);
+            GetCitizenTrafficCounts(
+                out snapshot.TrafficPedestriansCount,
+                out snapshot.TrafficCyclistsCount);
 
             // Pollution - logic copied from PollutionInfoViewPanel.UpdatePanel and NoisePollutionInfoViewPanel.UpdatePanel
             snapshot.PollutionAverageGround        = cityDistrict.GetGroundPollution();
@@ -1198,6 +1221,15 @@ namespace MoreCityStatistics
             if (dlcMassTransit)  snapshot.PublicTransportationCableCarTourists    = passengers[(int)TransportInfo.TransportType.CableCar  ].m_touristPassengers.m_averageCount;
             if (dlcAfterDark  )  snapshot.PublicTransportationTaxiResidents       = passengers[(int)TransportInfo.TransportType.Taxi      ].m_residentPassengers.m_averageCount;
             if (dlcAfterDark  )  snapshot.PublicTransportationTaxiTourists        = passengers[(int)TransportInfo.TransportType.Taxi      ].m_touristPassengers.m_averageCount;
+
+            // Intercity Travel
+            GetIntercityTravelCounts(
+                out snapshot.IntercityTravelArrivingResidents,
+                out snapshot.IntercityTravelArrivingTourists,
+                out snapshot.IntercityTravelDepartingResidents,
+                out snapshot.IntercityTravelDepartingTourists,
+                out snapshot.IntercityTravelDummyTrafficResidents,
+                out snapshot.IntercityTravelDummyTrafficTourists);
 
             // Population - logic copied from CityInfoPanel.LateUpdate
             snapshot.PopulationChildren    = cityDistrict.m_childData.m_finalCount;
@@ -1725,7 +1757,12 @@ namespace MoreCityStatistics
         /// get zoned squares
         /// logic adapted from ZoneInfo mod ZoneInfoPanel.Update
         /// </summary>
-        private static void GetZoning(out int residential, out int commercial, out int industrial, out int office, out int unzoned)
+        private static void GetZoningCounts(
+            out int residential,
+            out int commercial,
+            out int industrial,
+            out int office,
+            out int unzoned)
         {
             // initialize return values
             residential = 0;
@@ -2131,11 +2168,12 @@ namespace MoreCityStatistics
         /// <summary>
         /// get vehicle traffic counts
         /// </summary>
-        private static void GetVehicleTrafficCounts(ref int? trafficPrivateVehiclesCount,
-                                                    ref int? trafficPublicTransportCargoCount,
-                                                    ref int? trafficTrucksCount,
-                                                    ref int? trafficCityServiceVehiclesCount,
-                                                    ref int? trafficDummyTrafficCount)
+        private static void GetVehicleTrafficCounts(
+            out int? trafficPrivateVehiclesCount,
+            out int? trafficPublicTransportCargoCount,
+            out int? trafficTrucksCount,
+            out int? trafficCityServiceVehiclesCount,
+            out int? trafficDummyTrafficCount)
         {
             // initialize traffic counts
             trafficPrivateVehiclesCount         = 0;
@@ -2144,17 +2182,18 @@ namespace MoreCityStatistics
             trafficCityServiceVehiclesCount     = 0;
             trafficDummyTrafficCount            = 0;
 
-            // get manager instances
-            BuildingManager bmInstance = BuildingManager.instance;
-            CitizenManager cmInstance = CitizenManager.instance;
-            VehicleManager vmInstance = VehicleManager.instance;
+            // get buffers for faster access of arrays used often (i.e. in the loop)
+            Vehicle[] vehicles = VehicleManager.instance.m_vehicles.m_buffer;
+            CitizenUnit[] citizenUnits = CitizenManager.instance.m_units.m_buffer;
+            Citizen[] citizens = CitizenManager.instance.m_citizens.m_buffer;
+            Building[] buildings = BuildingManager.instance.m_buildings.m_buffer;
 
             // do each vehicle
-            uint maximumVehicles = vmInstance.m_vehicles.m_size;
+            uint maximumVehicles = (uint)vehicles.Length;
             for (uint vehicleID = 0; vehicleID < maximumVehicles; vehicleID++)
             {
                 // get the vehicle
-                Vehicle vehicle = vmInstance.m_vehicles.m_buffer[vehicleID];
+                Vehicle vehicle = vehicles[vehicleID];
 
                 // the vehicle must be created, not deleted, and not waiting for path
                 // logic adapted from PathVisualizer.AddPathsImpl
@@ -2192,10 +2231,10 @@ namespace MoreCityStatistics
                 // if the first citizen in the vehicle is dummy traffic, then assume all citizens in the vehicle are dummy traffic and the vehicle is dummy traffic
                 if (vehicle.m_citizenUnits != 0)
                 {
-                    uint citizenID = cmInstance.m_units.m_buffer[vehicle.m_citizenUnits].m_citizen0;
+                    uint citizenID = citizenUnits[vehicle.m_citizenUnits].m_citizen0;
                     if (citizenID != 0)
                     {
-                        if ((cmInstance.m_citizens.m_buffer[citizenID].m_flags & Citizen.Flags.DummyTraffic) != 0)
+                        if ((citizens[citizenID].m_flags & Citizen.Flags.DummyTraffic) != 0)
                         {
                             trafficDummyTrafficCount++;
                             continue;
@@ -2207,12 +2246,12 @@ namespace MoreCityStatistics
                 // not sure if the game logic will always mark these vehicles as dummy traffic, so it is checked here
                 if (vehicle.m_sourceBuilding != 0)
                 {
-                    Building sourceBuilding = bmInstance.m_buildings.m_buffer[vehicle.m_sourceBuilding];
+                    Building sourceBuilding = buildings[vehicle.m_sourceBuilding];
                     if (sourceBuilding.Info != null && sourceBuilding.Info.m_buildingAI.GetType() == typeof(OutsideConnectionAI))
                     {
                         if (vehicle.m_targetBuilding != 0)
                         {
-                            Building targetBuilding = bmInstance.m_buildings.m_buffer[vehicle.m_targetBuilding];
+                            Building targetBuilding = buildings[vehicle.m_targetBuilding];
                             if (targetBuilding.Info != null && targetBuilding.Info.m_buildingAI.GetType() == typeof(OutsideConnectionAI))
                             {
                                 trafficDummyTrafficCount++;
@@ -2266,22 +2305,23 @@ namespace MoreCityStatistics
         /// <summary>
         /// get citizen traffic counts
         /// </summary>
-        private static void GetCitizenTrafficCounts(ref int? trafficPedestriansCount, ref int? trafficCyclistsCount)
+        private static void GetCitizenTrafficCounts(out int? trafficPedestriansCount, out int? trafficCyclistsCount)
         {
             // initialize traffic counts
             trafficPedestriansCount = 0;
             trafficCyclistsCount    = 0;
 
-            // get manager instances
-            CitizenManager cmInstance = CitizenManager.instance;
-            VehicleManager vmInstance = VehicleManager.instance;
+            // get buffers for faster access of arrays used often (i.e. in the loop)
+            CitizenInstance[] citizenInstances = CitizenManager.instance.m_instances.m_buffer;
+            Citizen[] citizens = CitizenManager.instance.m_citizens.m_buffer;
+            Vehicle[] vehicles = VehicleManager.instance.m_vehicles.m_buffer;
 
             // do each citizen instance (not each citizen); a citizen instance is required for a citizen to move
-            uint maximumCitizenInstances = cmInstance.m_instances.m_size;
+            uint maximumCitizenInstances = (uint)citizenInstances.Length;
             for (uint instanceID = 0; instanceID < maximumCitizenInstances; instanceID++)
             {
                 // get the citizen instance
-                CitizenInstance citizenInstance = cmInstance.m_instances.m_buffer[instanceID];
+                CitizenInstance citizenInstance = citizenInstances[instanceID];
 
                 // citizen instance must be created, not deleted, and not waiting for path
                 if ((citizenInstance.m_flags & (CitizenInstance.Flags.Created | CitizenInstance.Flags.Deleted | CitizenInstance.Flags.WaitingPath)) != CitizenInstance.Flags.Created)
@@ -2297,7 +2337,7 @@ namespace MoreCityStatistics
                 }
 
                 // ignore citizens marked as dummy traffic
-                Citizen citizen = cmInstance.m_citizens.m_buffer[citizenID];
+                Citizen citizen = citizens[citizenID];
                 if ((citizen.m_flags & Citizen.Flags.DummyTraffic) != 0)
                 {
                     continue;
@@ -2317,7 +2357,7 @@ namespace MoreCityStatistics
 			    ushort vehicleID = citizen.m_vehicle;
 			    if (vehicleID != 0)
 			    {
-				    VehicleInfo vehicleInfo = vmInstance.m_vehicles.m_buffer[vehicleID].Info;
+				    VehicleInfo vehicleInfo = vehicles[vehicleID].Info;
 				    if (vehicleInfo != null)
 				    {
 					    vehicleType = vehicleInfo.m_vehicleType;
@@ -2334,6 +2374,126 @@ namespace MoreCityStatistics
 		        {
                     trafficPedestriansCount++;
 		        }
+            }
+        }
+
+        // intercity travel types
+        private enum IntercityTravelType
+        {
+            Arriving,
+            Departing,
+            DummyTraffic
+        }
+
+        /// <summary>
+        /// get intercity travel counts
+        /// </summary>
+        private static void GetIntercityTravelCounts(
+            out int? arrivingResidents,
+            out int? arrivingTourists,
+            out int? departingResidents,
+            out int? departingTourists,
+            out int? dummyTrafficResidents,
+            out int? dummyTrafficTourists)
+        {
+            // initialize
+            arrivingResidents     = 0;
+            arrivingTourists      = 0;
+            departingResidents    = 0;
+            departingTourists     = 0;
+            dummyTrafficResidents = 0;
+            dummyTrafficTourists  = 0;
+
+            // get buffers for faster access of arrays used often (i.e. in the loop)
+            CitizenInstance[] citizenInstances = CitizenManager.instance.m_instances.m_buffer;
+            Citizen[] citizens = CitizenManager.instance.m_citizens.m_buffer;
+            Building[] buildings = BuildingManager.instance.m_buildings.m_buffer;
+
+            // do each citizen instance (not each citizen); a citizen instance is required for a citizen to move
+            uint maximumCitizenInstances = (uint)citizenInstances.Length;
+            for (uint instanceID = 0; instanceID < maximumCitizenInstances; instanceID++)
+            {
+                // get the citizen instance
+                CitizenInstance citizenInstance = citizenInstances[instanceID];
+
+                // citizen instance must be created, not deleted, and not waiting for path
+                if ((citizenInstance.m_flags & (CitizenInstance.Flags.Created | CitizenInstance.Flags.Deleted | CitizenInstance.Flags.WaitingPath)) != CitizenInstance.Flags.Created)
+                {
+                    continue;
+                }
+
+                // ignore invalid citizens
+		        uint citizenID = citizenInstance.m_citizen;
+                if (citizenID == 0)
+                {
+                    continue;
+                }
+
+                // ignore dead citizens
+                // don't know if a citizen from a citizen instance can ever be dead, but check anyway
+                Citizen citizen = citizens[citizenID];
+                if (citizen.Dead)
+                {
+                    continue;
+                }
+
+                // get the intercity travel type of the citizen instance
+                IntercityTravelType intercityTravelType;
+
+                // check for citizen marked as dummy traffic
+                if ((citizen.m_flags & Citizen.Flags.DummyTraffic) != 0)
+                {
+                    intercityTravelType = IntercityTravelType.DummyTraffic;
+                }
+                else
+                {
+                    // get whether or not source and target buildings have OutsideConnectionAI
+                    bool sourceOutsideConnection = false;
+                    bool targetOutsideConnection = false;
+                    if (citizenInstance.m_sourceBuilding != 0)
+                    {
+                        Building sourceBuilding = buildings[citizenInstance.m_sourceBuilding];
+                        sourceOutsideConnection = (sourceBuilding.Info != null && sourceBuilding.Info.m_buildingAI.GetType() == typeof(OutsideConnectionAI));
+                    }
+                    if (citizenInstance.m_targetBuilding != 0)
+                    {
+                        Building targetBuilding = buildings[citizenInstance.m_targetBuilding];
+                        targetOutsideConnection = (targetBuilding.Info != null && targetBuilding.Info.m_buildingAI.GetType() == typeof(OutsideConnectionAI));
+                    }
+
+                    // determine intercity travel type based on source and target buildings
+                    if (sourceOutsideConnection && targetOutsideConnection)
+                    {
+                        intercityTravelType = IntercityTravelType.DummyTraffic;
+                    }
+                    else if (sourceOutsideConnection && !targetOutsideConnection)
+                    {
+                        intercityTravelType = IntercityTravelType.Arriving;
+                    }
+                    else if (!sourceOutsideConnection && targetOutsideConnection)
+                    {
+                        intercityTravelType = IntercityTravelType.Departing;
+                    }
+                    else
+                    {
+                        // skip citizen instance that is traveling within the city
+                        continue;
+                    }
+                }
+
+                // increment tourist or resident count according to intercity travel type
+                if ((citizen.m_flags & Citizen.Flags.Tourist) != 0)
+                {
+                    if      (intercityTravelType == IntercityTravelType.Arriving    ) { arrivingTourists++;     }
+                    else if (intercityTravelType == IntercityTravelType.Departing   ) { departingTourists++;    }
+                    else if (intercityTravelType == IntercityTravelType.DummyTraffic) { dummyTrafficTourists++; }
+                }
+                else
+                {
+                    if      (intercityTravelType == IntercityTravelType.Arriving    ) { arrivingResidents++;     }
+                    else if (intercityTravelType == IntercityTravelType.Departing   ) { departingResidents++;    }
+                    else if (intercityTravelType == IntercityTravelType.DummyTraffic) { dummyTrafficResidents++; }
+                }
             }
         }
 
@@ -2605,6 +2765,13 @@ namespace MoreCityStatistics
             writer.Write(PublicTransportationCableCarTourists);
             writer.Write(PublicTransportationTaxiResidents);
             writer.Write(PublicTransportationTaxiTourists);
+
+            writer.Write(IntercityTravelArrivingResidents);
+            writer.Write(IntercityTravelArrivingTourists);
+            writer.Write(IntercityTravelDepartingResidents);
+            writer.Write(IntercityTravelDepartingTourists);
+            writer.Write(IntercityTravelDummyTrafficResidents);
+            writer.Write(IntercityTravelDummyTrafficTourists);
 
             writer.Write(PopulationChildren);
             writer.Write(PopulationTeens);
@@ -2994,6 +3161,13 @@ namespace MoreCityStatistics
             snapshot.PublicTransportationCableCarTourists       = reader.ReadNullableUInt32();
             snapshot.PublicTransportationTaxiResidents          = reader.ReadNullableUInt32();
             snapshot.PublicTransportationTaxiTourists           = reader.ReadNullableUInt32();
+
+            snapshot.IntercityTravelArrivingResidents           = version < 8 ? null : reader.ReadNullableInt32();
+            snapshot.IntercityTravelArrivingTourists            = version < 8 ? null : reader.ReadNullableInt32();
+            snapshot.IntercityTravelDepartingResidents          = version < 8 ? null : reader.ReadNullableInt32();
+            snapshot.IntercityTravelDepartingTourists           = version < 8 ? null : reader.ReadNullableInt32();
+            snapshot.IntercityTravelDummyTrafficResidents       = version < 8 ? null : reader.ReadNullableInt32();
+            snapshot.IntercityTravelDummyTrafficTourists        = version < 8 ? null : reader.ReadNullableInt32();
 
             snapshot.PopulationChildren                         = reader.ReadUInt32();
             snapshot.PopulationTeens                            = reader.ReadUInt32();

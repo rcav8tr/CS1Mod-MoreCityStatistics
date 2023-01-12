@@ -39,7 +39,8 @@
 "YearsToShow","Years to show:","Jahre zu zeigen:","Años para mostrar:","Années à afficher:","보여줄 년:","Lata do pokazania:","Anos para mostrar:","Годы, чтобы показать:","显示年份：","表示する年："
 "DatesToShow","Dates to show:","Termine zu zeigen:","Fechas para mostrar:","Dates à afficher :","표시 날짜:","Daty do pokazania:","Datas para mostrar:","Даты показа:","显示日期：","表示する日付:"
 "All","All","Alle","Todos","Tout","모두","Wszystko","Tudo","Все","全部","全期間"
-"FromTo","From to","Von bis","Desde hasta","De à","범위","Od do","De para","С до","从到","指定期間"
+"Since","Since","Seit","Desde","Depuis","이래","Odkąd","Desde a","Со времени","自从","から"
+"Range","Range","Reichweite","Rango","Gamme","범위","Zakres","Faixa","Спектр","音域","範囲"
 "SnapshotCount","Snapshots:","Schnappschüsse:","Instantáneas:","Instantanés:","스냅샷:","Migawki:","Instantâneos:","Снимки:","快照：","スナップショット："
 ,,,,,,,,,,
 "# Graph month labels",,,,,,,,,,
@@ -80,6 +81,7 @@
 "Crime","Crime","Kriminalität","Criminalidad","Crime","범죄","Przestępczość","Crime","Преступность","犯罪","犯罪"
 "CommercialCash","Commercial Cash","Kommerzielles Bargeld","Efectivo Comercial","Espèces Commerciales","상업 현금","Gotówka komercyjna","Dinheiro comercial","Коммерческая наличность","商业现金","商用現金"
 "PublicTransportation","Public Transportation","Nahverkehr","Transporte público","Transport public","대중 교통","Transport publiczny","Transporte público","Общественный транспорт","公共交通","公共交通"
+"IntercityTravel","Intercity Travel","Intercity-Reisen","Viajes interurbanos","Voyage interurbain","도시간 여행","Podróże międzymiastowe","Viagens Intermunicipais","Междугородние поездки","城际旅行","都市間旅行"
 "Population","Population","Bevölkerung","Población","Population","인구","Populacja","População","Население","人口","人口"
 "Households","Households","Haushalte","Familias","Ménages","가구수","Gospodarstwa domowe","Residências","Семей","家庭数","世帯数"
 "Employment","Employment","Anstellung","Empleo","Emplois","고용","Zatrudnienie","Emprego","Трудоустройство","就业","雇用状況"
@@ -180,6 +182,8 @@
 "Monorail","Monorail","Monorail","Monorraíl","Monorail","모노레일","Kolej jednoszynowa","Monotrilho","Монорельс","单轨列车","モノレール"
 "CableCar","Cable Car","Seilbahn","Teleférico","Téléphérique","케이블 카","Kolej linowa","Bondinho","Канатная дорога","缆车","ケーブルカー"
 "Taxi","Taxi","Taxi","Taxi","Taxi","택시","Taxi","Táxi","Такси","出租车","タクシー"
+"Arriving","Arriving","Ankunft","Llegadas","En arrivant","도착","Przyloty","Chegando","Прибытие","抵达","到着"
+"Departing","Departing","Abfahrt","Salidas","En quittant","출발","Odloty","Partindo","Отправления","启程","出発"
 "Children","Children","Kinder","Niños","Enfants","어린이","Dzieci","Crianças","Дети","儿童","子供"
 "Teens","Teens","Jugendliche","Adolescentes","Adolescents","청소년","Nastolatki","Adolescentes","Подростки","青少年","ティーン"
 "YoungAdults","Young Adults","Junge Erw.","Jóvenes","Jeunes adultes","청년","Młodzi dorośli","Jovens adultos","Молодежь","青年","若い大人"

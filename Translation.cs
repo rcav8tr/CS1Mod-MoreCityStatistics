@@ -93,7 +93,8 @@ namespace MoreCityStatistics
             YearsToShow,
             DatesToShow,
             All,
-            FromTo,
+            Since,
+            Range,
             SnapshotCount,
 
             // graph month labels
@@ -134,6 +135,7 @@ namespace MoreCityStatistics
             Crime,
             CommercialCash,
             PublicTransportation,
+            IntercityTravel,
             Population,
             Households,
             Employment,
@@ -235,6 +237,8 @@ namespace MoreCityStatistics
             Monorail,
             CableCar,
             Taxi,
+            Arriving,
+            Departing,
             Children,
             Teens,
             YoungAdults,

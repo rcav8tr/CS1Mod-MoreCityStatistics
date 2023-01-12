@@ -12,7 +12,7 @@ namespace MoreCityStatistics
         // serialization constants
         private const string SettingsID = "MoreCityStatisticsSettings";
         private const string SnapshotsIDPrefix = "MoreCityStatisticsSnapshots";
-        private const int CurrentVersion = 7;
+        private const int CurrentVersion = 8;
 
         /// <summary>
         /// called when a game or editor is saved (including AutoSave)

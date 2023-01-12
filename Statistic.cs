@@ -211,6 +211,16 @@ namespace MoreCityStatistics
             PublicTransportationTaxiResidents,
             PublicTransportationTaxiTourists,
 
+            IntercityTravelArrivingTotal,
+            IntercityTravelArrivingResidents,
+            IntercityTravelArrivingTourists,
+            IntercityTravelDepartingTotal,
+            IntercityTravelDepartingResidents,
+            IntercityTravelDepartingTourists,
+            IntercityTravelDummyTrafficTotal,
+            IntercityTravelDummyTrafficResidents,
+            IntercityTravelDummyTrafficTourists,
+
             PopulationTotal,
             PopulationChildrenPercent,
             PopulationTeensPercent,
@@ -640,7 +650,7 @@ namespace MoreCityStatistics
         private static Color32  _colorRoutePublicTransport1,    _colorRoutePublicTransport2;
         private static Color32  _colorRouteCargoTruck1,         _colorRouteCargoTruck2;
         private static Color32  _colorRouteServiceVehicle1,     _colorRouteServiceVehicle2;
-        private static Color32  _colorRouteDummy1,              _colorRouteDummy2;
+        private static Color32  _colorRouteDummy1,              _colorRouteDummy2,              _colorRouteDummy3;
         private static Color32  _colorRouteTotal;
 
         // zones
@@ -739,6 +749,8 @@ namespace MoreCityStatistics
         private static Color32  _colorCrime1,                   _colorCrime2,                   _colorCrimeRate;
         private static Color32  _colorBanks;
         private static Color32  _colorCash1,                    _colorCash2,                    _colorCash3;
+        private static Color32  _colorArriving1,                _colorArriving2,                _colorArriving3;
+        private static Color32  _colorDeparting1,               _colorDeparting2,               _colorDeparting3;
         private static Color32  _colorHouseholds1,              _colorHouseholds2;
         private static Color32  _colorEmployment1,              _colorEmployment2,              _colorEmployment3;
         private static Color32  _colorUnemployment1,            _colorUnemployment2;
@@ -1287,7 +1299,7 @@ namespace MoreCityStatistics
                     _colorRoutePublicTransport1 = routeColors[(int)InfoProperties.RouteType.PublicTransport];    _colorRoutePublicTransport2 = _colorRoutePublicTransport1.Multiply(DarkerMultiplier);
                     _colorRouteCargoTruck1      = routeColors[(int)InfoProperties.RouteType.CargoTruck];         _colorRouteCargoTruck2      = _colorRouteCargoTruck1     .Multiply(DarkerMultiplier);
                     _colorRouteServiceVehicle1  = routeColors[(int)InfoProperties.RouteType.ServiceVehicle];     _colorRouteServiceVehicle2  = _colorRouteServiceVehicle1 .Multiply(DarkerMultiplier);
-                    _colorRouteDummy1           = _colorNeutral2;                                                _colorRouteDummy2           = _colorRouteDummy1          .Multiply(DarkerMultiplier);
+                    _colorRouteDummy1           = _colorNeutral2;                                                _colorRouteDummy2           = _colorRouteDummy1          .Multiply(DarkerMultiplier); _colorRouteDummy3 = _colorRouteDummy2.Multiply(DarkerMultiplier);
                     _colorRouteTotal            = new Color32(6, 92, 177, 255);    // color taken manually from Traffic Routes info view icon
                 }
                 else
@@ -1554,6 +1566,14 @@ namespace MoreCityStatistics
                 _colorCash1 = new Color32(254, 214, 57, 255);                       // color taken manually from specialized district icon coin
                 _colorCash2 = _colorCash1.Multiply(DarkerMultiplier);
                 _colorCash3 = _colorCash2.Multiply(DarkerMultiplier);
+
+                _colorArriving1 = Color.green;                                      // just green
+                _colorArriving2 = _colorArriving1.Multiply(DarkerMultiplier);
+                _colorArriving3 = _colorArriving2.Multiply(DarkerMultiplier);
+
+                _colorDeparting1 = Color.red;                                       // just red
+                _colorDeparting2 = _colorDeparting1.Multiply(DarkerMultiplier);
+                _colorDeparting3 = _colorDeparting2.Multiply(DarkerMultiplier);
 
                 _colorHouseholds1 = new Color32(206, 248, 000, 255);                // color taken manually from CityInfoPanel for households text
                 _colorHouseholds2 = _colorHouseholds1.Multiply(DarkerMultiplier);
@@ -1835,6 +1855,16 @@ namespace MoreCityStatistics
                 case StatisticType.PublicTransportationTaxiTotal:                   _textColor = _colorTransportTaxi1;              break;
                 case StatisticType.PublicTransportationTaxiResidents:               _textColor = _colorTransportTaxi1;              break;
                 case StatisticType.PublicTransportationTaxiTourists:                _textColor = _colorTransportTaxi2;              break;
+
+                case StatisticType.IntercityTravelArrivingTotal:                    _textColor = _colorArriving1;                   break;
+                case StatisticType.IntercityTravelArrivingResidents:                _textColor = _colorArriving2;                   break;
+                case StatisticType.IntercityTravelArrivingTourists:                 _textColor = _colorArriving3;                   break;
+                case StatisticType.IntercityTravelDepartingTotal:                   _textColor = _colorDeparting1;                  break;
+                case StatisticType.IntercityTravelDepartingResidents:               _textColor = _colorDeparting2;                  break;
+                case StatisticType.IntercityTravelDepartingTourists:                _textColor = _colorDeparting3;                  break;
+                case StatisticType.IntercityTravelDummyTrafficTotal:                _textColor = _colorRouteDummy1;                 break;
+                case StatisticType.IntercityTravelDummyTrafficResidents:            _textColor = _colorRouteDummy2;                 break;
+                case StatisticType.IntercityTravelDummyTrafficTourists:             _textColor = _colorRouteDummy3;                 break;
 
                 case StatisticType.PopulationTotal:                                 _textColor = _colorStatisticsPopulation;        break;
                 case StatisticType.PopulationChildrenPercent:                       _textColor = _colorChild;                       break;
@@ -2390,6 +2420,20 @@ namespace MoreCityStatistics
                     _type == StatisticType.InvestmentsTotalGains                        ||
                     _type == StatisticType.OfficeIncomeFinancial                        ||
                     _type == StatisticType.ServiceExpensesBanks
+                    )
+                )
+                ||
+                (version < 8 &&
+                    (
+                    _type == StatisticType.IntercityTravelArrivingTotal                 ||
+                    _type == StatisticType.IntercityTravelArrivingResidents             ||
+                    _type == StatisticType.IntercityTravelArrivingTourists              ||
+                    _type == StatisticType.IntercityTravelDepartingTotal                ||
+                    _type == StatisticType.IntercityTravelDepartingResidents            ||
+                    _type == StatisticType.IntercityTravelDepartingTourists             ||
+                    _type == StatisticType.IntercityTravelDummyTrafficTotal             ||
+                    _type == StatisticType.IntercityTravelDummyTrafficResidents         ||
+                    _type == StatisticType.IntercityTravelDummyTrafficTourists
                     )
                 )
                )

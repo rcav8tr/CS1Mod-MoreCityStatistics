@@ -339,7 +339,7 @@ namespace MoreCityStatistics
             const float ItemHeight = 15f;
             if (!SnapshotFrequency.instance.CreateUI(optionsPanel)) return false;
             SnapshotFrequency.instance.relativePosition = new Vector3(_expandAll.relativePosition.x + ButtonWidth + 5f, 3f);
-            SnapshotFrequency.instance.size = new Vector2(optionsPanel.size.x - SnapshotFrequency.instance.relativePosition.x, 40f);
+            SnapshotFrequency.instance.size = new Vector2(optionsPanel.size.x - SnapshotFrequency.instance.relativePosition.x, 45f);
             SnapshotFrequency.instance.dropdownHeight = ItemHeight + 7f;
             SnapshotFrequency.instance.textScale = 0.75f;
             SnapshotFrequency.instance.textColor = _expandAll.textColor;
@@ -613,10 +613,46 @@ namespace MoreCityStatistics
                     const int InvalidIndex = -1;
                     int firstIndexToInclude = InvalidIndex;
                     int lastIndexToInclude  = InvalidIndex;
-                    if (showRangeInstance.ShowAll)
+                    if (showRangeInstance.SelectedOption == ShowRange.ShowRangeOption.All)
                     {
                         // use first and last snapshots
                         firstIndexToInclude = 0;
+                        lastIndexToInclude = snapshotsCount - 1;
+                    }
+                    else if (showRangeInstance.SelectedOption == ShowRange.ShowRangeOption.Since)
+                    {
+                        // get selected From date without time component
+                        DateTime selectedFromDate;
+                        if (_realTimeModEnabled)
+                        {
+                            // use the selected From date
+                            selectedFromDate = showRangeInstance.FromDate;
+                        }
+                        else
+                        {
+                            // use Jan 1 of the selected From year
+                            selectedFromDate = new DateTime(showRangeInstance.FromYear, 1, 1);
+                        }
+
+                        // compute the first snapshot index based on the selected From date
+                        for (int i = 0; i < snapshotsCount; i++)
+                        {
+                            // first index is the first snapshot that is on or after the selected From date
+                            DateTime snapshotDateTime = snapshotsInstance[i].SnapshotDateTime;
+                            if (snapshotDateTime >= selectedFromDate)
+                            {
+                                firstIndexToInclude = i;
+                                break;
+                            }
+                        }
+
+                        // if first index was not found (this can happen if From slider is all the way to the right) then use last snapshot
+                        if (firstIndexToInclude == InvalidIndex)
+                        {
+                            firstIndexToInclude = snapshotsCount - 1;
+                        }
+
+                        // last index is always last snapshot
                         lastIndexToInclude = snapshotsCount - 1;
                     }
                     else

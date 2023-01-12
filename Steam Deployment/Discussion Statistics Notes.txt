@@ -31,6 +31,9 @@ Dummy Traffic is a vehicle marked by the game as Dummy Traffic OR the first pers
 [h3]Commercial Cash[/h3]
 Accumulated is the cash held by Commercial buildings.  Capacity is the maximum cash that can be held by Commercial buildings.  Collected is the cash collected from Commercial buildings by bank cash vans in the last week.
 
+[h3]Intercity Travel[/h3]
+Arriving is the number of people traveling from an outside connection to your city, including people near the edge of the map waiting for transportation.  Departing is the number of people traveling from your city to an outside connection.  Dummy Traffic is the number of people traveling from outside connection to outside connection.  People traveling within your city are not counted.
+
 [h3]Tax Rates[/h3]
 Tax rates are the base tax rates, excluding any taxation policies.
 
@@ -126,12 +129,12 @@ If there is a gap in the snapshot dates due to disabling and later re-enabling t
 Many of the statistics are computed from other statistics.  For example, Profit is computed as Income minus Expenses.  To save space in the game save file, the computed statistics are not saved.  Only the base statistics are saved.
 
 [h3]Game Save File Space[/h3]
-A single snapshot uses 1825 bytes in the game save file.  The snapshot space in the game save file is listed below for various date ranges and the two default snapshot frequencies.  For comparison, a new blank game is about 5-6MB.
+A single snapshot uses 1855 bytes in the game save file.  The snapshot space in the game save file is listed below for various date ranges and the two default snapshot frequencies.  For comparison, a new blank game is about 5-6MB.
 [table]
 [tr][td][b]Date range[/b][/td][td][b]1/mo[/b][/td][td][b]1/day[/b][/td][/tr]
-[tr][td]1 month   [/td][td] 1,825[/td][td]55.5KB[/td][/tr]
-[tr][td]1 year    [/td][td]21.9KB[/td][td] 667KB[/td][/tr]
-[tr][td]10 years  [/td][td] 219KB[/td][td]6.67MB[/td][/tr]
-[tr][td]100 years [/td][td]2.19MB[/td][td]66.7MB[/td][/tr]
-[tr][td]1000 years[/td][td]21.9MB[/td][td] 667MB[/td][/tr]
+[tr][td]1 month   [/td][td] 1,855[/td][td]56.5KB[/td][/tr]
+[tr][td]1 year    [/td][td]22.3KB[/td][td] 668KB[/td][/tr]
+[tr][td]10 years  [/td][td] 223KB[/td][td]6.68MB[/td][/tr]
+[tr][td]100 years [/td][td]2.23MB[/td][td]66.8MB[/td][/tr]
+[tr][td]1000 years[/td][td]22.3MB[/td][td] 668MB[/td][/tr]
 [/table]

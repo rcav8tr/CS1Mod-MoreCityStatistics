@@ -38,6 +38,7 @@ namespace MoreCityStatistics
             Crime,
             CommercialCash,
             PublicTransportation,
+            IntercityTravel,
             Population,
             Households,
             Employment,
@@ -294,6 +295,10 @@ namespace MoreCityStatistics
                 Expanded = false;
             }
             else if (version < 7 && (_type == CategoryType.CommercialCash || _type == CategoryType.Investments))
+            {
+                Expanded = false;
+            }
+            else if (version < 8 && _type == CategoryType.IntercityTravel)
             {
                 Expanded = false;
             }

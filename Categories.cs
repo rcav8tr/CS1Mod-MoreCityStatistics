@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using UnityEngine;
 
 namespace MoreCityStatistics
 {
@@ -238,6 +237,17 @@ namespace MoreCityStatistics
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.PublicTransportationTaxiTotal,              Translation.Key.Taxi,                   Translation.Key.None,           Translation.Key.TotalPerWeek                ));
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.PublicTransportationTaxiResidents,          Translation.Key.Taxi,                   Translation.Key.None,           Translation.Key.ResidentsPerWeek            ));
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.PublicTransportationTaxiTourists,           Translation.Key.Taxi,                   Translation.Key.None,           Translation.Key.TouristsPerWeek             ));
+
+            _instance.Add(category = new Category(Category.CategoryType.IntercityTravel, Translation.Key.IntercityTravel));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.IntercityTravelArrivingTotal,               Translation.Key.Arriving,               Translation.Key.None,           Translation.Key.TotalPerWeek                ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.IntercityTravelArrivingResidents,           Translation.Key.Arriving,               Translation.Key.None,           Translation.Key.ResidentsPerWeek            ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.IntercityTravelArrivingTourists,            Translation.Key.Arriving,               Translation.Key.None,           Translation.Key.TouristsPerWeek             ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.IntercityTravelDepartingTotal,              Translation.Key.Departing,              Translation.Key.None,           Translation.Key.TotalPerWeek                ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.IntercityTravelDepartingResidents,          Translation.Key.Departing,              Translation.Key.None,           Translation.Key.ResidentsPerWeek            ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.IntercityTravelDepartingTourists,           Translation.Key.Departing,              Translation.Key.None,           Translation.Key.TouristsPerWeek             ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.IntercityTravelDummyTrafficTotal,           Translation.Key.DummyTraffic,           Translation.Key.None,           Translation.Key.TotalPerWeek                ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.IntercityTravelDummyTrafficResidents,       Translation.Key.DummyTraffic,           Translation.Key.None,           Translation.Key.ResidentsPerWeek            ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.IntercityTravelDummyTrafficTourists,        Translation.Key.DummyTraffic,           Translation.Key.None,           Translation.Key.TouristsPerWeek             ));
 
             _instance.Add(category = new Category(Category.CategoryType.Population, Translation.Key.Population));
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.PopulationTotal,                            Translation.Key.Total,                  Translation.Key.None,           Translation.Key.Citizens                    ));
