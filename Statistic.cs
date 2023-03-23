@@ -1478,29 +1478,48 @@ namespace MoreCityStatistics
                 StatisticsPanel statisticsPanel = UIView.library.Get<StatisticsPanel>(typeof(StatisticsPanel).Name);
                 if (statisticsPanel != null)
                 {
-                    // get statistic names field info
+                    // get statistics names field info
                     FieldInfo fiStatisticsNames = typeof(StatisticsPanel).GetField("StatisticsNames", BindingFlags.NonPublic | BindingFlags.Instance);
                     if (fiStatisticsNames != null)
                     {
-                        // get statistic names
+                        // get statistics names
                         string[] statisticsNames = (string[])fiStatisticsNames.GetValue(statisticsPanel);
                         if (statisticsNames != null)
                         {
-                            // loop over statistic names searching for the ones we care about
-                            for (int i = 0; i < statisticsNames.Length; i++)
+                            // get statistics colors field info
+                            FieldInfo fiStatisticsColors = typeof(StatisticsPanel).GetField("m_statisticsColors", BindingFlags.NonPublic | BindingFlags.Instance);
+                            if (fiStatisticsColors != null)
                             {
-                                // statistic color index is same as statistic name index
-                                switch (statisticsNames[i])
+                                // get statistics colors
+                                Color32[] statisticsColors = (Color32[])fiStatisticsColors.GetValue(statisticsPanel);
+                                if (statisticsColors != null)
                                 {
-                                    case "Happiness":  _colorStatisticsHappiness  = statisticsPanel.StatisticsColors[i]; break;
-                                    case "Birth":      _colorStatisticsBirthRate  = statisticsPanel.StatisticsColors[i]; break;
-                                    case "Death":      _colorStatisticsDeathRate  = statisticsPanel.StatisticsColors[i]; break;
-                                    case "Population": _colorStatisticsPopulation = statisticsPanel.StatisticsColors[i]; break;
-                                    case "Employment": _colorStatisticsEmployment = statisticsPanel.StatisticsColors[i]; break;
-                                    case "Jobs":       _colorStatisticsJobs       = statisticsPanel.StatisticsColors[i]; break;
-                                    case "Value":      _colorStatisticsCityValue  = statisticsPanel.StatisticsColors[i]; break;
-                                    case "Budget":     _colorStatisticsCityBudget = statisticsPanel.StatisticsColors[i]; break;
+                                    // loop over statistic names searching for the ones we care about
+                                    for (int i = 0; i < statisticsNames.Length; i++)
+                                    {
+                                        // statistic color index is same as statistic name index
+                                        switch (statisticsNames[i])
+                                        {
+                                            case "Happiness":  _colorStatisticsHappiness  = statisticsColors[i]; break;
+                                            case "Birth":      _colorStatisticsBirthRate  = statisticsColors[i]; break;
+                                            case "Death":      _colorStatisticsDeathRate  = statisticsColors[i]; break;
+                                            case "Population": _colorStatisticsPopulation = statisticsColors[i]; break;
+                                            case "Employment": _colorStatisticsEmployment = statisticsColors[i]; break;
+                                            case "Jobs":       _colorStatisticsJobs       = statisticsColors[i]; break;
+                                            case "Value":      _colorStatisticsCityValue  = statisticsColors[i]; break;
+                                            case "Budget":     _colorStatisticsCityBudget = statisticsColors[i]; break;
+                                        }
+                                    }
+
                                 }
+                                else
+                                {
+                                    LogUtil.LogError("Unable to get StatisticsPanel.m_statisticsColors.");
+                                }
+                            }
+                            else
+                            {
+                                LogUtil.LogError("Unable to find StatisticsPanel.m_statisticsColors.");
                             }
                         }
                         else

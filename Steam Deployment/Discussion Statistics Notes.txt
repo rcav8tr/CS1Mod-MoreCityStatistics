@@ -38,7 +38,7 @@ Arriving is the number of people traveling from an outside connection to your ci
 Tax rates are the base tax rates, excluding any taxation policies.
 
 [h3]Investments[/h3]
-Investment share values are computed and recorded even if the conditions are not satisfied to make the investment available to purchase.  Note that there is a bug in the game logic where the investment named Deathcare Service Fund uses health care to determine share value and the investment named Healthcare Service Fund uses death care to determine share value.  This mod gets share value correctly for the two investments.
+Investment share values are computed and recorded even if the conditions are not satisfied to make the investment available to purchase.
 
 For your information, here is the basis for each investment share value.
 [table]
