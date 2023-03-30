@@ -1404,7 +1404,7 @@ namespace MoreCityStatistics
                              snapshot.TourismIncomeTransportation  = ConvertMoney(EconomyPanel.PollPublicTransportTourismIncome());
             if (dlcParkLife) snapshot.TourismIncomeParkAreas       = ConvertMoney(EconomyPanel.PollParkAreasTourismIncome());
 
-            // Service Expenses - logic copied from EconomyPanel.InitializePolls and EconomyPanel.IncomeExpensesPoll.Poll
+            // Service Expenses - logic copied from EconomyPanel.InitializePolls and IncomeExpensesPoll.Poll
             List<ushort>[] arenas = GetArenasData();
                                        snapshot.ServiceExpensesRoads               = GetEconomyExpense(ItemClass.Service.Road,             ItemClass.SubService.None,                 ItemClass.Level.None);    // value includes Toll Booth expenses, which get subtracted later
                                        snapshot.ServiceExpensesElectricity         = GetEconomyExpense(ItemClass.Service.Electricity,      ItemClass.SubService.None,                 ItemClass.Level.None);

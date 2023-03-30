@@ -80,6 +80,9 @@ Gross Domestic Product in the real world is usually computed using annual data. 
 [/table]
 [/list]
 
+[h3]Sports Venues CCP[/h3]
+Income from the Sports Venues CCP unique buildings is included in Commercial Income-High Density-1, but only for 1 week after a match ends.  If the snapshot frequency is not often enough, the income might not be in any snapshot.  Expenses from the Sports Venues CCP unique buildings is included in Service Expenses-Unique Buildings.
+
 [h3]Tourism Income[/h3]
 The game's Economy panel shows Tourism income from Commercial Zones, Public Transportation, and Park Areas.  Income from tourists is already included in those incomes.  Therefore, these three Tourism incomes are not added to other incomes to compute total income.
 
@@ -93,7 +96,7 @@ The game's Economy panel combines Emergency (i.e. Disaster) expenses with Fire e
 The game's Economy panel combines Bank expenses with Police expenses.  In this mod, Bank expenses are separate (see the Service Expenses-Banks statistic).
 
 [h3]Generic Sports Arena Expenses[/h3]
-A Generic Sports Arena is a varsity sports arena either inside a generic campus area (i.e. no administration building) or outside all campus areas.  The game's Economy panel combines Generic Sports Arena expenses with Unique Building expenses.  In this mod, Generic Sports Arena expenses are separate (see the Service Expenses-Generic Sports Arenas statistics).  The "Sports Arena", "Ice Hockey Arena", "Snowboard Arena", "Football Stadium", and "Stadium" are considered Unique Buildings, not Generic Sports Arenas.
+A Generic Sports Arena is a varsity sports arena either inside a generic campus area (i.e. no administration building) or outside all campus areas.  The game's Economy panel combines Generic Sports Arena expenses with Unique Building expenses.  In this mod, Generic Sports Arena expenses are separate (see the Service Expenses-Generic Sports Arenas statistics).  The "Sports Arena", "Ice Hockey Arena", "Snowboard Arena", "Football Stadium", "Stadium", and unique stadiums in Sports Venues CCP are considered Unique Buildings, not Generic Sports Arenas.
 
 [h3]Pedestrian Area Expenses[/h3]
 The game's Economy panel combines Service Point expenses with Parks, Plazas, and Landscaping expenses.  In this mod, Service Points are separate (see the Service Expenses-Service Points statistic).  Pedestrian Area landmark building expenses are included in Unique Buildings expenses.
@@ -114,7 +117,7 @@ Airport Area income and expenses are included in the Transport Economy-Air stati
 Mail and Space Elevator have no income, therefore all corresponding expenses are negative profit.
 
 [h3]Mod Income vs Game Income[/h3]
-Income varies greatly and quickly as public transportation is used, park areas are visited, industry areas produce goods/materials, students attend college at campus areas, varsity sporting events are held, etc.  Therefore, income reported by this mod may differ slightly (up to about +/-0.1%) from the game's income due to the way the data is obtained.
+Income varies greatly and quickly as public transportation is used, park areas are visited, industry areas produce goods/materials, students attend college at campus areas, varsity sporting events are held, sporting events are held venues, etc.  Therefore, income reported by this mod may differ slightly (up to about +/-0.1%) from the game's income due to the way the data is obtained.
 
 [h3]Painted Areas[/h3]
 In the Game Limits category:  Pedestrian, Park, Industry, Campus, and Airport areas are called Painted Areas.  All painted areas share the same limits.
