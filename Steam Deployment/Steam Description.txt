@@ -1,6 +1,6 @@
 Record and graph more city statistics.
 
-[img=https://i.imgur.com/CYNzkiJ.png]
+[img=https://i.imgur.com/a0VrMRr.png]
 
 [h1]Detailed Description[/h1]
 This mod records and graphs 523 statistics over time ([url=https://steamcommunity.com/workshop/filedetails/discussion/2685974449/5545618081300254710/]full list here[/url]), many more than the game's City Statistics graph.  Most statistics from the Info Views, the City Info panels, the Economy panel, and game limits are available to be graphed over time.  The game's City Statistics graph is not changed.

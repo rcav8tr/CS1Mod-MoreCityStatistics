@@ -1298,9 +1298,9 @@ namespace MoreCityStatistics
 
             // Tourism - logic copied from TourismInfoViewPanel.UpdatePanel
                            snapshot.TourismCityAttractiveness   = immaterialResourceManagerInstance.CheckActualTourismResource();
-                           snapshot.TourismLowWealth            = cityDistrict.m_tourist1Data.m_averageCount;
-                           snapshot.TourismMediumWealth         = cityDistrict.m_tourist2Data.m_averageCount;
-                           snapshot.TourismHighWealth           = cityDistrict.m_tourist3Data.m_averageCount;
+                           snapshot.TourismLowWealth            = cityDistrict.m_tourist1Data.m_averageVisits;
+                           snapshot.TourismMediumWealth         = cityDistrict.m_tourist2Data.m_averageVisits;
+                           snapshot.TourismHighWealth           = cityDistrict.m_tourist3Data.m_averageVisits;
             if (dlcCampus) snapshot.TourismExchangeStudentBonus = immaterialResourceManagerInstance.CheckExchangeStudentAttractivenessBonus() * 100f;
 
             // Tours - logic copied from ToursInfoViewPanel.UpdatePanel
