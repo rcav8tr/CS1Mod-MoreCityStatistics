@@ -84,7 +84,7 @@ Gross Domestic Product in the real world is usually computed using annual data. 
 Income from the Sports Venues CCP unique buildings is included in Commercial Income-High Density-1, but only for 1 week after a match ends.  If the snapshot frequency is not often enough, the income might not be in any snapshot.  Expenses from the Sports Venues CCP unique buildings is included in Service Expenses-Unique Buildings.
 
 [h3]Tourism Income[/h3]
-The game's Economy panel shows Tourism income from Commercial Zones, Public Transportation, and Park Areas.  Income from tourists is already included in those incomes.  Therefore, these three Tourism incomes are not added to other incomes to compute total income.
+The game's Economy panel shows Tourism income from Commercial Zones, Public Transportation, Park Areas, and Hotels.  Income from tourists is already included in those incomes.  Therefore, these four Tourism incomes are not added to other incomes to compute total income.
 
 [h3]Toll Booth Expenses[/h3]
 The game's Economy panel combines Toll Booth expenses with Road expenses.  In this mod, Toll Booth expenses are separate (see the Transport Economy-Toll Booth statistics).
@@ -113,6 +113,9 @@ The game's Economy panel combines Campus Area expenses with Education expenses. 
 [h3]Airport Areas[/h3]
 Airport Area income and expenses are included in the Transport Economy-Air statistics.
 
+[h3]Hotel Popularity[/h3]
+Popularity is the weighted average location popularity amongst all hotels in the city.  The weighting uses both the maximum number of guests supported and the location popularity of each hotel.  For example, in a city with two hotels where hotel A has 70 maximum guests with Sightseeing popularity of 10/20 and hotel B has 50 maximum guests with Sightseeing popularity of 30/40, then the weighted average Sightseeing popularity for the city is:  [(70 x 10) + (50 x 30)] / [(70 x 20) + (50 x 40)] = 64.7%.
+
 [h3]Mail and Space Elevator Profit[/h3]
 Mail and Space Elevator have no income, therefore all corresponding expenses are negative profit.
 
@@ -132,12 +135,12 @@ If there is a gap in the snapshot dates due to disabling and later re-enabling t
 Many of the statistics are computed from other statistics.  For example, Profit is computed as Income minus Expenses.  To save space in the game save file, the computed statistics are not saved.  Only the base statistics are saved.
 
 [h3]Game Save File Space[/h3]
-A single snapshot uses 1855 bytes in the game save file.  The snapshot space in the game save file is listed below for various date ranges and the two default snapshot frequencies.  For comparison, a new blank game is about 5-6MB.
+A single snapshot uses 1917 bytes in the game save file.  The snapshot space in the game save file is listed below for various date ranges and the two default snapshot frequencies.  For comparison, a new blank game is about 5-6MB.
 [table]
 [tr][td][b]Date range[/b][/td][td][b]1/mo[/b][/td][td][b]1/day[/b][/td][/tr]
-[tr][td]1 month   [/td][td] 1,855[/td][td]56.5KB[/td][/tr]
-[tr][td]1 year    [/td][td]22.3KB[/td][td] 668KB[/td][/tr]
-[tr][td]10 years  [/td][td] 223KB[/td][td]6.68MB[/td][/tr]
-[tr][td]100 years [/td][td]2.23MB[/td][td]66.8MB[/td][/tr]
-[tr][td]1000 years[/td][td]22.3MB[/td][td] 668MB[/td][/tr]
+[tr][td]1 month   [/td][td] 1,917[/td][td]58.3KB[/td][/tr]
+[tr][td]1 year    [/td][td]23.0KB[/td][td] 700KB[/td][/tr]
+[tr][td]10 years  [/td][td] 230KB[/td][td]7.00MB[/td][/tr]
+[tr][td]100 years [/td][td]2.30MB[/td][td]70.0MB[/td][/tr]
+[tr][td]1000 years[/td][td]23.0MB[/td][td] 700MB[/td][/tr]
 [/table]

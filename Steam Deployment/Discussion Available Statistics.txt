@@ -422,6 +422,7 @@ Tourism Income
 • Commercial Zones (₡/week)
 • Public Transportation (₡/week)
 • Park Areas (₡/week)
+• Hotels (₡/week)
 
 Service Expenses
 • Total (% of City Expenses)
@@ -504,6 +505,21 @@ Campus Areas
 • University-Income (₡/week)
 • University-Expenses (₡/week)
 • University-Profit (₡/week)
+
+Hotels
+• Total-Income (% of City Income)
+• Total-Income (₡/week)
+• Total-Expenses (% of City Expenses)
+• Total-Expenses (₡/week)
+• Total-Profit (₡/week)
+• Popularity-Total (%)
+• Popularity-Sightseeing (%)
+• Popularity-Shopping (%)
+• Popularity-Business (%)
+• Popularity-Nature (%)
+• Guests Visiting (% of Guests Capacity)
+• Guests Visiting (guests/week)
+• Guests Capacity (guests/week)
 
 Transport Economy
 • Total-Income (% of City Income)

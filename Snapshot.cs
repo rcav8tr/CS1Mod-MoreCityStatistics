@@ -563,10 +563,11 @@ namespace MoreCityStatistics
 
         // Tourism Income
         public float TourismIncomeTotalPercent              { get { return ComputePercent(TourismIncomeTotal, CityEconomyTotalIncome); } }
-        public long TourismIncomeTotal                      { get { return TourismIncomeCommercialZones + TourismIncomeTransportation + (TourismIncomeParkAreas ?? 0); } }
+        public long TourismIncomeTotal                      { get { return TourismIncomeCommercialZones + TourismIncomeTransportation + (TourismIncomeParkAreas ?? 0) + (TourismIncomeHotels ?? 0); } }
         public long TourismIncomeCommercialZones;
         public long TourismIncomeTransportation;
         public long? TourismIncomeParkAreas;
+        public long? TourismIncomeHotels;
 
         // Service Expenses
         public float ServiceExpensesTotalPercent            { get { return ComputePercent(ServiceExpensesTotal, CityEconomyTotalExpenses); } }
@@ -673,6 +674,21 @@ namespace MoreCityStatistics
         public long? CampusAreasUniversityIncome;
         public long? CampusAreasUniversityExpenses;
         public long? CampusAreasUniversityProfit            { get { return CampusAreasUniversityIncome - CampusAreasUniversityExpenses; } }
+
+        // Hotels
+        public float? HotelsTotalIncomePercent              { get { return ComputePercent(HotelsTotalIncome, CityEconomyTotalIncome); } }
+        public float? HotelsTotalExpensesPercent            { get { return ComputePercent(HotelsTotalExpenses, CityEconomyTotalExpenses); } }
+        public long? HotelsTotalIncome;
+        public long? HotelsTotalExpenses;
+        public long? HotelsTotalProfit                      { get { return HotelsTotalIncome - HotelsTotalExpenses; } }
+        public float? HotelsTotalPopularity;
+        public float? HotelsSightseeingPopularity;
+        public float? HotelsShoppingPopularity;
+        public float? HotelsBusinessPopularity;
+        public float? HotelsNaturePopularity;
+        public float? HotelsGuestsVisitingPercent           { get { return ComputePercent(HotelsGuestsVisiting, HotelsGuestsCapacity); } }
+        public int? HotelsGuestsVisiting;
+        public int? HotelsGuestsCapacity;
 
         // Transport Economy
         public float? TransportEconomyTotalIncomePercent    { get { return ComputePercent(TransportEconomyTotalIncome, CityEconomyTotalIncome); } }
@@ -1046,6 +1062,7 @@ namespace MoreCityStatistics
             bool dlcAirports            = SteamHelper.IsDLCOwned(SteamHelper.DLC.AirportDLC);               // 01/25/22
             bool dlcPlazasPromenades    = SteamHelper.IsDLCOwned(SteamHelper.DLC.PlazasAndPromenadesDLC);   // 09/14/22
             bool dlcFinancialDistricts  = SteamHelper.IsDLCOwned(SteamHelper.DLC.FinancialDistrictsDLC);    // 12/13/22
+            bool dlcHotelsRetreats      = SteamHelper.IsDLCOwned(SteamHelper.DLC.HotelDLC);                 // 05/23/23
 
             // get the city-wide district where much of the data is obtained
             District cityDistrict = districtManagerInstance.m_districts.m_buffer[0];
@@ -1400,9 +1417,10 @@ namespace MoreCityStatistics
             if (dlcFinancialDistricts) snapshot.OfficeIncomeFinancial  = GetEconomyIncome(ItemClass.Service.Office, ItemClass.SubService.OfficeFinancial,  ItemClass.Level.None);
 
             // Tourism Income - logic copied from EconomyPanel.InitializePolls
-                             snapshot.TourismIncomeCommercialZones = GetEconomyIncome(ItemClass.Service.Tourism, ItemClass.SubService.None, ItemClass.Level.None);
-                             snapshot.TourismIncomeTransportation  = ConvertMoney(EconomyPanel.PollPublicTransportTourismIncome());
-            if (dlcParkLife) snapshot.TourismIncomeParkAreas       = ConvertMoney(EconomyPanel.PollParkAreasTourismIncome());
+                                   snapshot.TourismIncomeCommercialZones = GetEconomyIncome(ItemClass.Service.Tourism, ItemClass.SubService.None, ItemClass.Level.None);
+                                   snapshot.TourismIncomeTransportation  = ConvertMoney(EconomyPanel.PollPublicTransportTourismIncome());
+            if (dlcParkLife      ) snapshot.TourismIncomeParkAreas       = ConvertMoney(EconomyPanel.PollParkAreasTourismIncome());
+            if (dlcHotelsRetreats) snapshot.TourismIncomeHotels          = GetEconomyIncome(ItemClass.Service.Hotel, ItemClass.SubService.None, ItemClass.Level.None);
 
             // Service Expenses - logic copied from EconomyPanel.InitializePolls and IncomeExpensesPoll.Poll
             List<ushort>[] arenas = GetArenasData();
@@ -1499,6 +1517,26 @@ namespace MoreCityStatistics
                 snapshot.CampusAreasUniversityIncome           = GetEconomyIncome (ItemClass.Service.PlayerEducation, ItemClass.SubService.PlayerEducationUniversity,  ItemClass.Level.None);
                 snapshot.CampusAreasUniversityExpenses         = GetEconomyExpense(ItemClass.Service.PlayerEducation, ItemClass.SubService.PlayerEducationUniversity,  ItemClass.Level.None) +
                                                                  CalculateArenasExpenses(arenas[(int)EconomyPanel.ArenaIndex.University]);
+            }
+
+            // Hotels - logic copied from EconomyPanel.InitializePolls
+            if (dlcHotelsRetreats)
+            {
+                // standard income and expenses
+                snapshot.HotelsTotalIncome   = GetEconomyIncome (ItemClass.Service.Hotel, ItemClass.SubService.None, ItemClass.Level.None);
+                snapshot.HotelsTotalExpenses = GetEconomyExpense(ItemClass.Service.Hotel, ItemClass.SubService.None, ItemClass.Level.None);
+
+                // get hotels popularity and guests
+                GetHotelsPopularityGuests
+                (
+                    out snapshot.HotelsTotalPopularity,
+                    out snapshot.HotelsSightseeingPopularity,
+                    out snapshot.HotelsShoppingPopularity,
+                    out snapshot.HotelsBusinessPopularity,
+                    out snapshot.HotelsNaturePopularity,
+                    out snapshot.HotelsGuestsVisiting,
+                    out snapshot.HotelsGuestsCapacity
+                );
             }
 
             // Transport Economy - logic copied from EconomyPanel.InitializePolls and EconomyPanel.IncomeExpensesPoll.Poll
@@ -2623,6 +2661,92 @@ namespace MoreCityStatistics
             }
         }
 
+        /// <summary>
+        /// get popularity and guests for hotels
+        /// </summary>
+        private static void GetHotelsPopularityGuests
+            (
+            out float? totalPopularity,
+            out float? sightseeingPopularity,
+            out float? shoppingPopularity,
+            out float? businessPopularity,
+            out float? naturePopularity,
+            out int? guestsVisiting,
+            out int? guestsCapacity
+            )
+        {
+            // initialize
+            totalPopularity       = 0;
+            sightseeingPopularity = 0;
+            shoppingPopularity    = 0;
+            businessPopularity    = 0;
+            naturePopularity      = 0;
+            guestsVisiting        = 0;
+            guestsCapacity        = 0;
+
+            // get hotels
+            BuildingManager instance = BuildingManager.instance;
+	        ushort[] hotelIDs = instance.GetServiceBuildings(ItemClass.Service.Hotel).ToArray();
+            if (hotelIDs == null)
+            {
+                // no hotels (not an error)
+                return;
+            }
+
+            // do each hotel
+            int totalSightseeingRating   = 0;
+            int totalSightseeingPossible = 0;
+            int totalShoppingRating      = 0;
+            int totalShoppingPossible    = 0;
+            int totalBusinessRating      = 0;
+            int totalBusinessPossible    = 0;
+            int totalNatureRating        = 0;
+            int totalNaturePossible      = 0;
+	        for (int i = 0; i < hotelIDs.Length; i++)
+	        {
+                // get the hotel
+                Building hotel = instance.m_buildings.m_buffer[hotelIDs[i]];
+                HotelAI hotelAI = hotel.Info.GetAI() as HotelAI;
+
+                // for each popularity, get rating and possible value, weighted by guest capacity
+                // logic adapted from HotelWorldInfoPanel.UpdateBindings which calls RefreshPopBar for each popularity bar
+                int guestCapacity = hotelAI.m_rooms;
+                totalSightseeingRating   += guestCapacity * hotelAI.CheckLocationPopularity(ImmaterialResourceManager.Resource.Sightseeing, ref hotel);
+                totalSightseeingPossible += guestCapacity * hotelAI.m_sightseeingAttractiveness;
+                totalShoppingRating      += guestCapacity * hotelAI.CheckLocationPopularity(ImmaterialResourceManager.Resource.Shopping,    ref hotel);
+                totalShoppingPossible    += guestCapacity * hotelAI.m_shoppingAttractiveness;
+                totalBusinessRating      += guestCapacity * hotelAI.CheckLocationPopularity(ImmaterialResourceManager.Resource.Business,    ref hotel);
+                totalBusinessPossible    += guestCapacity * hotelAI.m_businessAttractiveness;
+                totalNatureRating        += guestCapacity * hotelAI.CheckLocationPopularity(ImmaterialResourceManager.Resource.Nature,      ref hotel);
+                totalNaturePossible      += guestCapacity * hotelAI.m_natureAttractiveness;
+
+                // get guests
+                // logic adapted from HotelWorldInfoPanel.UpdateBindings
+                guestsVisiting += HotelAI.GetCurrentGuests(ref hotel);
+                guestsCapacity += guestCapacity;
+	        }
+
+            // compute popularity percents
+            totalPopularity       = ComputePopularityPercent(totalSightseeingRating   + totalShoppingRating   + totalBusinessRating   + totalNatureRating,
+                                                             totalSightseeingPossible + totalShoppingPossible + totalBusinessPossible + totalNaturePossible);
+            sightseeingPopularity = ComputePopularityPercent(totalSightseeingRating, totalSightseeingPossible);
+            shoppingPopularity    = ComputePopularityPercent(totalShoppingRating,    totalShoppingPossible   );
+            businessPopularity    = ComputePopularityPercent(totalBusinessRating,    totalBusinessPossible   );
+            naturePopularity      = ComputePopularityPercent(totalNatureRating,      totalNaturePossible     );
+        }
+
+        /// <summary>
+        /// compute popularity percent from rating and possible value
+        /// </summary>
+        private static float ComputePopularityPercent(int rating, int possible)
+        {
+            if (possible == 0)
+            {
+                return 0f;
+            }
+            return 100f * rating / possible;
+        }
+
         #endregion
 
         /// <summary>
@@ -2900,6 +3024,7 @@ namespace MoreCityStatistics
             writer.Write(TourismIncomeCommercialZones);
             writer.Write(TourismIncomeTransportation);
             writer.Write(TourismIncomeParkAreas);
+            writer.Write(TourismIncomeHotels);
 
             writer.Write(ServiceExpensesRoads);
             writer.Write(ServiceExpensesElectricity);
@@ -2947,6 +3072,16 @@ namespace MoreCityStatistics
             writer.Write(CampusAreasLiberalArtsCollegeExpenses);
             writer.Write(CampusAreasUniversityIncome);
             writer.Write(CampusAreasUniversityExpenses);
+
+            writer.Write(HotelsTotalIncome);
+            writer.Write(HotelsTotalExpenses);
+            writer.Write(HotelsTotalPopularity);
+            writer.Write(HotelsSightseeingPopularity);
+            writer.Write(HotelsShoppingPopularity);
+            writer.Write(HotelsBusinessPopularity);
+            writer.Write(HotelsNaturePopularity);
+            writer.Write(HotelsGuestsVisiting);
+            writer.Write(HotelsGuestsCapacity);
 
             writer.Write(TransportEconomyBusIncome);
             writer.Write(TransportEconomyBusExpenses);
@@ -3302,6 +3437,7 @@ namespace MoreCityStatistics
             snapshot.TourismIncomeCommercialZones               = reader.ReadInt64();
             snapshot.TourismIncomeTransportation                = reader.ReadInt64();
             snapshot.TourismIncomeParkAreas                     = reader.ReadNullableInt64();
+            snapshot.TourismIncomeHotels                        = version < 9 ? null : reader.ReadNullableInt64();
 
             snapshot.ServiceExpensesRoads                       = reader.ReadInt64();
             snapshot.ServiceExpensesElectricity                 = reader.ReadInt64();
@@ -3349,6 +3485,16 @@ namespace MoreCityStatistics
             snapshot.CampusAreasLiberalArtsCollegeExpenses      = reader.ReadNullableInt64();
             snapshot.CampusAreasUniversityIncome                = reader.ReadNullableInt64();
             snapshot.CampusAreasUniversityExpenses              = reader.ReadNullableInt64();
+
+            snapshot.HotelsTotalIncome                          = version < 9 ? null : reader.ReadNullableInt64();
+            snapshot.HotelsTotalExpenses                        = version < 9 ? null : reader.ReadNullableInt64();
+            snapshot.HotelsTotalPopularity                      = version < 9 ? null : reader.ReadNullableSingle();
+            snapshot.HotelsSightseeingPopularity                = version < 9 ? null : reader.ReadNullableSingle();
+            snapshot.HotelsShoppingPopularity                   = version < 9 ? null : reader.ReadNullableSingle();
+            snapshot.HotelsBusinessPopularity                   = version < 9 ? null : reader.ReadNullableSingle();
+            snapshot.HotelsNaturePopularity                     = version < 9 ? null : reader.ReadNullableSingle();
+            snapshot.HotelsGuestsVisiting                       = version < 9 ? null : reader.ReadNullableInt32();
+            snapshot.HotelsGuestsCapacity                       = version < 9 ? null : reader.ReadNullableInt32();
 
             snapshot.TransportEconomyBusIncome                  = reader.ReadInt64();
             snapshot.TransportEconomyBusExpenses                = reader.ReadInt64();

@@ -405,6 +405,7 @@ namespace MoreCityStatistics
             TourismIncomeCommercialZones,
             TourismIncomeTransportation,
             TourismIncomeParkAreas,
+            TourismIncomeHotels,
 
             ServiceExpensesTotalPercent,
             ServiceExpensesTotal,
@@ -482,6 +483,20 @@ namespace MoreCityStatistics
             CampusAreasUniversityIncome,
             CampusAreasUniversityExpenses,
             CampusAreasUniversityProfit,
+
+            HotelsTotalIncomePercent,
+            HotelsTotalIncome,
+            HotelsTotalExpensesPercent,
+            HotelsTotalExpenses,
+            HotelsTotalProfit,
+            HotelsTotalPopularity,
+            HotelsSightseeingPopularity,
+            HotelsShoppingPopularity,
+            HotelsBusinessPopularity,
+            HotelsNaturePopularity,
+            HotelsGuestsVisitingPercent,
+            HotelsGuestsVisiting,
+            HotelsGuestsCapacity,
 
             TransportEconomyTotalIncomePercent,
             TransportEconomyTotalIncome,
@@ -769,6 +784,12 @@ namespace MoreCityStatistics
         private static Color32  _colorGenericSportsArenas;
         private static Color32  _colorEconomy;
         private static Color32  _colorPolicies;
+        private static Color32  _colorHotels;
+        private static Color32  _colorHotelSightseeing;
+        private static Color32  _colorHotelShopping;
+        private static Color32  _colorHotelBusiness;
+        private static Color32  _colorHotelNature;
+        private static Color32  _colorHotelGuests1,             _colorHotelGuests2;
         private static Color32  _colorCityPark1,                _colorCityPark2,                _colorCityPark3;
         private static Color32  _colorAmusementPark1,           _colorAmusementPark2,           _colorAmusementPark3;
         private static Color32  _colorZoo1,                     _colorZoo2,                     _colorZoo3;
@@ -801,7 +822,15 @@ namespace MoreCityStatistics
             }
 
             // set number format
-            if (_type.ToString().EndsWith("Percent") || _type.ToString().EndsWith("PerCapita") || _type == StatisticType.TourismExchangeStudentBonus)
+            if (_type.ToString().EndsWith("Percent")               ||
+                _type.ToString().EndsWith("PerCapita")             ||
+                _type == StatisticType.TourismExchangeStudentBonus ||
+                _type == StatisticType.HotelsTotalPopularity       ||
+                _type == StatisticType.HotelsSightseeingPopularity ||
+                _type == StatisticType.HotelsShoppingPopularity    ||
+                _type == StatisticType.HotelsBusinessPopularity    ||
+                _type == StatisticType.HotelsNaturePopularity
+                )
             {
                 _numberFormat = "N1";
             }
@@ -930,6 +959,7 @@ namespace MoreCityStatistics
             bool dlcAirports            = SteamHelper.IsDLCOwned(SteamHelper.DLC.AirportDLC);             // 01/25/22
             bool dlcPlazasPromenades    = SteamHelper.IsDLCOwned(SteamHelper.DLC.PlazasAndPromenadesDLC); // 09/14/22
             bool dlcFinancialDistricts  = SteamHelper.IsDLCOwned(SteamHelper.DLC.FinancialDistrictsDLC);  // 12/13/22
+            bool dlcHotelsRetreats      = SteamHelper.IsDLCOwned(SteamHelper.DLC.HotelDLC);               // 05/23/23
 
             // disable statistic for inactive DLC
             // statistic is still present, just hidden so it cannot be selected
@@ -1089,6 +1119,10 @@ namespace MoreCityStatistics
                     DisableForInactiveDLC(dlcParkLife);
                     break;
 
+                case StatisticType.TourismIncomeHotels:
+                    DisableForInactiveDLC(dlcHotelsRetreats);
+                    break;
+
                 case StatisticType.ServiceExpensesEmergency:
                     DisableForInactiveDLC(dlcNaturalDisasters);
                     break;
@@ -1169,6 +1203,22 @@ namespace MoreCityStatistics
                 case StatisticType.CampusAreasUniversityExpenses:
                 case StatisticType.CampusAreasUniversityProfit:
                     DisableForInactiveDLC(dlcCampus);
+                    break;
+
+                case StatisticType.HotelsTotalIncomePercent:
+                case StatisticType.HotelsTotalIncome:
+                case StatisticType.HotelsTotalExpensesPercent:
+                case StatisticType.HotelsTotalExpenses:
+                case StatisticType.HotelsTotalProfit:
+                case StatisticType.HotelsTotalPopularity:
+                case StatisticType.HotelsSightseeingPopularity:
+                case StatisticType.HotelsShoppingPopularity:
+                case StatisticType.HotelsBusinessPopularity:
+                case StatisticType.HotelsNaturePopularity:
+                case StatisticType.HotelsGuestsVisitingPercent:
+                case StatisticType.HotelsGuestsVisiting:
+                case StatisticType.HotelsGuestsCapacity:
+                    DisableForInactiveDLC(dlcHotelsRetreats);
                     break;
 
                 case StatisticType.TransportEconomyTrolleybusIncome:
@@ -1640,6 +1690,14 @@ namespace MoreCityStatistics
                 _colorEconomy             = new Color32(061, 159, 010, 255);        // color taken manually from Economy toolbar icon
                 _colorPolicies            = new Color32(208, 210, 211, 255);        // color taken manually from Policies toolbar icon
 
+                _colorHotels           = new Color32(125, 189, 200, 255);           // color taken manually from Hotel info icon
+                _colorHotelSightseeing = new Color32(194, 143,  31, 255);           // color taken manually from HotelWorldInfoPanel popularity icon and progress bar
+                _colorHotelShopping    = new Color32(183,  87,  34, 255);           // color taken manually from HotelWorldInfoPanel popularity icon and progress bar
+                _colorHotelBusiness    = new Color32( 28, 133, 190, 255);           // color taken manually from HotelWorldInfoPanel popularity icon and progress bar
+                _colorHotelNature      = new Color32( 58, 165,  58, 255);           // color taken manually from HotelWorldInfoPanel popularity icon and progress bar
+                _colorHotelGuests1     = new Color32(235, 201,  96, 255);           // color taken manually from HotelWorldInfoPanel room rate icon
+                _colorHotelGuests2     = _colorHotelGuests1.Multiply(DarkerMultiplier);
+
                 _colorCityPark1      = new Color32(244, 223, 168, 255);             // color taken manually from City Park main gate arch
                 _colorCityPark2      = _colorCityPark1.Multiply(DarkerMultiplier);
                 _colorCityPark3      = _colorCityPark2.Multiply(DarkerMultiplier);
@@ -2069,6 +2127,7 @@ namespace MoreCityStatistics
                 case StatisticType.TourismIncomeCommercialZones:                    _textColor = _colorTourismIncome;               break;
                 case StatisticType.TourismIncomeTransportation:                     _textColor = _colorTransportTotal1;             break;
                 case StatisticType.TourismIncomeParkAreas:                          _textColor = _colorParks;                       break;
+                case StatisticType.TourismIncomeHotels:                             _textColor = _colorHotels;                      break;
 
                 case StatisticType.ServiceExpensesTotalPercent:                     _textColor = _colorZoneOffice;                  break;
                 case StatisticType.ServiceExpensesTotal:                            _textColor = _colorZoneOffice;                  break;
@@ -2146,6 +2205,20 @@ namespace MoreCityStatistics
                 case StatisticType.CampusAreasUniversityIncome:                     _textColor = _colorUniversity1;                 break;
                 case StatisticType.CampusAreasUniversityExpenses:                   _textColor = _colorUniversity2;                 break;
                 case StatisticType.CampusAreasUniversityProfit:                     _textColor = _colorUniversity3;                 break;
+
+                case StatisticType.HotelsTotalIncomePercent:                        _textColor = _colorCityTotalIncome;             break;
+                case StatisticType.HotelsTotalIncome:                               _textColor = _colorCityTotalIncome;             break;
+                case StatisticType.HotelsTotalExpensesPercent:                      _textColor = _colorCityTotalExpenses;           break;
+                case StatisticType.HotelsTotalExpenses:                             _textColor = _colorCityTotalExpenses;           break;
+                case StatisticType.HotelsTotalProfit:                               _textColor = _colorCityTotalProfit;             break;
+                case StatisticType.HotelsTotalPopularity:                           _textColor = _colorNeutral1;                    break;
+                case StatisticType.HotelsSightseeingPopularity:                     _textColor = _colorHotelSightseeing;            break;
+                case StatisticType.HotelsShoppingPopularity:                        _textColor = _colorHotelShopping;               break;
+                case StatisticType.HotelsBusinessPopularity:                        _textColor = _colorHotelBusiness;               break;
+                case StatisticType.HotelsNaturePopularity:                          _textColor = _colorHotelNature;                 break;
+                case StatisticType.HotelsGuestsVisitingPercent:                     _textColor = _colorHotelGuests1;                break;
+                case StatisticType.HotelsGuestsVisiting:                            _textColor = _colorHotelGuests1;                break;
+                case StatisticType.HotelsGuestsCapacity:                            _textColor = _colorHotelGuests2;                break;
 
                 case StatisticType.TransportEconomyTotalIncomePercent:              _textColor = _colorCityTotalIncome;             break;
                 case StatisticType.TransportEconomyTotalIncome:                     _textColor = _colorCityTotalIncome;             break;
@@ -2453,6 +2526,25 @@ namespace MoreCityStatistics
                     _type == StatisticType.IntercityTravelDummyTrafficTotal             ||
                     _type == StatisticType.IntercityTravelDummyTrafficResidents         ||
                     _type == StatisticType.IntercityTravelDummyTrafficTourists
+                    )
+                )
+                ||
+                (version < 9 &&
+                    (
+                    _type == StatisticType.TourismIncomeHotels                          ||
+                    _type == StatisticType.HotelsTotalIncomePercent                     ||
+                    _type == StatisticType.HotelsTotalIncome                            ||
+                    _type == StatisticType.HotelsTotalExpensesPercent                   ||
+                    _type == StatisticType.HotelsTotalExpenses                          ||
+                    _type == StatisticType.HotelsTotalProfit                            ||
+                    _type == StatisticType.HotelsTotalPopularity                        ||
+                    _type == StatisticType.HotelsSightseeingPopularity                  ||
+                    _type == StatisticType.HotelsShoppingPopularity                     ||
+                    _type == StatisticType.HotelsBusinessPopularity                     ||
+                    _type == StatisticType.HotelsNaturePopularity                       ||
+                    _type == StatisticType.HotelsGuestsVisitingPercent                  ||
+                    _type == StatisticType.HotelsGuestsVisiting                         ||
+                    _type == StatisticType.HotelsGuestsCapacity
                     )
                 )
                )

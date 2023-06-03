@@ -298,6 +298,14 @@
 "Vehicles","Vehicles","Fahrzeugen","Vehículos","Véhicules","차량","Pojazdy","Veículos","Транспортные средства","车辆","車両"
 "VehiclesParked","Vehicles Parked","Geparkte Fahrzeuge","Vehículos estacionados","Véhicules garés","주차된 차량","Zaparkowane pojazdy","Veículos Estacionados","Припаркованные автомобили","停放的车辆","駐車車両"
 "ZoneBlocks","Zone Blocks","Zonenblöcke","Bloques de zona","Blocs de zone","구역 블록","Bloki stref","Blocos de Zona","Блоки зон","区域块","ゾーンブロック"
+"Hotels","Hotels","Hotels","Hoteles","Hôtels","호텔","Hotele","hotéis","Отели","酒店","ホテル"
+"Popularity","Popularity","Popularität","Popularidad","Popularité","인기","Popularność","Popularidade","Популярность","人气","人気"
+"Sightseeing","Sightseeing","Besichtigung","Pasear","Touristique","관광","Zwiedzanie","Passeio turístico","Осмотр достопримечательностей","游览","観光"
+"Shopping","Shopping","Einkaufen","Compras","Achats","쇼핑","Zakupy","Compras","Покупка","购物","買い物"
+"Business","Business","Geschäft","Negocio","Entreprise","사업","Biznes","Negócios","Бизнес","商业","仕事"
+"Nature","Nature","Natur","Naturaleza","Nature","자연","Natura","Natureza","Природа","自然","自然"
+"GuestsVisiting","Guests Visiting","Gäste zu Besuch","invitados visitando","Invités en visite","방문 손님","Goście odwiedzający","Convidados Visitando","Посещение гостей","来宾来访","ご来場のお客様"
+"GuestsCapacity","Guests Capacity","Gästekapazität","Capacidad de invitados","Capacité d'accueil","수용인원","Pojemność gości","Capacidade de Convidados","Количество гостей","宾客容量","ゲストの収容人数"
 ,,,,,,,,,,
 "# statistic units",,,,,,,,,,
 "PctOfProduction","% of Production","% der Produktions","% de Producción","% de la Production","생산량의 %","% Produkcji","% do Produção","% производства","生产百分比","生産の％"
@@ -353,3 +361,5 @@
 "Money","₡","₡","₡","₡","₡","₡","₡","₡","₡","₡"
 "Amount","amount","quantität","cantidad","montant","분량","ilość","quantia","количество","数量","数量"
 "Count","count","Zählung","conde","décompte","카운트","liczenie","contagem","подсчет","数","カウント"
+"PctOfGuestsCapacity","% of Guests Capacity","% der Gästekapazität","% de Capacidad de Huéspedes","% de la capacité des invités","손님 정원의 %","% pojemności gości","% da capacidade de hóspedes","% вместимости гостей","客人容量百分比","ゲスト収容人数の割合"
+"GuestsPerWeek","guests/week","Gäste/Woche","huéspedes/semana","invités/semaine","게스트/주","goście/tydzień","convidados/semana","гостей в неделю","客人/周","ゲスト/週"

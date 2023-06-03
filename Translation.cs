@@ -353,6 +353,14 @@ namespace MoreCityStatistics
             Vehicles,
             VehiclesParked,
             ZoneBlocks,
+            Hotels,
+            Popularity,
+            Sightseeing,
+            Shopping,
+            Business,
+            Nature,
+            GuestsVisiting,
+            GuestsCapacity,
 
             // statistic units
             // some preceding keys are also used as statistic units
@@ -408,7 +416,9 @@ namespace MoreCityStatistics
             PctOfGrossDomesticProduct,
             Money,
             Amount,
-            Count
+            Count,
+            PctOfGuestsCapacity,
+            GuestsPerWeek
         }
 
         // default language code

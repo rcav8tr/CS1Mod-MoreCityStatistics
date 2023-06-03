@@ -450,6 +450,7 @@ namespace MoreCityStatistics
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.TourismIncomeCommercialZones,               Translation.Key.CommercialZones,        Translation.Key.None,           Translation.Key.MoneyPerWeek                ));
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.TourismIncomeTransportation,                Translation.Key.PublicTransportation,   Translation.Key.None,           Translation.Key.MoneyPerWeek                ));
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.TourismIncomeParkAreas,                     Translation.Key.ParkAreas,              Translation.Key.None,           Translation.Key.MoneyPerWeek                ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.TourismIncomeHotels,                        Translation.Key.Hotels,                 Translation.Key.None,           Translation.Key.MoneyPerWeek                ));
 
             _instance.Add(category = new Category(Category.CategoryType.ServiceExpenses, Translation.Key.ServiceExpenses));
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.ServiceExpensesTotalPercent,                Translation.Key.Total,                  Translation.Key.None,           Translation.Key.PctOfCityExpenses           ));
@@ -532,6 +533,21 @@ namespace MoreCityStatistics
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.CampusAreasUniversityIncome,                Translation.Key.University,             Translation.Key.Income,         Translation.Key.MoneyPerWeek                ));
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.CampusAreasUniversityExpenses,              Translation.Key.University,             Translation.Key.Expenses,       Translation.Key.MoneyPerWeek                ));
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.CampusAreasUniversityProfit,                Translation.Key.University,             Translation.Key.Profit,         Translation.Key.MoneyPerWeek                ));
+
+            _instance.Add(category = new Category(Category.CategoryType.Hotels, Translation.Key.Hotels));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.HotelsTotalIncomePercent,                   Translation.Key.Total,                  Translation.Key.Income,         Translation.Key.PctOfCityIncome             ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.HotelsTotalIncome,                          Translation.Key.Total,                  Translation.Key.Income,         Translation.Key.MoneyPerWeek                ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.HotelsTotalExpensesPercent,                 Translation.Key.Total,                  Translation.Key.Expenses,       Translation.Key.PctOfCityExpenses           ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.HotelsTotalExpenses,                        Translation.Key.Total,                  Translation.Key.Expenses,       Translation.Key.MoneyPerWeek                ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.HotelsTotalProfit,                          Translation.Key.Total,                  Translation.Key.Profit,         Translation.Key.MoneyPerWeek                ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.HotelsTotalPopularity,                      Translation.Key.Popularity,             Translation.Key.Total,          Translation.Key.Percent                     ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.HotelsSightseeingPopularity,                Translation.Key.Popularity,             Translation.Key.Sightseeing,    Translation.Key.Percent                     ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.HotelsShoppingPopularity,                   Translation.Key.Popularity,             Translation.Key.Shopping,       Translation.Key.Percent                     ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.HotelsBusinessPopularity,                   Translation.Key.Popularity,             Translation.Key.Business,       Translation.Key.Percent                     ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.HotelsNaturePopularity,                     Translation.Key.Popularity,             Translation.Key.Nature,         Translation.Key.Percent                     ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.HotelsGuestsVisitingPercent,                Translation.Key.GuestsVisiting,         Translation.Key.None,           Translation.Key.PctOfGuestsCapacity         ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.HotelsGuestsVisiting,                       Translation.Key.GuestsVisiting,         Translation.Key.None,           Translation.Key.GuestsPerWeek               ));
+            category.Statistics.Add(new Statistic(category, Statistic.StatisticType.HotelsGuestsCapacity,                       Translation.Key.GuestsCapacity,         Translation.Key.None,           Translation.Key.GuestsPerWeek               ));
 
             _instance.Add(category = new Category(Category.CategoryType.TransportEconomy, Translation.Key.TransportEconomy));
             category.Statistics.Add(new Statistic(category, Statistic.StatisticType.TransportEconomyTotalIncomePercent,         Translation.Key.Total,                  Translation.Key.Income,         Translation.Key.PctOfCityIncome             ));

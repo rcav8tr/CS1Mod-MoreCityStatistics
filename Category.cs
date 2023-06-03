@@ -61,6 +61,7 @@ namespace MoreCityStatistics
             IndustryAreas,
             FishingIndustry,
             CampusAreas,
+            Hotels,
             TransportEconomy,
             GameLimits
         }
@@ -299,6 +300,10 @@ namespace MoreCityStatistics
                 Expanded = false;
             }
             else if (version < 8 && _type == CategoryType.IntercityTravel)
+            {
+                Expanded = false;
+            }
+            else if (version < 9 && _type == CategoryType.Hotels)
             {
                 Expanded = false;
             }
