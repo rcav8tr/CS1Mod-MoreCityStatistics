@@ -119,6 +119,12 @@ Popularity is the weighted average location popularity amongst all hotels in the
 [h3]Mail and Space Elevator Profit[/h3]
 Mail and Space Elevator have no income, therefore all corresponding expenses are negative profit.
 
+[h3]Treasure Hunt Unique Building Expenses[/h3]
+Expenses for The Creator's Library are included with Education.
+Expenses for the Plaza of Transference are included with Space Elevator.
+Expenses for the Countdown Clock are included with Unique Buildings.
+Expenses for the Plaza of the Future are included with Parks, Plazas, and Landscaping.
+
 [h3]Mod Income vs Game Income[/h3]
 Income varies greatly and quickly as public transportation is used, park areas are visited, industry areas produce goods/materials, students attend college at campus areas, varsity sporting events are held, sporting events are held venues, etc.  Therefore, income reported by this mod may differ slightly (up to about +/-0.1%) from the game's income due to the way the data is obtained.
 
