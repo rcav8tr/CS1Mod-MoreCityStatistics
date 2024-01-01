@@ -41,7 +41,7 @@ namespace MoreCityStatistics
             _initialValueSnapshotsPerPeriod = 1;
 
             // get status of Real Time mod
-            _realTimeModEnabled = ModUtil.IsWorkshopModEnabled(ModUtil.ModIDRealTime);
+            _realTimeModEnabled = ModUtil.IsWorkshopModEnabled(ModUtil.ModIDRealTime) || ModUtil.IsWorkshopModEnabled(ModUtil.ModIDRealTime2);
 
             // initialize lists based on Real Time mod
             _snapshotsPerPeriod = new List<int>();

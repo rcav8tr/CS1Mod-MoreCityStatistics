@@ -51,7 +51,7 @@ namespace MoreCityStatistics
             try
             {
                 // get status of Real Time mod
-                _realTimeModEnabled = ModUtil.IsWorkshopModEnabled(ModUtil.ModIDRealTime);
+                _realTimeModEnabled = ModUtil.IsWorkshopModEnabled(ModUtil.ModIDRealTime) || ModUtil.IsWorkshopModEnabled(ModUtil.ModIDRealTime2);
 
                 // set properties
                 name = "MoreCityStatisticsPanel";

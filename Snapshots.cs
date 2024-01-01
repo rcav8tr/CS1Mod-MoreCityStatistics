@@ -49,7 +49,7 @@ namespace MoreCityStatistics
             // except _snapshotTaken gets initialized in SimulationTick when the game date is known
             _instance.Clear();
             Loaded = false;
-            _realTimeModEnabled = ModUtil.IsWorkshopModEnabled(ModUtil.ModIDRealTime);
+            _realTimeModEnabled = ModUtil.IsWorkshopModEnabled(ModUtil.ModIDRealTime) || ModUtil.IsWorkshopModEnabled(ModUtil.ModIDRealTime2);
             _nextSnapshotDateTime = DateTime.MinValue;
             _previousGameDateTime = DateTime.MaxValue;
 

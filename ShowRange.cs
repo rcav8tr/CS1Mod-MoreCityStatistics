@@ -74,7 +74,7 @@ namespace MoreCityStatistics
             ClearUIComponents();
 
             // initialize for Real Time mod
-            _realTimeModEnabled = ModUtil.IsWorkshopModEnabled(ModUtil.ModIDRealTime);
+            _realTimeModEnabled = ModUtil.IsWorkshopModEnabled(ModUtil.ModIDRealTime) || ModUtil.IsWorkshopModEnabled(ModUtil.ModIDRealTime2);
             _sliderBaseDate = DateTime.MinValue.Date;
         }
 

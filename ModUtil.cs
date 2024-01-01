@@ -9,6 +9,7 @@ namespace MoreCityStatistics
     {
         // mod IDs
         public const ulong ModIDRealTime = 1420955187L;
+        public const ulong ModIDRealTime2 = 3059406297L;
         public const ulong ModIDExtendedManagersLibrary = 2696146165L;
 
         /// <summary>
