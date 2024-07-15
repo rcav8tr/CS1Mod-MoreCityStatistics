@@ -101,9 +101,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Steam Deployment\Screenshot Options.jpg" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Steam Deployment\Screenshot Snapshot Frequency Count.jpg" />
+    <None Include="LICENSE.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
